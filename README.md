@@ -9,8 +9,8 @@ QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegra
 # 功能和特性
 
 + 支持QQ群和Telegram群的文字消息互转
-+ QQ群的图片可以发给Telegram群，Telegram群的图片将会以链接的形式发送到QQ群
-+ Telegram群的Sticker会转换成对应的emoji发送给QQ群，QQ群的常用QQ表情会以emoji的形式发送到Telegram群
++ QQ群的图片可以转发Telegram群，Telegram群的图片将会以链接的形式转发到QQ群
++ Telegram群的Sticker会转换成对应的emoji转发给QQ群，QQ群的常用QQ表情会以emoji的形式转发到Telegram群
 + 支持开启Telegram群的Sticker导出模式，开启该模式后，在QQ可以通过链接保存Sticker。
 + QQ群可以通过指令向Telegram群发送Sticker
 
@@ -100,3 +100,11 @@ qqEmojiList：定义了QQ表情ID和emoji的对应。
 # Bot的运行
 
 保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，使用`python3 awdbot.py`命令即可启动。
+
+# Sticker导出模式
+
+开启：在QQ群或Telegram群中发送 [sticker link on]
+
+关闭：在QQ群或Telegram群中发送 [sticker link off]
+
+开启后，Sticker转发到QQ群的时候，会显示图片链接。
