@@ -57,6 +57,46 @@ server {
 `pip3 install urllib3 telepot pillow APScheduler requests requests-oauthlib`
 
 
+# 参数和配置
+
+## bot_constant.py
+
+tgToken：Telegram机器人的token
+
+tgBotId：Telegram机器人的ID
+
+qqBotId：QQ机器人的QQ号
+
+tgGroupId：Telegram群的群ID
+
+qqGroupId：QQ群的群号
+
+server_pic_url：图片访问的url前缀。
+
+## special_sticker_list.py
+
+specialStickerList：定义了`指令`和Telegram Sticker ID的对应。
+
+在QQ群里输入`!指令`，即在Telegram群里发送一个对应的Sticker。
+
+## qq_emoji_list.py
+
+qqEmojiList：定义了QQ表情ID和emoji的对应。
+
+这个列表实现了QQ表情和emoji的对应，可以根据需要进行修改。
+
+## namelist.json
+
+定义了QQ号和群昵称的对应。
+
+由于Socket API无法获取成员列表，现阶段采用手动对应的形式。如果列表中没有定义某个QQ号对应的昵称，转发到Telegram群的消息发送者只能显示QQ号。
+
+## admin.json
+
+定义了管理员的QQ号。
+
+// 其实这个bot里没用到这个。
+
 # Bot的运行
 
-保证酷Q已启动并登录，使用`python3 awdbot.py`命令即可启动。
+保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，使用`python3 awdbot.py`命令即可启动。
