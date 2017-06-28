@@ -142,11 +142,14 @@ def handle(msg):
                 replyTo =  u' (reply to ' + msg[u'reply_to_message'][u'text'].split(":")[0]  + u') '
 
         # replace emoji
-        for i in range(8986, 12953):
+        for i in range(8986, 12287):
             text, _ = re.subn(chr(i), "[CQ:emoji,id=" + str(i) + "]", text)
         for i in range(126980, 129472):
             text, _ = re.subn(chr(i), "[CQ:emoji,id=" + str(i) + "]", text)
         
+        # blank message add placeholder
+        if len(text) == 0:
+            text = '[不支持的消息类型]'
         qqbot.send(SendGroupMessage(
             group = qqGroupId,
             text = sender + replyTo + forwardFrom + ': ' + text
@@ -238,7 +241,7 @@ def new(message):
     text, _ = re.subn("&#44;", ",", text)
 
     # replace emoji
-    for i in range(8986, 12953):
+    for i in range(8986, 12287):
         text, _ = re.subn("\\[CQ:emoji,id=" + str(i) + "\\]", chr(i), text)
     for i in range(126980, 129472):
         text, _ = re.subn("\\[CQ:emoji,id=" + str(i) + "\\]", chr(i), text)
@@ -308,7 +311,11 @@ def new(message):
                 tgBot.sendMessage(tgGroupId, my_url + "\n" + fullMsg)   
 
     if imageNum == 0:
-        tgBot.sendMessage(tgGroupId, fullMsg)
+        if str(message.qq) in NAMELIST:
+            fullMsgBold = '*' + NAMELIST[str(message.qq)] + '*: ' + text.strip()
+        else:
+            fullMsgBold = '*' + str(message.qq) + '*: ' + text.strip()
+        tgBot.sendMessage(tgGroupId, fullMsgBold, parse_mode="Markdown")
 
 def getImageUrl(filename):
     cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
