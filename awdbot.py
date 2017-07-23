@@ -58,6 +58,7 @@ from PIL import Image
 
 tgBot = telepot.Bot(tgToken)
 stickerLinkMode = 0
+driveMode = 0
 
 def create_jpg_image(path, name):
     im = Image.open(os.path.join(path, name)).convert("RGB")
@@ -71,9 +72,9 @@ def handle(msg):
     global tgBot
     global qqbot
     global tgBotId
-    global tgGroupId
-    global qqGroupId
+    global forwardIds
     global stickerLinkMode
+    global driveMode
     global server_pic_url
     logging.debug(msg)
     pprint(msg)
@@ -81,6 +82,15 @@ def handle(msg):
     chatType = msg[u'chat'][u'type']
     if chatType != u'group':
         return
+    tgGroupId = chatId
+    qqGroupId = 0
+    for i, j in forwardIds:
+        if j == tgGroupId:
+            qqGroupId = i
+            break
+    if qqGroupId == 0:
+        return
+
     sender = msg[u'from'][u'first_name']
     if u'last_name' in msg[u'from']:
         sender += " " +  msg[u'from'][u'last_name']
@@ -109,6 +119,8 @@ def handle(msg):
             create_png_image(CQ_IMAGE_ROOT, fileId)
             pic_url = get_short_url(server_pic_url + fileId + '.png')
             text = u'[' + msg[u'sticker'][u'emoji'] + ' sticker, 请点击查看' + pic_url + u']'
+    if u'caption' in msg:
+        text = text + ' ' + msg[u'caption']
     if text == u'[showgroupid]':
         tgBot.sendMessage(chatId, 'Telegram连接已建立，chatId = ' + str(chatId));
     elif text == u'[sticker link on]':
@@ -125,10 +137,26 @@ def handle(msg):
             group = qqGroupId,
             text = 'Telegram Sticker图片链接已禁用'
         ))
+    elif text == u'[drive mode on]':
+        driveMode = 1
+        tgBot.sendMessage(chatId, 'Telegram向QQ转发消息已暂停');
+        qqbot.send(SendGroupMessage(
+            group = qqGroupId,
+            text = 'Telegram向QQ转发消息已暂停'
+        ))
+    elif text == u'[drive mode off]':
+        driveMode = 0
+        tgBot.sendMessage(chatId, 'Telegram向QQ转发消息已重启');
+        qqbot.send(SendGroupMessage(
+            group = qqGroupId,
+            text = 'Telegram向QQ转发消息已重启'
+        ))
     else:
         forwardFrom = u''
         if u'forward_from' in msg:
             forward_sender = msg[u'forward_from'][u'first_name']
+            if forward_sender == 'null' and u'forward_from_chat' in msg:
+                forward_sender = msg[u'forward_from_chat'][u'title']
             if u'last_name' in msg[u'forward_from']:
                 forward_sender += " " +  msg[u'forward_from'][u'last_name']
             forwardFrom = u' (forwarded from ' + forward_sender + u') '
@@ -150,6 +178,11 @@ def handle(msg):
         # blank message add placeholder
         if len(text) == 0:
             text = '[不支持的消息类型]'
+
+        # check drive mode
+        if driveMode == 1:
+            return
+
         qqbot.send(SendGroupMessage(
             group = qqGroupId,
             text = sender + replyTo + forwardFrom + ': ' + text
@@ -181,7 +214,7 @@ def debug(message):
 
 @qqbot.listener((RcvdGroupMessage, ))
 def blacklist(message):
-    return message.group != POI_GROUP
+    return False
 
 
 @qqbot.listener((RcvdGroupMessage, RcvdPrivateMessage))
@@ -224,12 +257,21 @@ def command(message):
 @qqbot.listener((RcvdGroupMessage, ))
 def new(message):
     global tgBot
-    global tgGroupId
-    global qqGroupId
+    global forwardIds
     global stickerLinkMode
+    global driveMode
     global server_pic_url
     debug(message)
     messages.append(Message(message.qq, int(time.time()), message.text))
+    
+    qqGroupId = int(message.group)
+    tgGroupId = 0
+    for i, j in forwardIds:
+        if i == qqGroupId:
+            tgGroupId = j
+            break
+    if tgGroupId == 0:
+        return
 
     text = message.text
     text, _ = re.subn("\\[CQ:image.*?\\]", "", text)
@@ -257,6 +299,20 @@ def new(message):
     # replace CQ:at
     for k, v in NAMELIST.items():
         text = text.replace("[CQ:at,qq=" + k + "]", "@" + v + " ")
+    
+    # replace CQ:share/CQ:music
+    newtext = u''
+    if text.startswith(u'[CQ:share') or text.startswith(u'[CQ:music'):
+        parts = text.split(',')
+        for part in parts:
+            if part.startswith(u'title='):
+                newtext = newtext + part.split('=')[1]
+                break
+        for part in parts:
+            if part.startswith(u'url='):
+                newtext = newtext + u'\n' + part.split('=')[1]
+                break
+        text = newtext
 
     if text == u'[sticker link on]':
         stickerLinkMode = 1
@@ -265,6 +321,7 @@ def new(message):
             group = qqGroupId,
             text = 'Telegram Sticker图片链接已启用'
         ))
+        return
     elif text == u'[sticker link off]':
         stickerLinkMode = 0
         tgBot.sendMessage(tgGroupId, 'Telegram Sticker图片链接已禁用');
@@ -272,7 +329,23 @@ def new(message):
             group = qqGroupId,
             text = 'Telegram Sticker图片链接已禁用'
         ))
-
+        return
+    elif text == u'[drive mode on]':
+        driveMode = 1
+        tgBot.sendMessage(tgGroupId, 'Telegram向QQ转发消息已暂停');
+        qqbot.send(SendGroupMessage(
+            group = qqGroupId,
+            text = 'Telegram向QQ转发消息已暂停'
+        ))
+        return
+    elif text == u'[drive mode off]':
+        driveMode = 0
+        tgBot.sendMessage(tgGroupId, 'Telegram向QQ转发消息已重启');
+        qqbot.send(SendGroupMessage(
+            group = qqGroupId,
+            text = 'Telegram Sticker图片链接已重启'
+        ))
+        return
     if str(message.qq) in NAMELIST:
         fullMsg = NAMELIST[str(message.qq)] + ': ' + text.strip()
     else:
