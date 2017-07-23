@@ -67,9 +67,7 @@ tgBotId：Telegram机器人的ID
 
 qqBotId：QQ机器人的QQ号
 
-tgGroupId：Telegram群的群ID
-
-qqGroupId：QQ群的群号
+forwardIds：一个list，可以定义多个转发关系，list中的每一个tuple(QQ群的群号, Telegram群的群ID)都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
 
 server_pic_url：图片访问的url前缀。
 
@@ -108,3 +106,11 @@ qqEmojiList：定义了QQ表情ID和emoji的对应。
 关闭：在QQ群或Telegram群中发送 [sticker link off]
 
 开启后，Sticker转发到QQ群的时候，会显示图片链接。
+
+# 开车模式
+
+开启：在QQ群或Telegram群中发送 [drive mode on]
+
+关闭：在QQ群或Telegram群中发送 [drive mode off]
+
+开启后，Telegram消息不会转发到QQ群内，QQ消息依然能转发到Telegram群组里。
