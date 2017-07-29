@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import json
-import os
-import threading
 import time
-import traceback
 from collections import namedtuple
-from configparser import ConfigParser
-from urllib.request import urlretrieve
 import re
+import telepot
+from pprint import pprint
+from image_operations import *
+from short_url import *
+
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 from cqsdk import CQBot, CQAt, CQImage, RcvdPrivateMessage, RcvdGroupMessage, \
@@ -23,50 +22,18 @@ from bot_constant import *
 from qq_emoji_list import *
 from special_sticker_list import *
 
-# Logging Part
-import logging
+from logger import *
 logging.basicConfig(
-    filename = 'bot.log',
-    level = logging.DEBUG
+    filename='bot.log',
+    level=logging.DEBUG
 )
 
-def debug(message):
-    logging.debug('------coolq message------')
-    logging.debug('from group: ' + message.group)
-    logging.debug('from qq: ' + message.qq)
-    logging.debug('from text: ' + message.text)
-    logging.debug('-------------------------')
-
-# generate short url
-import requests
-import json
-def get_short_url(long_url):
-    try:
-        r = requests.get('http://api.t.sina.com.cn/short_url/shorten.json?source=3271760578&url_long=' + long_url)
-        obj = json.loads(r.text)
-        short_url = obj[0]['url_short']
-        return short_url
-    except:
-        traceback.print_exc()
-        return long_url
-
-
 # Telegram Bot Part
-import telepot
-from pprint import pprint
-from PIL import Image
 
 tgBot = telepot.Bot(tgToken)
-stickerLinkModes = [0 for n in range(len(forwardIds))]
-driveModes = [0 for n in range(len(forwardIds))]
+stickerLinkModes = [0] * len(forwardIds)
+driveModes = [0] * len(forwardIds)
 
-def create_jpg_image(path, name):
-    im = Image.open(os.path.join(path, name)).convert("RGB")
-    im.save(os.path.join(path, name + ".jpg"), "JPEG")
-
-def create_png_image(path, name):
-    im = Image.open(os.path.join(path, name)).convert("RGBA")
-    im.save(os.path.join(path, name + ".png"), "PNG")
 
 def handle(msg):
     global tgBot
@@ -132,29 +99,29 @@ def handle(msg):
         stickerLinkModes[forwardIndex] = 1
         tgBot.sendMessage(chatId, 'Telegram Sticker图片链接已启用');
         qqbot.send(SendGroupMessage(
-            group = qqGroupId,
-            text = 'Telegram Sticker图片链接已启用'
+            group=qqGroupId,
+            text='Telegram Sticker图片链接已启用'
         ))
     elif text == u'[sticker link off]':
         stickerLinkModes[forwardIndex] = 0
         tgBot.sendMessage(chatId, 'Telegram Sticker图片链接已禁用');
         qqbot.send(SendGroupMessage(
-            group = qqGroupId,
-            text = 'Telegram Sticker图片链接已禁用'
+            group=qqGroupId,
+            text='Telegram Sticker图片链接已禁用'
         ))
     elif text == u'[drive mode on]':
         driveModes[forwardIndex] = 1
         tgBot.sendMessage(chatId, 'Telegram向QQ转发消息已暂停');
         qqbot.send(SendGroupMessage(
-            group = qqGroupId,
-            text = 'Telegram向QQ转发消息已暂停'
+            group=qqGroupId,
+            text='Telegram向QQ转发消息已暂停'
         ))
     elif text == u'[drive mode off]':
         driveModes[forwardIndex] = 0
         tgBot.sendMessage(chatId, 'Telegram向QQ转发消息已重启');
         qqbot.send(SendGroupMessage(
-            group = qqGroupId,
-            text = 'Telegram向QQ转发消息已重启'
+            group=qqGroupId,
+            text='Telegram向QQ转发消息已重启'
         ))
     else:
         forwardFrom = u''
@@ -207,13 +174,6 @@ with open('namelist.json', 'r', encoding="utf-8") as f:
 
 Message = namedtuple('Manifest', ('qq', 'time', 'text'))
 messages = []
-
-def debug(message):
-    logging.debug('------coolq message------')
-    logging.debug('from group: ' + message.group)
-    logging.debug('from qq: ' + message.qq)
-    logging.debug('from text: ' + message.text)
-    logging.debug('-------------------------')
 
 
 @qqbot.listener((RcvdGroupMessage, ))
@@ -366,7 +326,7 @@ def new(message):
         imageNum = imageNum + 1
         filename = match.group(1)
         # ImageDownloader(filename).start()
-        url = getImageUrl(filename)
+        url = get_image_url(filename)
         if filename.lower().endswith('gif'):
             try:
                 if imageNum == 1:
@@ -399,34 +359,6 @@ def new(message):
         else:
             fullMsgBold = '*' + str(message.qq) + '*: ' + text.strip()
         tgBot.sendMessage(tgGroupId, fullMsgBold, parse_mode="Markdown")
-
-def getImageUrl(filename):
-    cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
-    parser = ConfigParser()
-    parser.read(cqimg)
-    url = parser['image']['url']
-    return url
-
-class ImageDownloader(threading.Thread):
-    def __init__(self, filename, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filename = filename
-
-    def run(self):
-        try:
-            path = os.path.join(CQ_IMAGE_ROOT, self.filename)
-            if os.path.exists(path):
-                return
-
-            cqimg = os.path.join(CQ_IMAGE_ROOT, self.filename+'.cqimg')
-            parser = ConfigParser()
-            parser.read(cqimg)
-
-            url = parser['image']['url']
-            urlretrieve(url, path)
-        except:
-            error(self.filename)
-            traceback.print_exc()
 
 
 if __name__ == '__main__':
