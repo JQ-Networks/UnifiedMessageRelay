@@ -183,11 +183,11 @@ def handle(msg):
         # blank message add placeholder
         if len(text) == 0:
             text = '[不支持的消息类型]'
-
+        
         # check drive mode
         if driveModes[forwardIndex] == 1:
             return
-
+        
         qqbot.send(SendGroupMessage(
             group = qqGroupId,
             text = sender + replyTo + forwardFrom + ': ' + text
@@ -353,7 +353,7 @@ def new(message):
         tgBot.sendMessage(tgGroupId, 'Telegram向QQ转发消息已重启');
         qqbot.send(SendGroupMessage(
             group = qqGroupId,
-            text = 'Telegram Sticker图片链接已重启'
+            text = 'Telegram向QQ转发消息已重启'
         ))
         return
     if str(message.qq) in NAMELIST:
