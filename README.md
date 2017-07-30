@@ -93,7 +93,7 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 # Bot的运行
 
-保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名，使用`python3 awdbot.py`命令即可启动。
+保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名，使用`python3 mybot.py`命令即可启动。
 
 # Sticker导出模式
 
