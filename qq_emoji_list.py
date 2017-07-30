@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-qqEmojiList = {
+qq_emoji_list = {
     14  : u'\U0001F642',
     1   : u'\U0001F623',
     2   : u'\U0001F60D',
