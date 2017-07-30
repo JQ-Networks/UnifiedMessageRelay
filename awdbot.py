@@ -130,16 +130,16 @@ def handle(msg):
             if forward_sender == 'null' and u'forward_from_chat' in msg:
                 forward_sender = msg[u'forward_from_chat'][u'title']
             if u'last_name' in msg[u'forward_from']:
-                forward_sender += " " +  msg[u'forward_from'][u'last_name']
+                forward_sender += " " + msg[u'forward_from'][u'last_name']
             forwardFrom = u' (forwarded from ' + forward_sender + u') '
         replyTo = u''
         if u'reply_to_message' in msg:
             reply_sender = msg[u'reply_to_message'][u'from'][u'first_name']
             if u'last_name' in msg[u'reply_to_message'][u'from']:
-                reply_sender += " " +  msg[u'reply_to_message'][u'from'][u'last_name']
-            replyTo =  u' (reply to ' + reply_sender + u') '
+                reply_sender += " " + msg[u'reply_to_message'][u'from'][u'last_name']
+            replyTo = u' (reply to ' + reply_sender + u') '
             if msg[u'reply_to_message'][u'from'][u'id'] == tgBotId:
-                replyTo =  u' (reply to ' + msg[u'reply_to_message'][u'text'].split(":")[0]  + u') '
+                replyTo = u' (reply to ' + msg[u'reply_to_message'][u'text'].split(":")[0]  + u') '
 
         # replace emoji
         for i in range(8986, 12287):
@@ -156,8 +156,8 @@ def handle(msg):
             return
         
         qqbot.send(SendGroupMessage(
-            group = qqGroupId,
-            text = sender + replyTo + forwardFrom + ': ' + text
+            group=qqGroupId,
+            text=sender + replyTo + forwardFrom + ': ' + text
         ))
 
 
