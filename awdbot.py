@@ -30,16 +30,16 @@ logging.basicConfig(
 
 # Telegram Bot Part
 
-tgBot = telepot.Bot(tgToken)
-stickerLinkModes = [0] * len(forwardIds)
-driveModes = [0] * len(forwardIds)
+tgBot = telepot.Bot(TOKEN)
+stickerLinkModes = [0] * len(FOWARD_LIST)
+driveModes = [0] * len(FOWARD_LIST)
 
 
 def handle(msg):
     global tgBot
     global qqbot
     global tgBotId
-    global forwardIds
+    global FOWARD_LIST
     global stickerLinkModes
     global driveModes
     global server_pic_url
@@ -51,15 +51,15 @@ def handle(msg):
         return
     tgGroupId = chatId
     qqGroupId = 0
-    forwardIndex = -1;
-    for i, j in forwardIds:
+    forwardIndex = -1
+    for i, j in FOWARD_LIST:
         if j == tgGroupId:
             qqGroupId = i
             break
     if qqGroupId == 0:
         return
-    for forwardIndex in range(len(forwardIds)):
-        i, j = forwardIds[forwardIndex]
+    for forwardIndex in range(len(FOWARD_LIST)):
+        i, j = FOWARD_LIST[forwardIndex]
         if i == qqGroupId and j == tgGroupId:
             break
 
@@ -72,7 +72,7 @@ def handle(msg):
     elif u'photo' in msg:
         fileId = msg[u'photo'][-1][u'file_id']
         filePath = tgBot.getFile(fileId)
-        urlretrieve('https://api.telegram.org/file/bot' + tgToken + "/" + filePath[u'file_path'], os.path.join(CQ_IMAGE_ROOT, fileId))
+        urlretrieve('https://api.telegram.org/file/bot' + TOKEN + "/" + filePath[u'file_path'], os.path.join(CQ_IMAGE_ROOT, fileId))
         create_jpg_image(CQ_IMAGE_ROOT, fileId)
         pic_url = get_short_url(server_pic_url + fileId + '.jpg')
         text = u'[图片, 请点击查看' + pic_url + u']'
@@ -87,7 +87,7 @@ def handle(msg):
         fileId = msg[u'sticker'][u'file_id']
         if stickerLinkModes[forwardIndex] == 1:
             filePath = tgBot.getFile(fileId)
-            urlretrieve('https://api.telegram.org/file/bot' + tgToken + "/" + filePath[u'file_path'], os.path.join(CQ_IMAGE_ROOT, fileId))
+            urlretrieve('https://api.telegram.org/file/bot' + TOKEN + "/" + filePath[u'file_path'], os.path.join(CQ_IMAGE_ROOT, fileId))
             create_png_image(CQ_IMAGE_ROOT, fileId)
             pic_url = get_short_url(server_pic_url + fileId + '.png')
             text = u'[' + msg[u'sticker'][u'emoji'] + ' sticker, 请点击查看' + pic_url + u']'
@@ -221,7 +221,7 @@ def command(message):
 @qqbot.listener((RcvdGroupMessage, ))
 def new(message):
     global tgBot
-    global forwardIds
+    global FOWARD_LIST
     global stickerLinkModes
     global driveModes
     global server_pic_url
@@ -231,14 +231,14 @@ def new(message):
     qqGroupId = int(message.group)
     tgGroupId = 0
     forwardIndex = -1
-    for i, j in forwardIds:
+    for i, j in FOWARD_LIST:
         if i == qqGroupId:
             tgGroupId = j
             break
     if tgGroupId == 0:
         return
-    for forwardIndex in range(len(forwardIds)):
-        i, j = forwardIds[forwardIndex]
+    for forwardIndex in range(len(FOWARD_LIST)):
+        i, j = FOWARD_LIST[forwardIndex]
         if i == qqGroupId and j == tgGroupId:
             break
     NAMELIST = NAMELISTS[forwardIndex]
