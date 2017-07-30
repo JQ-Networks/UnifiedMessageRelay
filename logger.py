@@ -7,4 +7,3 @@ def debug(message):
     logging.debug('from qq: ' + message.qq)
     logging.debug('from text: ' + message.text)
     logging.debug('-------------------------')
-

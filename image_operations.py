@@ -6,42 +6,38 @@ import threading
 from urllib.request import urlretrieve
 import traceback
 
-
 def create_jpg_image(path, name):
+    ## convert Telegram webp image to jpg image
     im = Image.open(os.path.join(path, name)).convert("RGB")
     im.save(os.path.join(path, name + ".jpg"), "JPEG")
 
-
 def create_png_image(path, name):
+    ## convert Telegram webp image to png image
     im = Image.open(os.path.join(path, name)).convert("RGBA")
     im.save(os.path.join(path, name + ".png"), "PNG")
 
-
-def get_image_url(filename):
+def qq_get_pic_url(filename):
+    ## get real image url from cqimg file
     cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
     parser = ConfigParser()
     parser.read(cqimg)
     url = parser['image']['url']
     return url
 
+def qq_download_pic(filename):
+    ## download image by cqimg file
+    try:
+        path = os.path.join(CQ_IMAGE_ROOT, filename)
+        if os.path.exists(path):
+            return
 
-class ImageDownloader(threading.Thread):
-    def __init__(self, filename, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.filename = filename
+        cqimg = os.path.join(CQ_IMAGE_ROOT, filename + '.cqimg')
+        parser = ConfigParser()
+        parser.read(cqimg)
 
-    def run(self):
-        try:
-            path = os.path.join(CQ_IMAGE_ROOT, self.filename)
-            if os.path.exists(path):
-                return
+        url = parser['image']['url']
+        urlretrieve(url, path)
+    except:
+        error(filename)
+        traceback.print_exc()
 
-            cqimg = os.path.join(CQ_IMAGE_ROOT, self.filename+'.cqimg')
-            parser = ConfigParser()
-            parser.read(cqimg)
-
-            url = parser['image']['url']
-            urlretrieve(url, path)
-        except:
-            error(self.filename)
-            traceback.print_exc()
