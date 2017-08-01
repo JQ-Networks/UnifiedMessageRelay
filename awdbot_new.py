@@ -287,7 +287,7 @@ def text_from_telegram(bot, update):
 
         new_text = ''
         for char in text:
-            if 8986 <= char < 12287 or 126980 < char < 129472:
+            if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
                 new_text += "[CQ:emoji,id=" + str(char) + "]"
             else:
                 new_text += char
