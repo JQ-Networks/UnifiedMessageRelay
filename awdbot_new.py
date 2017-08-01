@@ -414,6 +414,7 @@ def main():
     updater = Updater(TOKEN)
     job_queue = updater.job_queue
     tg_bot = updater.bot
+    qq_bot.start()
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     dp.add_handler(MessageHandler(Filters.text, text_from_telegram))
