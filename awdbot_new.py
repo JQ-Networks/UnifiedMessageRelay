@@ -64,7 +64,7 @@ def get_forward_index(qq_group_id=0, tg_group_id=0):
     :param tg_group_id: optional, the telegram group id, either this or qq_group_id must be valid
     :return: qq_group_id, tg_group_id, forward_index
     """
-    for idx, (qq, tg, sticker, drive) in enumerate(FOWARD_LIST):
+    for idx, (qq, tg, sticker, drive) in enumerate(FORWARD_LIST):
         if tg == tg_group_id or qq == qq_group_id:
             return qq, tg, idx
     return 0, 0, -1  # -1 is not found
@@ -83,13 +83,13 @@ def set_sticker_link_mode(forward_index, status, tg_group_id, qq_group_id):
         msg = 'Telegram Sticker图片链接已启用'
     else:
         msg = 'Telegram Sticker图片链接已禁用'
-    FOWARD_LIST[forward_index][3] = status
+    FORWARD_LIST[forward_index][3] = status
     tg_bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
 def get_sticker_link_mode(forward_index):
-    return FOWARD_LIST[forward_index][3]
+    return FORWARD_LIST[forward_index][3]
 
 
 def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
@@ -105,13 +105,13 @@ def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
         msg = 'Telegram向QQ转发消息已暂停'
     else:
         msg = 'Telegram向QQ转发消息已重启'
-    FOWARD_LIST[forward_index][2] = status
+    FORWARD_LIST[forward_index][2] = status
     tg_bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
 def get_drive_mode(forward_index):
-    return FOWARD_LIST[forward_index][2]
+    return FORWARD_LIST[forward_index][2]
 
 
 def tg_get_pic_url(file_id, pic_type):
@@ -136,7 +136,7 @@ def tg_get_pic_url(file_id, pic_type):
 
 def cq_send(update, text, qq_group_id):
     sender_name = get_full_user_name(update.message.from_user)
-    forward_from = get_forward_from(update.message.foward_from)
+    forward_from = get_forward_from(update.message.forward_from)
     reply_to = get_reply_to(update.message.reply_to_message)
 
     qq_bot.send(SendGroupMessage(
@@ -282,7 +282,7 @@ def text_from_telegram(bot, update):
             return
 
         sender_name = get_full_user_name(update.message.from_user)
-        forward_from = get_forward_from(update.message.foward_from)
+        forward_from = get_forward_from(update.message.forward_from)
         reply_to = get_reply_to(update.message.reply_to_message)
 
         new_text = ''
