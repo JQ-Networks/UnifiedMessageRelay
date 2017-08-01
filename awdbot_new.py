@@ -226,23 +226,15 @@ def sticker_from_telegram(bot, update):
 
     if get_drive_mode(forward_index):  # check drive mode
         return
-    print(1)
     if get_sticker_link_mode(forward_index):
-        print(2)
         file_id = update.message.sticker.file_id
-        print(3)
         pic_url = tg_get_pic_url(file_id, 'png')
-        print(4)
         text = '[' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ']'
-        print(5)
     else:
         text = '[' + update.message.sticker.emoji + ']'
-    print(6)
     if update.message.caption:
         text = text + ' ' + update.message.caption
-    print(7)
     cq_send(update, text, qq_group_id)
-    print(8)
 
 
 def text_from_telegram(bot, update):
@@ -253,7 +245,6 @@ def text_from_telegram(bot, update):
     :return:
     """
     logging.debug(update)
-    pprint(update)  # print raw message
 
     tg_group_id = update.message.chat_id  # telegram group id
     if update.message.text:
