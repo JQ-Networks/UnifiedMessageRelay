@@ -107,6 +107,7 @@ def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
     else:
         msg = 'Telegram向QQ转发消息已重启'
     FOWARD_LIST[forward_index][2] = status
+    print(FOWARD_LIST[forward_index])
     tg_bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
