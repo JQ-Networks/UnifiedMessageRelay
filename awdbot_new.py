@@ -66,7 +66,7 @@ def get_forward_index(qq_group_id=0, tg_group_id=0):
     """
     for idx, (qq, tg, sticker, drive) in enumerate(FOWARD_LIST):
         if tg == tg_group_id or qq == qq_group_id:
-            return qq_group_id, tg_group_id, idx
+            return qq, tg, idx
     return 0, 0, -1  # -1 is not found
 
 
