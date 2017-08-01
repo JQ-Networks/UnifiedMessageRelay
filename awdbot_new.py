@@ -101,6 +101,7 @@ def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
     :param tg_group_id:
     :param qq_group_id:
     """
+    print(forward_index, status, tg_group_id, qq_group_id)
     if status:
         msg = 'Telegram向QQ转发消息已暂停'
     else:
@@ -264,8 +265,7 @@ def text_from_telegram(bot, update):
         return  # no forward rule, return
 
     text = update.message.text
-    print(text)
-    print(text == '[drive mode on]')
+
     if text == '[sticker link on]':
         set_sticker_link_mode(forward_index, True, tg_group_id, qq_group_id)
         return
