@@ -87,8 +87,10 @@ def set_sticker_link_mode(forward_index, status, bot, tg_group_id, qq_group_id):
     bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
+
 def get_sticker_link_mode(forward_index):
     return FOWARD_LIST[forward_index][3]
+
 
 def set_drive_mode(forward_index, status, bot, tg_group_id, qq_group_id):
     """
@@ -152,6 +154,9 @@ def photo_from_telegram(bot, update):
     if forward_index == -1:
         return
 
+    if get_drive_mode(forward_index):  # check drive mode
+        return
+
     file_id = update.message.photo[-1].file_id
     pic_url = tg_get_pic_url(file_id, 'jpg')
     text = '[图片, 请点击查看' + pic_url + ']'
@@ -168,6 +173,9 @@ def video_from_telegram(bot, update):
     if forward_index == -1:
         return
 
+    if get_drive_mode(forward_index):  # check drive mode
+        return
+
     text = '[视频]'
 
     cq_send(update, text, qq_group_id)
@@ -180,6 +188,9 @@ def audio_from_telegram(bot, update):
 
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
     if forward_index == -1:
+        return
+
+    if get_drive_mode(forward_index):  # check drive mode
         return
 
     text = '[音频]'
@@ -196,6 +207,9 @@ def document_from_telegram(bot, update):
     if forward_index == -1:
         return
 
+    if get_drive_mode(forward_index):  # check drive mode
+        return
+
     text = '[文件]'
 
     cq_send(update, text, qq_group_id)
@@ -208,6 +222,9 @@ def sticker_from_telegram(bot, update):
 
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
     if forward_index == -1:
+        return
+
+    if get_drive_mode(forward_index):  # check drive mode
         return
 
     if get_sticker_link_mode(forward_index):
@@ -246,9 +263,6 @@ def text_from_telegram(bot, update):
     if forward_index == -1:
         return  # no forward rule, return
 
-    if FOWARD_LIST[forward_index][3] == 1:  # check drive mode
-        return
-
     text = update.message.text
     if text == u'[sticker link on]':
         set_sticker_link_mode(forward_index, True, bot, tg_group_id, qq_group_id)
@@ -259,6 +273,9 @@ def text_from_telegram(bot, update):
     elif text == u'[drive mode off]':
         set_drive_mode(forward_index, False, bot, tg_group_id, qq_group_id)
     else:
+        if get_drive_mode(forward_index):  # check drive mode
+            return
+
         sender_name = get_full_user_name(update.message.from_user)
         forward_from = get_forward_from(update.message.foward_from)
         reply_to = get_reply_to(update.message.reply_to_message)
