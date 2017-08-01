@@ -70,7 +70,7 @@ def get_forward_index(qq_group_id=0, tg_group_id=0):
     return 0, 0, -1  # -1 is not found
 
 
-def set_sticker_link_mode(forward_index, status, bot, tg_group_id, qq_group_id):
+def set_sticker_link_mode(forward_index, status, tg_group_id, qq_group_id):
     """
     set sticker link mode on/off
     :param forward_index: the index of FORWARD_LIST
@@ -84,7 +84,7 @@ def set_sticker_link_mode(forward_index, status, bot, tg_group_id, qq_group_id):
     else:
         msg = 'Telegram Sticker图片链接已禁用'
     FOWARD_LIST[forward_index][3] = status
-    bot.sendMessage(tg_group_id, msg)
+    tg_bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
@@ -92,7 +92,7 @@ def get_sticker_link_mode(forward_index):
     return FOWARD_LIST[forward_index][3]
 
 
-def set_drive_mode(forward_index, status, bot, tg_group_id, qq_group_id):
+def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
     """
     set drive mode on/off
     :param forward_index: the index of FORWARD_LIST
@@ -106,7 +106,7 @@ def set_drive_mode(forward_index, status, bot, tg_group_id, qq_group_id):
     else:
         msg = 'Telegram向QQ转发消息已重启'
     FOWARD_LIST[forward_index][2] = status
-    bot.sendMessage(tg_group_id, msg)
+    tg_bot.sendMessage(tg_group_id, msg)
     qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
@@ -264,14 +264,20 @@ def text_from_telegram(bot, update):
         return  # no forward rule, return
 
     text = update.message.text
-    if text == u'[sticker link on]':
-        set_sticker_link_mode(forward_index, True, bot, tg_group_id, qq_group_id)
-    elif text == u'[sticker link off]':
-        set_sticker_link_mode(forward_index, False, bot, tg_group_id, qq_group_id)
-    elif text == u'[drive mode on]':
-        set_drive_mode(forward_index, True, bot, tg_group_id, qq_group_id)
-    elif text == u'[drive mode off]':
-        set_drive_mode(forward_index, False, bot, tg_group_id, qq_group_id)
+    print(text)
+    print(text == '[drive mode on]')
+    if text == '[sticker link on]':
+        set_sticker_link_mode(forward_index, True, tg_group_id, qq_group_id)
+        return
+    elif text == '[sticker link off]':
+        set_sticker_link_mode(forward_index, False, tg_group_id, qq_group_id)
+        return
+    elif text == '[drive mode on]':
+        set_drive_mode(forward_index, True, tg_group_id, qq_group_id)
+        return
+    elif text == '[drive mode off]':
+        set_drive_mode(forward_index, False, tg_group_id, qq_group_id)
+        return
     else:
         if get_drive_mode(forward_index):  # check drive mode
             return
@@ -353,16 +359,16 @@ def new(message):
 
     # handle special instructions
     if text == '[sticker link on]':
-        set_sticker_link_mode(forward_index, 1)
+        set_sticker_link_mode(forward_index, True, tg_group_id, qq_group_id)
         return
     elif text == '[sticker link off]':
-        set_sticker_link_mode(forward_index, 0)
+        set_sticker_link_mode(forward_index, False, tg_group_id, qq_group_id)
         return
     elif text == '[drive mode on]':
-        set_drive_mode(forward_index, 1)
+        set_drive_mode(forward_index, True, tg_group_id, qq_group_id)
         return
     elif text == '[drive mode off]':
-        set_drive_mode(forward_index, 0)
+        set_drive_mode(forward_index, False, tg_group_id, qq_group_id)
         return
 
     # replace QQ number to group member name, get full message text
