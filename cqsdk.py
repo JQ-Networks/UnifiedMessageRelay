@@ -12,12 +12,12 @@ from collections import namedtuple
 
 
 ClientHello = namedtuple("ClientHello", ("port"))
-ServerHello = namedtuple("ServerHello", ())
+ServerHello = namedtuple("ServerHello", ("client_timeout", "prefix_size", "playload_size", "frame_size"))
 
 RcvdPrivateMessage = namedtuple("RcvdPrivateMessage", ("qq", "text"))
 SendPrivateMessage = namedtuple("SendPrivateMessage", ("qq", "text"))
 
-RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("group", "qq", "text"))
+RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("num", "group", "qq", "text"))
 SendGroupMessage = namedtuple("SendGroupMessage", ("group", "text"))
 
 RcvdDiscussMessage = namedtuple("RcvdDiscussMessage",
@@ -82,6 +82,7 @@ def load_frame(data):
     for type_ in FRAME_TYPES:
         if prefix == type_.prefix:
             frame = type_.rcvd(*payload)
+    
     # decode text
     if isinstance(frame, (
             RcvdPrivateMessage, RcvdGroupMessage, RcvdDiscussMessage)):
