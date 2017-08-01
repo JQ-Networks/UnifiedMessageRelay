@@ -122,7 +122,7 @@ def tg_get_pic_url(file_id, pic_type):
     :return:
     """
     file = tg_bot.getFile(file_id)
-    urlretrieve('https://api.telegram.org/file/bot' + TOKEN + "/" + file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))
+    urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
         pic_url = get_short_url(SERVER_PIC_URL + file_id + '.jpg')
