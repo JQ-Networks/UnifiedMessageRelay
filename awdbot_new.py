@@ -318,7 +318,7 @@ qq_name_lists = None
 @qq_bot.listener((RcvdGroupMessage, ))
 def new(message):
     logging.info('(' + message.qq + '): ' + message.text)
-    messages.append(Message(message.qq, int(time.time()), message.text)) # add to message queue
+    messages.append(Message(message.qq, int(time.time()), message.text))  # add to message queue
 
     qq_group_id = int(message.group)
     _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
@@ -357,12 +357,12 @@ def new(message):
     text = CQAt.PATTERN.sub(replace_name, text)  # replace qq's at to telegram's
 
     # replace CQ:share/CQ:music
-    new_text = ''
+
     if cq_share_regex.match(message.text):
         url, title, content, image_url = extract_cq_share(message.text)
-        new_text = title + '\n' + url
+        text = title + '\n' + url
     elif cq_music_regex.match(message.text):
-        new_text = 'some music'
+        text = 'some music'
 
     # handle special instructions
     if text == '[sticker link on]':
