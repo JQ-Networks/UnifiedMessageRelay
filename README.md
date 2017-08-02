@@ -2,7 +2,7 @@
 
 QQ和Telegram的消息互转机器人
 
-QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[Telepot](https://github.com/nickoala/telepot)
+QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 源码基于[yukixz/qqbot.py](https://github.com/yukixz/qqbot.py)
 
