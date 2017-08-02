@@ -236,7 +236,7 @@ def sticker_from_telegram(bot, update):
     new_text = ''
     for char in text:
         if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
-            new_text += "[CQ:emoji,id=" + str(char) + "]"
+            new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
         else:
             new_text += char
 
@@ -294,7 +294,7 @@ def text_from_telegram(bot, update):
         new_text = ''
         for char in text:
             if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
-                new_text += "[CQ:emoji,id=" + str(char) + "]"
+                new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
             else:
                 new_text += char
 
