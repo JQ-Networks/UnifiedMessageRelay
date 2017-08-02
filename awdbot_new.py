@@ -26,11 +26,11 @@ tg_bot = None
 
 def get_full_user_name(user):
     name = ''
-    if user.first_name:
+    if hasattr(user, 'first_name'):
         name = user.first_name
-        if user.last_name:
+        if hasattr(user, 'last_name'):
             name += ' ' + user.last_name
-    elif user.last_name:
+    elif hasattr(user, 'last_name'):
         name = user.last_name
     return name
 
