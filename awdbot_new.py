@@ -232,6 +232,16 @@ def sticker_from_telegram(bot, update):
         text = '[' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ']'
     else:
         text = '[' + update.message.sticker.emoji + ']'
+
+    new_text = ''
+    for char in text:
+        if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
+            new_text += "[CQ:emoji,id=" + str(char) + "]"
+        else:
+            new_text += char
+
+    text = new_text
+
     if update.message.caption:
         text = text + ' ' + update.message.caption
     cq_send(update, text, qq_group_id)
@@ -334,8 +344,8 @@ def new(message):
     text, _ = re.subn('&#93;', ']', text)
     text, _ = re.subn('&#44;', ',', text)
 
-    text = cq_emoji_regex.sub(lambda x: chr(int(x)), text)  # replace [CQ:emoji,id=*]
-    text = qq_face_regex.sub(lambda x: qq_emoji_list[int(x)], text)  # replace [CQ:face,id=*]
+    text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
+    text = qq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))], text)  # replace [CQ:face,id=*]
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
