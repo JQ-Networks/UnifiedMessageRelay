@@ -17,7 +17,7 @@ SendGroupMessage
 
 
 from logger import *
-logging.basicConfig(filename='bot.log', level=logging.DEBUG)
+logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 tg_bot_id = int(TOKEN.split(':')[0])
 qq_bot = CQBot(11235)
@@ -47,12 +47,12 @@ def get_reply_to(reply_to_message):
     if reply_to_message:
         if reply_to_message.from_user.id == tg_bot_id:
             if reply_to_message.text:
-                reply_to = 'reply to ' + reply_to_message.text.split(":")[0]
+                reply_to = reply_to_message.text.split(":")[0]
             else:
-                reply_to = 'reply to ' + reply_to_message.caption.split(":")[0]
+                reply_to = reply_to_message.caption.split(":")[0]
         else:
             reply_to = get_full_user_name(reply_to_message.from_user)
-        return '(' + reply_to + ')'
+        return '(reply to ' + reply_to + ')'
     else:
         return ''
 
