@@ -10,26 +10,130 @@ import traceback
 from base64 import b64encode, b64decode
 from collections import namedtuple
 
-
+# Socket API 通讯消息
 ClientHello = namedtuple("ClientHello", ("port"))
 ServerHello = namedtuple("ServerHello", ("client_timeout", "prefix_size", "playload_size", "frame_size"))
 
-RcvdPrivateMessage = namedtuple("RcvdPrivateMessage", ("qq", "text"))
+# 聊天部分
+
+## 私聊消息
+RcvdPrivateMessage = namedtuple("RcvdPrivateMessage", ("subtype", "qq", "text"))
 SendPrivateMessage = namedtuple("SendPrivateMessage", ("qq", "text"))
 
-RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("num", "group", "qq", "text"))
+## 群消息
+RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("subtype", "group", "qq", "text"))
 SendGroupMessage = namedtuple("SendGroupMessage", ("group", "text"))
 
-RcvdDiscussMessage = namedtuple("RcvdDiscussMessage",
-                                ("discuss", "qq", "text"))
-SendDiscussMessage = namedtuple("SendDiscussMessage",
-                                ("discuss", "text"))
+## 讨论组消息
+RcvdDiscussMessage = namedtuple("RcvdDiscussMessage", ("subtype", "discuss", "qq", "text"))
+SendDiscussMessage = namedtuple("SendDiscussMessage", ("discuss", "text"))
 
-GroupMemberDecrease = namedtuple("GroupMemberDecrease",
-                                 ("group", "qq", "operatedQQ"))
-GroupMemberIncrease = namedtuple("GroupMemberIncrease",
-                                 ("group", "qq", "operatedQQ"))
-GroupBan = namedtuple("GroupBan", ("group", "qq", "duration"))
+# 其它消息-接收
+
+## 管理员变动
+## subtype = 1 -> 取消管理员
+## subtype = 2 -> 任命管理员
+GroupAdminChange = namedtuple("GroupAdminChange", ("subtype", "from_group", "operated_qq"))
+
+## 群成员减少
+GroupMemberDecrease = namedtuple("GroupMemberDecrease", ("subtype", "group", "qq", "operated_qq"))
+
+## 群成员增加
+GroupMemberIncrease = namedtuple("GroupMemberIncrease", ("subtype", "group", "qq", "operated_qq"))
+
+## 好友已添加(broken)
+FriendAdded = namedtuple("FriendAdded", ("subtype", "from_qq"))
+
+## 请求添加好友
+RequestAddFriend = namedtuple("RequestAddFriend", ("subtype", "from_qq", "text", "flag"))
+
+## 邀请进群
+RequestAddGroup = namedtuple("RequestAddGroup", ("subtype", "from_group", "from_qq", "flag"))
+
+## 群文件上传(broken)
+GroupUpload = namedtuple("GroupUpload", ("subtype", "from_group", "from_qq", "file"))
+
+# 其它消息-发送
+
+## 点赞(Coolq Pro)
+SendLike = namedtuple("SendLike", ("qq", "times"))
+
+## 拒绝加群请求
+SetGroupKick = namedtuple("SetGroupKick", ("group", "qq", "reject_add_request"))
+
+## 群成员禁言
+## duration 单位为秒
+SetGroupBan = namedtuple("GroupBan", ("group", "qq", "duration"))
+
+## 任命群管理员(broken)
+SetGroupAdmin = namedtuple("SetGroupAdmin", ("group", "qq", "set_admin"))
+
+## 全群组禁言
+## enable_ban = 0 -> 取消全群组禁言
+## enable_ban = 1 -> 开启全群组禁言
+SetGroupWholeBan = namedtuple("SetGroupWholeBan", ("group", "enable_ban"))
+
+## 禁言匿名者(unclear)
+SetGroupAnonymousBan = namedtuple("SetGroupAnonymousBan", ("group", "anonymous", "duration"))
+
+## 开关群匿名发言
+## enable_anonymous = 0 -> 关闭匿名功能
+## enable_anonymous = 1 -> 启用匿名功能
+SetGroupAnonymous = namedtuple("SetGroupAnonymous", ("group", "enable_anonymous"))
+
+## 设置群名片
+SetGroupCard = namedtuple("SetGroupCard", ("group", "qq", "new_card"))
+
+## 解散群
+## 需要身份是群主
+SetGroupLeave = namedtuple("SetGroupLeave", ("group", "is_dismiss"))
+
+## 设置特殊头衔
+## duration的数值好像不起作用
+SetGroupSpecialTitle = namedtuple("SetGroupSpecialTitle", ("group", "qq", "new_special_title", "duration"))
+
+## 离开讨论组
+SetDiscussLeave = namedtuple("SetDiscussLeave", ("discuss_id"))
+
+## 发送添加好友请求(Unknown)
+FriendAddRequest = namedtuple("FriendAddRequest", ("response_flag", "response_operation", "remark"))
+
+## 发送进群请求(Unknown)
+GroupAddRequest = namedtuple("GroupAddRequest", ("response_flag", "request_type", "response_operation", "reason"))
+
+# 信息获取
+
+## 获取群成员信息
+GetGroupMemberInfo = namedtuple("GetGroupMemberInfo", ("group", "qq", "nocache"))
+RcvGroupMemberInfo = namedtuple("RcvGroupMemberInfo", ("info")) 
+
+## 获取群成员列表
+GetGroupMemberList = namedtuple("GetGroupMemberList", ("group"))
+RcvGroupMemberList = namedtuple("RcvGroupMemberList", ("path"))
+
+## 获取陌生人信息
+GetStrangerInfo = namedtuple("GetStrangerInfo", ("qq", "nocache"))
+RcvStrangerInfo = namedtuple("RcvStrangerInfo", ("info"))
+
+## 获取Cookies
+GetCookies = namedtuple("GetCookies", ())
+RcvCookies = namedtuple("RcvCookies", ("cookies"))
+
+## 获取csrf token 
+GetCsrfToken = namedtuple("GetCsrfToken", ())
+RcvCsrfToken = namedtuple("RcvCsrfToken", ("token"))
+
+## 获取当前登录QQ
+GetLoginQQ = namedtuple("GetLoginQQ", ())
+RcvLoginQQ = namedtuple("RcvLoginQQ", ("qq"))
+
+## 获取当前用户昵称
+GetLoginNickname = namedtuple("GetLoginNickname", ())
+RcvLoginNickname = namedtuple("RcvLoginNickname", ("nickname"))
+
+## 获取酷q应用目录
+GetAppDirectory = namedtuple("GetAppDirectory", ())
+RcvAppDirectory = namedtuple("RcvAppDirectory", ("app_dir"))
 
 Fatal = namedtuple("Fatal", ("text"))
 
@@ -40,10 +144,42 @@ FRAME_TYPES = (
     FrameType("PrivateMessage", RcvdPrivateMessage, SendPrivateMessage),
     FrameType("DiscussMessage", RcvdDiscussMessage, SendDiscussMessage),
     FrameType("GroupMessage", RcvdGroupMessage, SendGroupMessage),
+    FrameType("GroupAdmin", GroupAdminChange, SetGroupAdmin),
     FrameType("GroupMemberDecrease", GroupMemberDecrease, ()),
     FrameType("GroupMemberIncrease", GroupMemberIncrease, ()),
-    FrameType("GroupBan", (), GroupBan),
-    FrameType("Fatal", (), Fatal),
+    FrameType("FriendAdded", FriendAdded, ()),
+    FrameType("RequestAddFriend", RequestAddFriend, ()),
+    FrameType("RequestAddGroup", RequestAddGroup, ()),
+    FrameType("GroupUpload", GroupUpload, ()),
+    FrameType("Like", (), SendLike),
+    FrameType("GroupKick", (), SetGroupKick),
+    FrameType("GroupBan", (), SetGroupBan),
+    FrameType("GroupWholeBan", (), SetGroupWholeBan),
+    FrameType("GroupAnonymousBan", (), SetGroupAnonymousBan),
+    FrameType("GroupAnonymous", (), SetGroupAnonymous),
+    FrameType("GroupCard", (), SetGroupCard),
+    FrameType("GroupLeave", (), SetGroupLeave),
+    FrameType("GroupSpecialTitle", (), SetGroupSpecialTitle),
+    FrameType("DiscussLeave", (), SetDiscussLeave),
+    FrameType("FriendAddRequest", (), FriendAddRequest),
+    FrameType("GroupAddRequest", (), GroupAddRequest),
+    FrameType("GroupMemberInfo", (), GetGroupMemberInfo),
+    FrameType("SrvGroupMemberInfo", RcvGroupMemberInfo, ()),
+    FrameType("GroupMemberList", (), GetGroupMemberList),
+    FrameType("SrvGroupMemberList", RcvGroupMemberList, ()),
+    FrameType("StrangerInfo", (), GetStrangerInfo),
+    FrameType("SrvStrangerInfo", RcvStrangerInfo, ()),
+    FrameType("Cookies", (), GetCookies),
+    FrameType("SrvCookies", RcvCookies, ()),
+    FrameType("CsrfToken", (), GetCsrfToken),
+    FrameType("SrvCsrfToken", RcvCsrfToken, ()),
+    FrameType("LoginQQ", (), GetLoginQQ),
+    FrameType("SrvLoginQQ", RcvLoginQQ, ()),
+    FrameType("LoginNick", (), GetLoginNickname),
+    FrameType("SrvLoginNickname", RcvLoginNickname, ()),
+    FrameType("AppDirectory", (), GetAppDirectory),
+    FrameType("SrvAppDirectory", RcvAppDirectory, ()),
+    FrameType("Fatal", (), Fatal)
 )
 
 RE_CQ_SPECIAL = re.compile(r'\[CQ:\w+(,.+?)?\]')
@@ -88,6 +224,13 @@ def load_frame(data):
             RcvdPrivateMessage, RcvdGroupMessage, RcvdDiscussMessage)):
         payload[-1] = b64decode(payload[-1]).decode('gbk')
         frame = type(frame)(*payload)
+    elif isinstance(frame, (RequestAddFriend)):
+        payload[-1] = b64decode(payload[-1]).decode('gbk')
+        payload[-2] = b64decode(payload[-2]).decode('gbk')
+        frame = type(frame)(*payload)
+    elif isinstance(frame, (RcvGroupMemberList, RcvStrangerInfo, RcvCookies, RcvLoginNickname, RcvAppDirectory)):
+        payload[-1] = b64decode(payload[-1]).decode('gbk')
+        frame = type(frame)(*payload)
     return frame
 
 
@@ -99,9 +242,13 @@ def dump_frame(frame):
     payload = list(map(lambda x: str(x), frame))
 
     # encode text
-    if isinstance(frame, (
-            SendPrivateMessage, SendGroupMessage, SendDiscussMessage, Fatal)):
+    if isinstance(frame, (SendPrivateMessage, SendGroupMessage, SendDiscussMessage, SetGroupCard, Fatal)):
         payload[-1] = b64encode(payload[-1].encode('gbk', 'ignore')).decode()
+    elif isinstance(frame, (SetGroupAnonymousBan, SetGroupSpecialTitle)):
+        payload[-2] = b64encode(payload[-2].encode('gbk', 'ignore')).decode() + '\n'
+    elif isinstance(frame, (FriendAddRequest, GroupAddRequest)):
+        payload[0] = b64encode(payload[0].encode('gbk', 'ignore')).decode() + '\n'
+        payload[-1] = b64encode(payload[-1].encode('gbk', 'ignore')).decode() + '\n'
 
     data = None
     for type_ in FRAME_TYPES:
@@ -204,12 +351,13 @@ if __name__ == '__main__':
     try:
         qqbot = CQBot(11235)
 
-        @qqbot.listener((RcvdPrivateMessage, ))
+        @qqbot.listener(RcvGroupMemberList)
         def log(message):
             print(message)
 
         qqbot.start()
         print("QQBot is running...")
+        qqbot.send(GetGroupMemberList("643503161"))
         input()
     except KeyboardInterrupt:
         pass
