@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
-tg_token = 'your telegram bot token'
-qq_bot_id = 111111111 # qq number
-forward_ids = [(12345678, -23456789), (87654321, -76543218)]  # (qq group id, tg group id)
-server_pic_url = 'http://example.com:8080/image/'
+
+TOKEN = 'your telegram bot token'
+TELEGRAM_BOT_ID = 12345678
+QQ_BOT_ID = 12345678
+FORWARD_LIST = [
+    [12345678, -12345678, True, True],  # first is picture link
+    [23456789, -12345678, True, True]  # second is drive mode
+]
+SERVER_PIC_URL = 'http://example.com:8080/image/'
+JQ_MODE = True  # 加钱模式，即是否为 pro
