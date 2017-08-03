@@ -54,7 +54,7 @@ server {
 
 ## 安装必须的python3包
 
-`pip3 install urllib3 telepot pillow APScheduler requests requests-oauthlib`
+`pip3 install urllib3 python_telegram_bot pillow APScheduler requests requests-oauthlib`
 
 
 # 参数和配置
