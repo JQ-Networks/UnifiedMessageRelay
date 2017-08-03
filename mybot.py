@@ -160,7 +160,10 @@ def photo_from_telegram(bot, update):
 
     file_id = update.message.photo[-1].file_id
     pic_url = tg_get_pic_url(file_id, 'jpg')
-    text = '[图片, 请点击查看' + pic_url + ']'
+    if JQ_MODE:
+        text = '[CQ:image,file=' + file_id + '.jpg]'
+    else:
+        text = '[图片, 请点击查看' + pic_url + ']'
 
     cq_send(update, text, qq_group_id)
 
@@ -230,7 +233,10 @@ def sticker_from_telegram(bot, update):
     if get_sticker_link_mode(forward_index):
         file_id = update.message.sticker.file_id
         pic_url = tg_get_pic_url(file_id, 'png')
-        text = '[' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ']'
+        if JQ_MODE:
+            text = '[CQ:image,file=' + file_id + '.png]'
+        else:
+            text = '[' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ']'
     else:
         text = '[' + update.message.sticker.emoji + ']'
 
