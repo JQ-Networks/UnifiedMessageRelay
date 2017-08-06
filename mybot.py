@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import time
+import logging
 from pprint import pprint
 from collections import namedtuple
 
-from logger import *
 from cq_utils import *
 from short_url import *
 from bot_constant import *
@@ -12,50 +12,61 @@ from qq_emoji_list import *
 from image_operations import *
 from special_sticker_list import *
 
-from utils import CQ_IMAGE_ROOT, error, reply
+from utils import CQ_IMAGE_ROOT, error, reply, read_group_member_list
 from cqsdk import CQBot, CQAt, CQImage, RcvdPrivateMessage, RcvdGroupMessage,\
-SendGroupMessage
+SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
 from telegram.ext import Updater, CommandHandler, InlineQueryHandler, \
             ConversationHandler, RegexHandler, MessageHandler, Filters
+from telegram.error import BadRequest, TimedOut, NetworkError
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 tg_bot_id = int(TOKEN.split(':')[0])
-qq_bot = CQBot(11235)
+qq_bot = CQBot(CQ_PORT)
 tg_bot = None
 
 
 def get_full_user_name(user):
-    name = ''
-    if user.first_name:
-        name = user.first_name
-        if user.last_name:
-            name += ' ' + user.last_name
-    elif user.last_name:
-        name = user.last_name
+    if not user:
+        return ''
+    name = user.first_name
+    if user.last_name:
+        name += ' ' + user.last_name
     return name
 
 
-def get_forward_from(forward_from):
-    if forward_from:
-        result = get_full_user_name(forward_from)
-        return '(forwarded from ' + result + ')'
-    else:
+def get_forward_from(forward_from, msg):
+    if not forward_from:
         return ''
+    result = get_full_user_name(forward_from)
+    if forward_from.id == tg_bot_id and msg:
+        if msg.caption:
+            message_text = msg.caption
+        elif msg.text:
+            message_text = msg.text
+        else:
+            message_text = ''
+        msg_parts = message_text.split(":")
+        if len(msg_parts) >= 2:
+            result = msg_parts[0]
+    return '(forwarded from ' + result + ')'
 
 
 def get_reply_to(reply_to_message):
-    if reply_to_message:
-        if reply_to_message.from_user.id == tg_bot_id:
-            if reply_to_message.text:
-                reply_to = reply_to_message.text.split(":")[0]
-            else:
-                reply_to = reply_to_message.caption.split(":")[0]
-        else:
-            reply_to = get_full_user_name(reply_to_message.from_user)
-        return '(reply to ' + reply_to + ')'
-    else:
+    if not reply_to_message or not reply_to_message.from_user:
         return ''
+    reply_to = get_full_user_name(reply_to_message.from_user)
+    if reply_to_message.from_user.id == tg_bot_id:
+        if reply_to_message.caption:
+            message_text = reply_to_message.caption
+        elif reply_to_message.text:
+            message_text = reply_to_message.text
+        else:
+            message_text = ''
+        message_parts = message_text.split(":")
+        if len(message_parts) >= 2:
+            reply_to = message_parts[0]
+    return '(reply to ' + reply_to + ')'
 
 
 def get_forward_index(qq_group_id=0, tg_group_id=0):
@@ -137,7 +148,7 @@ def tg_get_pic_url(file_id, pic_type):
 
 def cq_send(update, text, qq_group_id):
     sender_name = get_full_user_name(update.message.from_user)
-    forward_from = get_forward_from(update.message.forward_from)
+    forward_from = get_forward_from(update.message.forward_from, update.message)
     reply_to = get_reply_to(update.message.reply_to_message)
 
     qq_bot.send(SendGroupMessage(
@@ -203,6 +214,9 @@ def audio_from_telegram(bot, update):
 
 
 def document_from_telegram(bot, update):
+
+    logging.info(update.message)
+
     tg_group_id = update.message.chat_id  # telegram group id
     if tg_group_id > 0:
         return  # chat id > 0 means private chat, ignore
@@ -219,7 +233,19 @@ def document_from_telegram(bot, update):
     cq_send(update, text, qq_group_id)
 
 
+def emoji_to_cqemoji(text):
+    new_text = ''
+    for char in text:
+        if 8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
+            new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
+        else:
+            new_text += char
+    return new_text
+
 def sticker_from_telegram(bot, update):
+    
+    logging.info(update.message)
+    
     tg_group_id = update.message.chat_id  # telegram group id
     if tg_group_id > 0:
         return  # chat id > 0 means private chat, ignore
@@ -238,16 +264,9 @@ def sticker_from_telegram(bot, update):
         else:
             text = '[' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ']'
     else:
-        text = '[' + update.message.sticker.emoji + ']'
+        text = '[' + update.message.sticker.emoji + ' sticker]'
 
-    new_text = ''
-    for char in text:
-        if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
-            new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
-        else:
-            new_text += char
-
-    text = new_text
+    text = emoji_to_cqemoji(text)
 
     if update.message.caption:
         text = text + ' ' + update.message.caption
@@ -261,7 +280,7 @@ def text_from_telegram(bot, update):
     :param update:
     :return:
     """
-    logging.debug(update)
+    logging.info(update.message)
 
     tg_group_id = update.message.chat_id  # telegram group id
     if update.message.text:
@@ -295,17 +314,10 @@ def text_from_telegram(bot, update):
             return
 
         sender_name = get_full_user_name(update.message.from_user)
-        forward_from = get_forward_from(update.message.forward_from)
+        forward_from = get_forward_from(update.message.forward_from, update.message)
         reply_to = get_reply_to(update.message.reply_to_message)
 
-        new_text = ''
-        for char in text:
-            if 8986 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
-                new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
-            else:
-                new_text += char
-
-        text = new_text
+        text = emoji_to_cqemoji(text)
 
         if len(text) == 0:
             text = '[不支持的消息类型]'
@@ -352,7 +364,7 @@ def new(message):
     text, _ = re.subn('&#44;', ',', text)
 
     text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
-    text = qq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))], text)  # replace [CQ:face,id=*]
+    text = qq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
@@ -405,7 +417,7 @@ def new(message):
                     tg_bot.sendDocument(tg_group_id, url, caption=full_msg)
                 else:
                     tg_bot.sendDocument(tg_group_id, url)
-            except:
+            except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
                 traceback.print_exc()
@@ -421,7 +433,7 @@ def new(message):
                     tg_bot.sendPhoto(tg_group_id, url, caption=full_msg)
                 else:
                     tg_bot.sendPhoto(tg_group_id, url)
-            except:
+            except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
                 traceback.print_exc()
@@ -438,24 +450,37 @@ def new(message):
         tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='Markdown')
 
 
+@qq_bot.listener(RcvGroupMemberList)
+def handle_group_member_list(message):
+    global qq_name_lists
+    json_list = read_group_member_list(message.path.split('\\')[-1])
+    json_list[str(QQ_BOT_ID)] = 'bot'
+    qq_name_lists.append(json_list)
+    print(qq_name_lists)
+
+
+def reload_qq_namelist():
+    global qq_name_lists
+    global qq_bot
+    qq_name_lists = []
+    for (qq, tg, sticker, drive) in FORWARD_LIST:
+        qq_bot.send(GetGroupMemberList(group=qq))
+
+
 def main():
     global qq_name_lists
     global tg_bot
-    # reflect of QQ number and QQ group member name
-    with open('namelist.json', 'r', encoding='utf-8') as f:
-        data = json.loads(f.read())
-        qq_name_lists = data
-
     global job_queue
 
     updater = Updater(TOKEN)
     job_queue = updater.job_queue
     tg_bot = updater.bot
     qq_bot.start()
+    reload_qq_namelist()
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
 
-    dp.add_handler(MessageHandler(Filters.text, text_from_telegram))
+    dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram))
     dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram))
     dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram))
     dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram))
@@ -464,7 +489,7 @@ def main():
 
     dp.add_error_handler(error)
     # Start the Bot
-    updater.start_polling()
+    updater.start_polling(poll_interval=1.0, timeout=200)
 
     # Block until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

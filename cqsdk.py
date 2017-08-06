@@ -7,8 +7,10 @@ import sys
 import threading
 import time
 import traceback
+import utils
 from base64 import b64encode, b64decode
 from collections import namedtuple
+
 
 # Socket API 通讯消息
 ClientHello = namedtuple("ClientHello", ("port"))
@@ -58,7 +60,7 @@ GroupUpload = namedtuple("GroupUpload", ("subtype", "from_group", "from_qq", "fi
 ## 点赞(Coolq Pro)
 SendLike = namedtuple("SendLike", ("qq", "times"))
 
-## 拒绝加群请求
+## 屏蔽加群请求
 SetGroupKick = namedtuple("SetGroupKick", ("group", "qq", "reject_add_request"))
 
 ## 群成员禁言
@@ -73,7 +75,7 @@ SetGroupAdmin = namedtuple("SetGroupAdmin", ("group", "qq", "set_admin"))
 ## enable_ban = 1 -> 开启全群组禁言
 SetGroupWholeBan = namedtuple("SetGroupWholeBan", ("group", "enable_ban"))
 
-## 禁言匿名者(unclear)
+## 禁言匿名者(unknown)
 SetGroupAnonymousBan = namedtuple("SetGroupAnonymousBan", ("group", "anonymous", "duration"))
 
 ## 开关群匿名发言
@@ -328,6 +330,9 @@ class CQBot():
             daemon=True)
         threaded_keepalive.start()
 
+        # wait for socket thread to init
+        time.sleep(1)
+
     def server_keepalive(self):
         while True:
             host, port = self.server.server_address
@@ -350,14 +355,14 @@ class CQBot():
 if __name__ == '__main__':
     try:
         qqbot = CQBot(11235)
-
-        @qqbot.listener(RcvGroupMemberList)
+        @qqbot.listener(RcvGroupMemberInfo)
         def log(message):
-            print(message)
+            info_bytes = b64decode(message.info)
+            member_info = utils.parse_member_info(info_bytes)
 
         qqbot.start()
         print("QQBot is running...")
-        qqbot.send(GetGroupMemberList("643503161"))
+        qqbot.send(GetGroupMemberInfo('GROUP_NUMBER_HERE', 'QQ_NUMBER_HERE', '1'))
         input()
     except KeyboardInterrupt:
         pass

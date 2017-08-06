@@ -1,10 +1,10 @@
-from PIL import Image
 import os
+import threading
+import traceback
+from PIL import Image
 from utils import CQ_IMAGE_ROOT, error
 from configparser import ConfigParser
-import threading
 from urllib.request import urlretrieve
-import traceback
 
 def create_jpg_image(path, name):
     ## convert Telegram webp image to jpg image

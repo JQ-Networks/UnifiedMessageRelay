@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 import traceback
 
 def get_short_url(long_url):
