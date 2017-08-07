@@ -176,6 +176,8 @@ def photo_from_telegram(bot, update):
     else:
         text = '[图片, 请点击查看' + pic_url + ']'
 
+    if update.message.caption:
+        text += update.message.caption
     cq_send(update, text, qq_group_id)
 
 
@@ -444,10 +446,10 @@ def new(message):
     # send plain text message with bold group member name
     if image_num == 0:
         if str(message.qq) in name_list:
-            full_msg_bold = '*' + name_list[str(message.qq)] + '*: ' + text.strip()
+            full_msg_bold = '<b>' + name_list[str(message.qq)] + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         else:
-            full_msg_bold = '*' + str(message.qq) + '*: ' + text.strip()
-        tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='Markdown')
+            full_msg_bold = '<b>' + str(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
+        tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
 @qq_bot.listener(RcvGroupMemberList)
