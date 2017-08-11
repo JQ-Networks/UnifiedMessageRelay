@@ -9,4 +9,4 @@ FORWARD_LIST = [
 SERVER_PIC_URL = 'http://example.com:8080/image/'
 CQ_ROOT_DIR = '/home/coolq/coolq_pro/'
 CQ_PORT = 11235
-JQ_MODE = True # if use Coolq Pro, set as True, othervise False
+JQ_MODE = True # if use Coolq Pro, set as True, otherwise False
