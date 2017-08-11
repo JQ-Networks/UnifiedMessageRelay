@@ -311,6 +311,8 @@ def text_from_telegram(bot, update):
     elif text == '[drive mode off]':
         set_drive_mode(forward_index, False, tg_group_id, qq_group_id)
         return
+    elif text.startswith('//'):
+        return
     else:
         if get_drive_mode(forward_index):  # check drive mode
             return
