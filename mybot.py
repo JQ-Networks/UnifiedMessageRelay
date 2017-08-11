@@ -398,6 +398,12 @@ def new(message):
     elif text == '[drive mode off]':
         set_drive_mode(forward_index, False, tg_group_id, qq_group_id)
         return
+    elif text == '[reload namelist]':
+        reload_qq_namelist()
+        qq_bot.send(SendGroupMessage(
+            group=qq_group_id,
+            text='QQ群名片已重置'
+        ))
 
     # replace QQ number to group member name, get full message text
     if str(message.qq) in name_list:
@@ -456,6 +462,8 @@ def new(message):
 def handle_group_member_list(message):
     global qq_name_lists
     json_list = read_group_member_list(message.path.split('\\')[-1])
+    for key in json_list:
+        json_list[key] = json_list[key].replace(':', ' ')
     json_list[str(QQ_BOT_ID)] = 'bot'
     qq_name_lists.append(json_list)
     print(qq_name_lists)
