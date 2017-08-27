@@ -364,7 +364,7 @@ def new(message):
             full_msg_bold = '<b>' + name_list[str(message.qq)] + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         else:
             full_msg_bold = '<b>' + str(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
-            tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+        tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
 @qq_bot.listener(RcvGroupMemberList)
