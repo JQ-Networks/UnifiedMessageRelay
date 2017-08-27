@@ -17,6 +17,11 @@ def create_png_image(path, name):
     im.save(os.path.join(path, name + ".png"), "PNG")
 
 def qq_get_pic_url(filename):
+    """
+    
+    :param filename:
+    :return:
+    """
     ## get real image url from cqimg file
     cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
     parser = ConfigParser()

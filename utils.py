@@ -11,10 +11,12 @@ from cqsdk import RE_CQ_SPECIAL, \
     SendPrivateMessage, SendGroupMessage, SendDiscussMessage, \
     GroupMemberDecrease, GroupMemberIncrease
 from bot_constant import *
+import telegram
+from mybot import tg_bot_id
 
-CQ_ROOT = CQ_ROOT_DIR
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 CQ_GROUP_LIST_ROOT = os.path.join(CQ_ROOT, r'app/org.dazzyd.cqsocketapi/GroupListCache')
+
 
 def info(*args, **kwargs):
     print("================ INFO  ================", file=sys.stderr)
@@ -26,18 +28,18 @@ def error(*args, **kwargs):
     print(*args, **kwargs, file=sys.stderr)
 
 
-def read_hex(bytes_arr, startIndex, length):
+def read_hex(bytes_arr, start_index, length):
     result = 0
-    endIndex = startIndex + length
-    if endIndex >= len(bytes_arr):
-        endIndex = len(bytes_arr) - 1
-    for i in range(startIndex, endIndex):
+    end_index = start_index + length
+    if end_index >= len(bytes_arr):
+        end_index = len(bytes_arr) - 1
+    for i in range(start_index, end_index):
         result = (result << 8) + int(bytes_arr[i])
     return result
 
 
-def read_string(bytes_arr, startIndex, length):
-    name_bytes = bytes_arr[startIndex:startIndex + length]
+def read_string(bytes_arr, start_index, length):
+    name_bytes = bytes_arr[start_index:start_index + length]
     name_str = name_bytes.decode('gbk', 'ignore')
     return name_str
 
@@ -125,7 +127,7 @@ def fill_obj_by_struct(bytes_arr, obj_struct, from_index):
             if len(item['key']) > 0:
                 obj[item['key']] = value
             i += str_len
-    return (obj, i)
+    return obj, i
 
 
 def mkdir(path):
@@ -186,3 +188,70 @@ class FileDownloader(threading.Thread):
         r = requests.get(self.url, **self.requests_kwargs)
         with open(self.path, 'wb') as f:
             f.write(r.content)
+
+
+# Message attributing functions
+# Below this line is the user name processing function used by mybot.py
+
+def get_full_user_name(user: telegram.User):
+    """
+    Combine user's first name and last name
+    :param user: the user which you want to extract name from
+    :return: combined user name
+    """
+    if not user:
+        return ''
+    name = user.first_name
+    if user.last_name:
+        name += ' ' + user.last_name
+    return name
+
+
+def get_forward_from(message: telegram.Message):
+    """
+    Combine forwarded user's first name and last name and format into (forwarded from xxx)
+    :param message: the forwarded message
+    :return: combined (forwarded from xxx)
+    """
+    if not message.forward_from:
+        return ''
+    result = get_full_user_name(message.forward_from)
+    if message.forward_from.id == tg_bot_id:
+        if message.caption:
+            message_text = message.caption
+        elif message.text:
+            message_text = message.text
+        else:
+            message_text = ''
+        right_end = message_text.find(':')
+        if right_end != -1:
+            result = message_text[:right_end]
+        # msg_parts = message_text.split(':')
+        # if len(msg_parts) >= 2:
+        #     result = msg_parts[0]
+    return '(forwarded from ' + result + ')'
+
+
+def get_reply_to(reply_to_message: telegram.Message):
+    """
+    Combine replied user's first name and last name and format into (reply to from xxx)
+    :param reply_to_message: the replied message
+    :return: combined (reply to from xxx)
+    """
+    if not reply_to_message or not reply_to_message.from_user:
+        return ''
+    reply_to = get_full_user_name(reply_to_message.from_user)
+    if reply_to_message.from_user.id == tg_bot_id:
+        if reply_to_message.caption:
+            message_text = reply_to_message.caption
+        elif reply_to_message.text:
+            message_text = reply_to_message.text
+        else:
+            message_text = ''
+        right_end = message_text.find(':')
+        if right_end != -1:
+            reply_to = message_text[:right_end]
+        # message_parts = message_text.split(':')
+        # if len(message_parts) >= 2:
+        #     reply_to = message_parts[0]
+    return '(reply to ' + reply_to + ')'

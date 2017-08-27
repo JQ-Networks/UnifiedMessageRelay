@@ -7,6 +7,6 @@ FORWARD_LIST = [
     [87654321, -76543218, False, True]
 ]  # (qq group id, tg group id, sticker link mode default, drive mode default)
 SERVER_PIC_URL = 'http://example.com:8080/image/'
-CQ_ROOT_DIR = '/home/coolq/coolq_pro/'
+CQ_ROOT = '/home/coolq/coolq_pro/'
 CQ_PORT = 11235
 JQ_MODE = True # if use Coolq Pro, set as True, otherwise False

@@ -2,21 +2,22 @@
 # -*- coding: utf-8 -*-
 import time
 import logging
-from pprint import pprint
+
 from collections import namedtuple
 
+from utils import *
 from cq_utils import *
 from short_url import *
-from bot_constant import *
 from qq_emoji_list import *
+from special_modes import *
 from image_operations import *
 from special_sticker_list import *
 
-from utils import CQ_IMAGE_ROOT, error, reply, read_group_member_list
+
 from cqsdk import CQBot, CQAt, CQImage, RcvdPrivateMessage, RcvdGroupMessage,\
-SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
-from telegram.ext import Updater, CommandHandler, InlineQueryHandler, \
-            ConversationHandler, RegexHandler, MessageHandler, Filters
+    SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
+from telegram.ext import Updater, CommandHandler, InlineQueryHandler,\
+    ConversationHandler, RegexHandler, MessageHandler, Filters
 from telegram.error import BadRequest, TimedOut, NetworkError
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
@@ -24,106 +25,6 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 tg_bot_id = int(TOKEN.split(':')[0])
 qq_bot = CQBot(CQ_PORT)
 tg_bot = None
-
-
-def get_full_user_name(user):
-    if not user:
-        return ''
-    name = user.first_name
-    if user.last_name:
-        name += ' ' + user.last_name
-    return name
-
-
-def get_forward_from(forward_from, msg):
-    if not forward_from:
-        return ''
-    result = get_full_user_name(forward_from)
-    if forward_from.id == tg_bot_id and msg:
-        if msg.caption:
-            message_text = msg.caption
-        elif msg.text:
-            message_text = msg.text
-        else:
-            message_text = ''
-        msg_parts = message_text.split(":")
-        if len(msg_parts) >= 2:
-            result = msg_parts[0]
-    return '(forwarded from ' + result + ')'
-
-
-def get_reply_to(reply_to_message):
-    if not reply_to_message or not reply_to_message.from_user:
-        return ''
-    reply_to = get_full_user_name(reply_to_message.from_user)
-    if reply_to_message.from_user.id == tg_bot_id:
-        if reply_to_message.caption:
-            message_text = reply_to_message.caption
-        elif reply_to_message.text:
-            message_text = reply_to_message.text
-        else:
-            message_text = ''
-        message_parts = message_text.split(":")
-        if len(message_parts) >= 2:
-            reply_to = message_parts[0]
-    return '(reply to ' + reply_to + ')'
-
-
-def get_forward_index(qq_group_id=0, tg_group_id=0):
-    """
-    Get forward index from FORWARD_LIST
-    :param qq_group_id: optional, the qq group id, either this or tg_group_id must be valid
-    :param tg_group_id: optional, the telegram group id, either this or qq_group_id must be valid
-    :return: qq_group_id, tg_group_id, forward_index
-    """
-    for idx, (qq, tg, sticker, drive) in enumerate(FORWARD_LIST):
-        if tg == tg_group_id or qq == qq_group_id:
-            return qq, tg, idx
-    return 0, 0, -1  # -1 is not found
-
-
-def set_sticker_link_mode(forward_index, status, tg_group_id, qq_group_id):
-    """
-    set sticker link mode on/off
-    :param forward_index: the index of FORWARD_LIST
-    :param status: True: enable, False: disable
-    :param bot:
-    :param tg_group_id:
-    :param qq_group_id:
-    """
-    if status:
-        msg = 'Telegram Sticker图片链接已启用'
-    else:
-        msg = 'Telegram Sticker图片链接已禁用'
-    FORWARD_LIST[forward_index][3] = status
-    tg_bot.sendMessage(tg_group_id, msg)
-    qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
-
-
-def get_sticker_link_mode(forward_index):
-    return FORWARD_LIST[forward_index][3]
-
-
-def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
-    """
-    set drive mode on/off
-    :param forward_index: the index of FORWARD_LIST
-    :param status: True: enable, False: disable
-    :param bot:
-    :param tg_group_id:
-    :param qq_group_id:
-    """
-    if status:
-        msg = 'Telegram向QQ转发消息已暂停'
-    else:
-        msg = 'Telegram向QQ转发消息已重启'
-    FORWARD_LIST[forward_index][2] = status
-    tg_bot.sendMessage(tg_group_id, msg)
-    qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
-
-
-def get_drive_mode(forward_index):
-    return FORWARD_LIST[forward_index][2]
 
 
 def tg_get_pic_url(file_id, pic_type):
@@ -148,7 +49,7 @@ def tg_get_pic_url(file_id, pic_type):
 
 def cq_send(update, text, qq_group_id):
     sender_name = get_full_user_name(update.message.from_user)
-    forward_from = get_forward_from(update.message.forward_from, update.message)
+    forward_from = get_forward_from(update.message)
     reply_to = get_reply_to(update.message.reply_to_message)
 
     qq_bot.send(SendGroupMessage(
@@ -244,6 +145,7 @@ def emoji_to_cqemoji(text):
             new_text += char
     return new_text
 
+
 def sticker_from_telegram(bot, update):
     
     logging.info(update.message)
@@ -318,9 +220,13 @@ def text_from_telegram(bot, update):
             return
 
         sender_name = get_full_user_name(update.message.from_user)
-        forward_from = get_forward_from(update.message.forward_from, update.message)
+        forward_from = get_forward_from(update.message)
         reply_to = get_reply_to(update.message.reply_to_message)
 
+        if update.message.forward_from.id == tg_bot_id:
+            left_start = text.find(': ')
+            if left_start != -1:
+                text = text[left_start + 2:]
         text = emoji_to_cqemoji(text)
 
         if len(text) == 0:
