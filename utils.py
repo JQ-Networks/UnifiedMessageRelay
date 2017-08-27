@@ -12,7 +12,9 @@ from cqsdk import RE_CQ_SPECIAL, \
     GroupMemberDecrease, GroupMemberIncrease
 from bot_constant import *
 import telegram
-from mybot import tg_bot_id
+import global_vars
+
+global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 CQ_GROUP_LIST_ROOT = os.path.join(CQ_ROOT, r'app/org.dazzyd.cqsocketapi/GroupListCache')
@@ -216,7 +218,7 @@ def get_forward_from(message: telegram.Message):
     if not message.forward_from:
         return ''
     result = get_full_user_name(message.forward_from)
-    if message.forward_from.id == tg_bot_id:
+    if message.forward_from.id == global_vars.tg_bot_id:
         if message.caption:
             message_text = message.caption
         elif message.text:

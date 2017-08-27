@@ -1,6 +1,6 @@
 from bot_constant import *
 from cqsdk import SendGroupMessage
-from mybot import qq_bot, tg_bot
+from global_vars import qq_bot, tg_bot
 
 
 def get_forward_index(qq_group_id=0, tg_group_id=0):

@@ -6,13 +6,13 @@ import logging
 from collections import namedtuple
 
 from utils import *
+import global_vars
 from cq_utils import *
 from short_url import *
 from qq_emoji_list import *
 from special_modes import *
 from image_operations import *
 from special_sticker_list import *
-
 
 from cqsdk import CQBot, CQAt, CQImage, RcvdPrivateMessage, RcvdGroupMessage,\
     SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
@@ -21,10 +21,8 @@ from telegram.ext import Updater, CommandHandler, InlineQueryHandler,\
 from telegram.error import BadRequest, TimedOut, NetworkError
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
-
-tg_bot_id = int(TOKEN.split(':')[0])
-qq_bot = CQBot(CQ_PORT)
-tg_bot = None
+global_vars.qq_bot = CQBot(CQ_PORT)
+global_vars.tg_bot = None
 
 
 def tg_get_pic_url(file_id, pic_type):
@@ -34,7 +32,7 @@ def tg_get_pic_url(file_id, pic_type):
     :param pic_type: picture extension name
     :return:
     """
-    file = tg_bot.getFile(file_id)
+    file = global_vars.tg_bot.getFile(file_id)
     urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
@@ -52,7 +50,7 @@ def cq_send(update, text, qq_group_id):
     forward_from = get_forward_from(update.message)
     reply_to = get_reply_to(update.message.reply_to_message)
 
-    qq_bot.send(SendGroupMessage(
+    global_vars.qq_bot.send(SendGroupMessage(
         group=qq_group_id,
         text=sender_name + reply_to + forward_from + ': ' + text
     ))
@@ -190,7 +188,7 @@ def text_from_telegram(bot, update):
     if update.message.text:
         text = update.message.text
         if text == '[showgroupid]':
-            tg_bot.sendMessage(tg_group_id, u'DEBUG: tg_group_id = ' + str(tg_group_id))
+            global_vars.tg_bot.sendMessage(tg_group_id, u'DEBUG: tg_group_id = ' + str(tg_group_id))
             return
     if tg_group_id > 0:
         return  # chat id > 0 means private chat, ignore
@@ -223,7 +221,7 @@ def text_from_telegram(bot, update):
         forward_from = get_forward_from(update.message)
         reply_to = get_reply_to(update.message.reply_to_message)
 
-        if update.message.forward_from.id == tg_bot_id:
+        if update.message.forward_from.id == global_vars.tg_bot_id:
             left_start = text.find(': ')
             if left_start != -1:
                 text = text[left_start + 2:]
@@ -232,9 +230,9 @@ def text_from_telegram(bot, update):
         if len(text) == 0:
             text = '[不支持的消息类型]'
 
-        qq_bot.send(SendGroupMessage(
-            group=qq_group_id,
-            text=sender_name + reply_to + forward_from + ': ' + text
+            global_vars.qq_bot.send(SendGroupMessage(
+                group=qq_group_id,
+                text=sender_name + reply_to + forward_from + ': ' + text
         ))
 
 
@@ -244,7 +242,7 @@ messages = []  # Message queue
 qq_name_lists = None
 
 
-@qq_bot.listener((RcvdGroupMessage, ))
+@global_vars.qq_bot.listener((RcvdGroupMessage, ))
 def new(message):
     logging.info('(' + message.qq + '): ' + message.text)
     messages.append(Message(message.qq, int(time.time()), message.text))  # add to message queue
@@ -260,7 +258,7 @@ def new(message):
     if text.startswith('!'):
         sticker = text.lstrip('!')
         if sticker in special_sticker_list:
-            tg_bot.sendSticker(tg_group_id, special_sticker_list[sticker])
+            global_vars.tg_bot.sendSticker(tg_group_id, special_sticker_list[sticker])
             return
 
     name_list = qq_name_lists[forward_index]  # get reflect of this QQ group member
@@ -308,7 +306,7 @@ def new(message):
         return
     elif text == '[reload namelist]':
         reload_qq_namelist()
-        qq_bot.send(SendGroupMessage(
+        global_vars.qq_bot.send(SendGroupMessage(
             group=qq_group_id,
             text='QQ群名片已重置'
         ))
@@ -330,32 +328,32 @@ def new(message):
             try:
                 # the first image in message attach full message text
                 if image_num == 1:
-                    tg_bot.sendDocument(tg_group_id, url, caption=full_msg)
+                    global_vars.tg_bot.sendDocument(tg_group_id, url, caption=full_msg)
                 else:
-                    tg_bot.sendDocument(tg_group_id, url)
+                    global_vars.tg_bot.sendDocument(tg_group_id, url)
             except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
                 traceback.print_exc()
                 qq_download_pic(filename)
                 my_url = get_short_url(SERVER_PIC_URL + filename)
-                tg_bot.sendMessage(tg_group_id, my_url + '\n' + full_msg)
+                global_vars.tg_bot.sendMessage(tg_group_id, my_url + '\n' + full_msg)
 
         # jpg/png pictures send as photo
         else:
             try:
                 # the first image in message attach full message text
                 if image_num == 1:
-                    tg_bot.sendPhoto(tg_group_id, url, caption=full_msg)
+                    global_vars.tg_bot.sendPhoto(tg_group_id, url, caption=full_msg)
                 else:
-                    tg_bot.sendPhoto(tg_group_id, url)
+                    global_vars.tg_bot.sendPhoto(tg_group_id, url)
             except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
                 traceback.print_exc()
                 qq_download_pic(filename)
                 my_url = get_short_url(SERVER_PIC_URL + filename)
-                tg_bot.sendMessage(tg_group_id, my_url + '\n' + full_msg)
+                global_vars.tg_bot.sendMessage(tg_group_id, my_url + '\n' + full_msg)
 
     # send plain text message with bold group member name
     if image_num == 0:
@@ -363,10 +361,10 @@ def new(message):
             full_msg_bold = '<b>' + name_list[str(message.qq)] + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         else:
             full_msg_bold = '<b>' + str(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
-        tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+            global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
-@qq_bot.listener(RcvGroupMemberList)
+@global_vars.qq_bot.listener(RcvGroupMemberList)
 def handle_group_member_list(message):
     global qq_name_lists
     json_list = read_group_member_list(message.path.split('\\')[-1])
@@ -379,21 +377,19 @@ def handle_group_member_list(message):
 
 def reload_qq_namelist():
     global qq_name_lists
-    global qq_bot
     qq_name_lists = []
     for (qq, tg, sticker, drive) in FORWARD_LIST:
-        qq_bot.send(GetGroupMemberList(group=qq))
+        global_vars.qq_bot.send(GetGroupMemberList(group=qq))
 
 
 def main():
     global qq_name_lists
-    global tg_bot
     global job_queue
 
     updater = Updater(TOKEN)
     job_queue = updater.job_queue
-    tg_bot = updater.bot
-    qq_bot.start()
+    global_vars.tg_bot = updater.bot
+    global_vars.qq_bot.start()
     reload_qq_namelist()
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
