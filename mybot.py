@@ -322,9 +322,9 @@ def new(message):
 
     # send pictures to Telegram group
     image_num = 0
-    for match in CQImage.PATTERN.finditer(message.text):
+    for matches in CQImage.PATTERN.finditer(message.text):
         image_num = image_num + 1
-        filename = match.group(1)
+        filename = matches.group(1)
         url = qq_get_pic_url(filename)
         # gif pictures send as document
         if filename.lower().endswith('gif'):
