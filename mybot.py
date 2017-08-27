@@ -246,7 +246,7 @@ messages = []  # Message queue
 qq_name_lists = None
 
 
-@global_vars.qq_bot.listener((RcvdGroupMessage, ))
+@qq_bot.listener((RcvdGroupMessage, ))
 def new(message):
     logging.info('(' + message.qq + '): ' + message.text)
     messages.append(Message(message.qq, int(time.time()), message.text))  # add to message queue
