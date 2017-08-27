@@ -14,8 +14,6 @@ from bot_constant import *
 import telegram
 import global_vars
 
-global_vars.tg_bot_id = int(TOKEN.split(':')[0])
-
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 CQ_GROUP_LIST_ROOT = os.path.join(CQ_ROOT, r'app/org.dazzyd.cqsocketapi/GroupListCache')
 
