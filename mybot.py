@@ -225,7 +225,7 @@ def text_from_telegram(bot, update):
         forward_from = get_forward_from(update.message)
         reply_to = get_reply_to(update.message.reply_to_message)
 
-        if update.message.forward_from.id == global_vars.tg_bot_id:
+        if forward_from and update.message.forward_from.id == global_vars.tg_bot_id:
             left_start = text.find(': ')
             if left_start != -1:
                 text = text[left_start + 2:]
@@ -234,9 +234,9 @@ def text_from_telegram(bot, update):
         if len(text) == 0:
             text = '[不支持的消息类型]'
 
-            qq_bot.send(SendGroupMessage(
-                group=qq_group_id,
-                text=sender_name + reply_to + forward_from + ': ' + text
+        qq_bot.send(SendGroupMessage(
+            group=qq_group_id,
+            text=sender_name + reply_to + forward_from + ': ' + text
         ))
 
 
