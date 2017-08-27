@@ -24,9 +24,8 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 qq_bot = CQBot(CQ_PORT)
 tg_bot = None
-global_vars.qq_bot = qq_bot
-global_vars.tg_bot = tg_bot
-global_vars.tg_bot_id = int(TOKEN.split(':')[0])
+global_vars.set_qq_bot(qq_bot)
+global_vars.set_tg_bot_id(int(TOKEN.split(':')[0]))
 
 
 def tg_get_pic_url(file_id, pic_type):
@@ -395,6 +394,7 @@ def main():
     updater = Updater(TOKEN)
     job_queue = updater.job_queue
     tg_bot = updater.bot
+    global_vars.set_tg_bot(tg_bot)
     qq_bot.start()
     reload_qq_namelist()
     # Get the dispatcher to register handlers
