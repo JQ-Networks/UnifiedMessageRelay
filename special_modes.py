@@ -1,6 +1,6 @@
 from bot_constant import *
 from cqsdk import SendGroupMessage
-from global_vars import qq_bot, tg_bot
+import global_vars
 
 
 def get_forward_index(qq_group_id=0, tg_group_id=0):
@@ -30,8 +30,8 @@ def set_sticker_link_mode(forward_index, status, tg_group_id, qq_group_id):
     else:
         msg = 'Telegram Sticker图片链接已禁用'
     FORWARD_LIST[forward_index][3] = status
-    tg_bot.sendMessage(tg_group_id, msg)
-    qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+    global_vars.tg_bot.sendMessage(tg_group_id, msg)
+    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
 def get_sticker_link_mode(forward_index):
@@ -52,8 +52,8 @@ def set_drive_mode(forward_index, status, tg_group_id, qq_group_id):
     else:
         msg = 'Telegram向QQ转发消息已重启'
     FORWARD_LIST[forward_index][2] = status
-    tg_bot.sendMessage(tg_group_id, msg)
-    qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+    global_vars.tg_bot.sendMessage(tg_group_id, msg)
+    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
 def get_drive_mode(forward_index):
