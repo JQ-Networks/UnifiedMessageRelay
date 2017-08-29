@@ -279,8 +279,8 @@ def new(message):
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
-        if qq_number in qq_name_lists[0]:
-            return '@' + qq_name_lists[0][qq_number]
+        if qq_number in qq_name_lists[forward_index]:
+            return '@' + qq_name_lists[forward_index][qq_number]
         else:
             return '@' + qq_number
 
