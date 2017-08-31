@@ -241,7 +241,7 @@ def get_reply_to(reply_to_message: telegram.Message):
     if not reply_to_message or not reply_to_message.from_user:
         return ''
     reply_to = get_full_user_name(reply_to_message.from_user)
-    if reply_to_message.from_user.id == tg_bot_id:
+    if reply_to_message.from_user.id == global_vars.tg_bot_id:
         if reply_to_message.caption:
             message_text = reply_to_message.caption
         elif reply_to_message.text:
