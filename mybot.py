@@ -141,7 +141,7 @@ def document_from_telegram(bot, update):
 def emoji_to_cqemoji(text):
     new_text = ''
     for char in text:
-        if ord(char) in EMOJI_LIST:
+        if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
             new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
         else:
             new_text += char
