@@ -7,7 +7,6 @@ import sys
 import threading
 import time
 import traceback
-import utils
 from base64 import b64encode, b64decode
 from collections import namedtuple
 
@@ -220,18 +219,19 @@ def load_frame(data):
     for type_ in FRAME_TYPES:
         if prefix == type_.prefix:
             frame = type_.rcvd(*payload)
-    
+            break
+
     # decode text
     if isinstance(frame, (
             RcvdPrivateMessage, RcvdGroupMessage, RcvdDiscussMessage)):
-        payload[-1] = b64decode(payload[-1]).decode('gbk')
+        payload[-1] = b64decode(payload[-1]).decode('gb18030')
         frame = type(frame)(*payload)
     elif isinstance(frame, (RequestAddFriend)):
-        payload[-1] = b64decode(payload[-1]).decode('gbk')
-        payload[-2] = b64decode(payload[-2]).decode('gbk')
+        payload[-1] = b64decode(payload[-1]).decode('gb18030')
+        payload[-2] = b64decode(payload[-2]).decode('gb18030')
         frame = type(frame)(*payload)
     elif isinstance(frame, (RcvGroupMemberList, RcvStrangerInfo, RcvCookies, RcvLoginNickname, RcvAppDirectory)):
-        payload[-1] = b64decode(payload[-1]).decode('gbk')
+        payload[-1] = b64decode(payload[-1]).decode('gb18030')
         frame = type(frame)(*payload)
     return frame
 
@@ -245,12 +245,12 @@ def dump_frame(frame):
 
     # encode text
     if isinstance(frame, (SendPrivateMessage, SendGroupMessage, SendDiscussMessage, SetGroupCard, Fatal)):
-        payload[-1] = b64encode(payload[-1].encode('gbk', 'ignore')).decode()
+        payload[-1] = b64encode(payload[-1].encode('gb18030', 'ignore')).decode()
     elif isinstance(frame, (SetGroupAnonymousBan, SetGroupSpecialTitle)):
-        payload[-2] = b64encode(payload[-2].encode('gbk', 'ignore')).decode() + '\n'
+        payload[-2] = b64encode(payload[-2].encode('gb18030', 'ignore')).decode() + '\n'
     elif isinstance(frame, (FriendAddRequest, GroupAddRequest)):
-        payload[0] = b64encode(payload[0].encode('gbk', 'ignore')).decode() + '\n'
-        payload[-1] = b64encode(payload[-1].encode('gbk', 'ignore')).decode() + '\n'
+        payload[0] = b64encode(payload[0].encode('gb18030', 'ignore')).decode() + '\n'
+        payload[-1] = b64encode(payload[-1].encode('gb18030', 'ignore')).decode() + '\n'
 
     data = None
     for type_ in FRAME_TYPES:
@@ -353,6 +353,7 @@ class CQBot():
 
 
 if __name__ == '__main__':
+    import utils
     try:
         qqbot = CQBot(11235)
         @qqbot.listener(RcvGroupMemberInfo)
