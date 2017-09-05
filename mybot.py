@@ -10,6 +10,7 @@ import global_vars
 from cq_utils import *
 from short_url import *
 from qq_emoji_list import *
+from cqemoji import EMOJI_LIST
 from special_modes import *
 from image_operations import *
 from special_sticker_list import *
@@ -140,7 +141,7 @@ def document_from_telegram(bot, update):
 def emoji_to_cqemoji(text):
     new_text = ''
     for char in text:
-        if 8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472:
+        if ord(char) in EMOJI_LIST:
             new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
         else:
             new_text += char
