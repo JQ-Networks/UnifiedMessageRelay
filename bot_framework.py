@@ -3,6 +3,7 @@
 import time
 import logging
 
+from enum import Enum
 from utils import *
 from special_modes import *
 from image_operations import *
@@ -12,7 +13,17 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 
 global_vars.set_tg_bot_id(int(TOKEN.split(':')[0]))
 
+
 TG_TYPES = ('photo', 'video', 'audio', 'document', 'sticker', 'text')
+
+
+class TgTypes(Enum):  # only useful for auto completion
+    photo = 'photo'
+    video = 'video'
+    audio = 'audio'
+    document = 'document'
+    sticker = 'sticker'
+    text = 'text'
 
 
 class TGMessageHandler:
@@ -29,6 +40,7 @@ class TGBot:
         self.job_queue = None
         self.tg_bot = None
         self.token = token
+        self.updater = None
 
     def start(self):
         threaded_server = threading.Thread(
@@ -40,13 +52,13 @@ class TGBot:
         time.sleep(1)
 
     def serve_forever(self):
-        updater = Updater(self.token)
-        self.job_queue = updater.job_queue
-        self.tg_bot = updater.bot
+        self.updater = Updater(self.token)
+        self.job_queue = self.updater.job_queue
+        self.tg_bot = self.updater.bot
         global_vars.set_tg_bot(self.tg_bot)
 
         # Get the dispatcher to register handlers
-        dp = updater.dispatcher
+        dp = self.updater.dispatcher
 
         dp.add_handler(MessageHandler(Filters.text | Filters.command, self.message_handler_generator('text')))
         dp.add_handler(MessageHandler(Filters.sticker, self.message_handler_generator('sticker')))
@@ -57,12 +69,12 @@ class TGBot:
 
         dp.add_error_handler(error)
         # Start the Bot
-        updater.start_polling(poll_interval=1.0, timeout=200)
+        self.updater.start_polling(poll_interval=1.0, timeout=200)
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
         # start_polling() is non-blocking and will stop the bot gracefully.
-        updater.idle()
+        self.updater.idle()
 
     def message_handler_generator(self, tg_type):
         def message_handler(bot, update):
@@ -87,3 +99,15 @@ class TGBot:
         def decorator(handler):
             self.listeners.append(TGMessageHandler(tg_type, handler))
         return decorator
+
+
+if __name__ == '__main__':
+    tgbot = TGBot('123123123:test')
+
+
+    @tgbot.listener(TgTypes.text)
+    def log(update):
+        print(update.message)
+
+    tgbot.start()
+    input()
