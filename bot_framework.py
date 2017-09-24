@@ -61,7 +61,6 @@ class TGBot:
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
         # start_polling() is non-blocking and will stop the bot gracefully.
-        self.updater.idle()
 
     def message_handler_generator(self, tg_type):
         def message_handler(bot, update):
