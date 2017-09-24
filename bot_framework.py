@@ -16,15 +16,6 @@ logging.basicConfig(filename='bot.log', level=logging.INFO)
 TG_TYPES = ('photo', 'video', 'audio', 'document', 'sticker', 'text')
 
 
-class TgTypes(Enum):  # only useful for auto completion
-    photo = 'photo'
-    video = 'video'
-    audio = 'audio'
-    document = 'document'
-    sticker = 'sticker'
-    text = 'text'
-
-
 class TGMessageHandler:
     def __init__(self, handler):
         self.handler = handler
@@ -101,7 +92,7 @@ if __name__ == '__main__':
     tgbot = TGBot('123123123:test')
 
 
-    @tgbot.listener(TgTypes.text)
+    @tgbot.listener('text')
     def log(update):
         print(update.message)
 
