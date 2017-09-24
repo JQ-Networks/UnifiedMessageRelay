@@ -33,7 +33,7 @@ class TGBot:
 
     def start(self):
         threaded_server = threading.Thread(
-            target=self.server.serve_forever,
+            target=self.serve_forever,
             daemon=True)
         threaded_server.start()
 
