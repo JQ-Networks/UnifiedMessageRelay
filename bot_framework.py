@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 import time
 import logging
+import threading
 
 from enum import Enum
-from utils import *
 from special_modes import *
 from image_operations import *
 from telegram.ext import Updater, MessageHandler, Filters
