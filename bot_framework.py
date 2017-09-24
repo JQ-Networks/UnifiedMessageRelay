@@ -5,7 +5,6 @@ import logging
 import threading
 
 from enum import Enum
-from special_modes import *
 from image_operations import *
 from telegram.ext import Updater, MessageHandler, Filters
 
@@ -79,13 +78,13 @@ class TGBot:
     def message_handler_generator(self, tg_type):
         def message_handler(bot, update):
             original_self = self
-            tg_group_id = update.message.chat_id  # telegram group id
-            if tg_group_id > 0:
-                return  # chat id > 0 means private chat, ignore
-
-            qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-            if forward_index == -1:
-                return
+            # tg_group_id = update.message.chat_id  # telegram group id
+            # if tg_group_id > 0:
+            #     return  # chat id > 0 means private chat, ignore
+            #
+            # qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+            # if forward_index == -1:
+            #     return
 
             for listener in original_self.listeners[tg_type]:
                 try:
