@@ -3,14 +3,14 @@
 import time
 import logging
 import threading
+import traceback
 
 from enum import Enum
-from image_operations import *
 from telegram.ext import Updater, MessageHandler, Filters
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
-global_vars.set_tg_bot_id(int(TOKEN.split(':')[0]))
+# global_vars.set_tg_bot_id(int(TOKEN.split(':')[0]))
 
 
 TG_TYPES = ('photo', 'video', 'audio', 'document', 'sticker', 'text')
@@ -54,7 +54,7 @@ class TGBot:
         self.updater = Updater(self.token)
         self.job_queue = self.updater.job_queue
         self.tg_bot = self.updater.bot
-        global_vars.set_tg_bot(self.tg_bot)
+        # global_vars.set_tg_bot(self.tg_bot)
 
         # Get the dispatcher to register handlers
         dp = self.updater.dispatcher
@@ -65,8 +65,6 @@ class TGBot:
         dp.add_handler(MessageHandler(Filters.photo, self.message_handler_generator('photo')))
         dp.add_handler(MessageHandler(Filters.document, self.message_handler_generator('document')))
         dp.add_handler(MessageHandler(Filters.video, self.message_handler_generator('video')))
-
-        dp.add_error_handler(error)
         # Start the Bot
         self.updater.start_polling(poll_interval=1.0, timeout=200)
 
