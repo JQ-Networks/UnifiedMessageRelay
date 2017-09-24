@@ -278,13 +278,18 @@ class APIRequestHandler(socketserver.BaseRequestHandler):
             print("Unknown message", parts, file=sys.stderr)
             return
 
-        for listener in self.server.listeners:
-            try:
-                if (isinstance(message, listener.frame_type) and
-                        listener.handler(message)):
-                    break
-            except:
-                traceback.print_exc()
+        move_next = True
+        for group in self.groups:
+            for listener in self.server.listeners[group]:
+                try:
+                    if (isinstance(message, listener.frame_type) and
+                            listener.handler(message)):
+                        move_next = False
+                        break
+                except:
+                    traceback.print_exc()
+            if not move_next:
+                break
 
 
 class APIServer(socketserver.UDPServer):
@@ -293,13 +298,15 @@ class APIServer(socketserver.UDPServer):
 
 class CQBot():
     def __init__(self, server_port, client_port=0, online=True, debug=False):
-        self.listeners = []
+        self.listeners = {}
+        """Dict[:obj:`int`, List[:class:`FrameListener`]]: Holds the handlers per group."""
 
         self.remote_addr = ("127.0.0.1", server_port)
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.local_addr = ("127.0.0.1", client_port)
         self.server = APIServer(self.local_addr, APIRequestHandler)
+        self.groups = []
 
         # Online mode
         #   True: Retrive message from socket API server
@@ -339,9 +346,14 @@ class CQBot():
             self.send(ClientHello(port))
             time.sleep(30)
 
-    def listener(self, frame_type):
+    def listener(self, frame_type, group=0):
+        if group not in self.listeners:
+            self.handlers[group] = list()
+            self.groups.append(group)
+            self.groups = sorted(self.groups)
+
         def decorator(handler):
-            self.listeners.append(FrameListener(handler, frame_type))
+            self.listeners[group].append(FrameListener(handler, frame_type))
         return decorator
 
     def send(self, message):

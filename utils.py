@@ -255,3 +255,16 @@ def get_reply_to(reply_to_message: telegram.Message):
         # if len(message_parts) >= 2:
         #     reply_to = message_parts[0]
     return '(reply to ' + reply_to + ')'
+
+
+def get_forward_index(qq_group_id=0, tg_group_id=0):
+    """
+    Get forward index from FORWARD_LIST
+    :param qq_group_id: optional, the qq group id, either this or tg_group_id must be valid
+    :param tg_group_id: optional, the telegram group id, either this or qq_group_id must be valid
+    :return: qq_group_id, tg_group_id, forward_index
+    """
+    for idx, (qq, tg, sticker, drive) in enumerate(FORWARD_LIST):
+        if tg == tg_group_id or qq == qq_group_id:
+            return qq, tg, idx
+    return 0, 0, -1  # -1 is not found
