@@ -26,8 +26,7 @@ class TgTypes(Enum):  # only useful for auto completion
 
 
 class TGMessageHandler:
-    def __init__(self, type, handler):
-        self.type = type
+    def __init__(self, handler):
         self.handler = handler
 
 
@@ -94,7 +93,7 @@ class TGBot:
 
     def listener(self, tg_type):
         def decorator(handler):
-            self.listeners.append(TGMessageHandler(tg_type, handler))
+            self.listeners[tg_type].append(TGMessageHandler(handler))
         return decorator
 
 
