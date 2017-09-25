@@ -3,7 +3,6 @@ from cqsdk import SendGroupMessage
 import global_vars
 
 
-
 def set_sticker_link_mode(forward_index, status, tg_group_id, qq_group_id):
     """
     set sticker link mode on/off

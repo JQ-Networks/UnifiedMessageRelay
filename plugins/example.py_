@@ -1,35 +1,46 @@
 from common import *
 
-DRIVE_MODE = []
+"""
+do whatever you want before adding handler here
+"""
 
-for forward in FORWARD_LIST:
-    DRIVE_MODE.append(FORWARD_LIST['Drive_mode'])
 
+"""
+tg handler functions:
+"""
 
 def tg_drive_mode(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-    # if forward_index == -1:
-    #     raise dispatcher.DispatcherHandlerStop()
+    if forward_index == -1:
+        raise dispatcher.DispatcherHandlerStop()
     if DRIVE_MODE[forward_index]:
         raise dispatcher.DispatcherHandlerStop()
 
+"""
+add tg handlers
+"""
 
 global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 1)  # priority 1
 
+
+"""
+qq handler functions:
+"""
 
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 1)  # priority 1
 def qq_drive_mode(message):
     qq_group_id = int(message.group)
     _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
-    # if forward_index == -1:
-    #     return True
+    if forward_index == -1:
+        return True
     if DRIVE_MODE[forward_index]:
         return True
     return False
 
-
-# add commands
+"""
+add commands
+"""
 
 @command_listener('[drive mode on]')
 def drive_mode_on(forward_index, tg_group_id, qq_group_id):
