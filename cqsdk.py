@@ -268,10 +268,10 @@ cqbot = None
 
 
 class APIRequestHandler(socketserver.BaseRequestHandler):
-    def __init__(self):
+    def __init__(self, request, client_address, server):
         global cqbot
         self.cqbot = cqbot
-        socketserver.BaseRequestHandler.__init__(self)
+        socketserver.BaseRequestHandler.__init__(self, request, client_address, server)
 
     def handle(self):
         data = self.request[0].decode()
