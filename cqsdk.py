@@ -308,7 +308,7 @@ class CQBot():
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.local_addr = ("127.0.0.1", client_port)
-        self.server = APIServer(self.local_addr, APIRequestHandler)
+        self.server = APIServer(self.local_addr, APIRequestHandler(self))
         self.groups = []
 
         # Online mode
