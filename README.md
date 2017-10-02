@@ -2,9 +2,13 @@
 
 QQ和Telegram的消息互转机器人
 
+2.0 版本正在构建中，预计有生之年
+
 QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 源码基础为[yukixz/qqbot.py](https://github.com/yukixz/qqbot.py)
+
+Coolq 群名片功能基础为[慕晓飞/cq_python_sdk](https://gitee.com/muxiaofei/cq_python_sdk/tree/master)
 
 ## 功能和特性
 
