@@ -2,8 +2,8 @@ from common import *
 
 
 def reload_all_qq_namelist():
-    for (qq, tg, sticker, drive) in FORWARD_LIST:
-        global_vars.qq_bot.send(GetGroupMemberList(group=qq))
+    for forward in FORWARD_LIST:
+        global_vars.qq_bot.send(GetGroupMemberList(group=forward['QQ']))
 
 
 global_vars.set_group_members([[]] * len(FORWARD_LIST))
