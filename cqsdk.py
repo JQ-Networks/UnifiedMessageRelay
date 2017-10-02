@@ -264,9 +264,12 @@ class FrameListener():
         self.handler = handler
         self.frame_type = frame_type
 
+cqbot = None
+
 
 class APIRequestHandler(socketserver.BaseRequestHandler):
-    def __init__(self, cqbot):
+    def __init__(self):
+        global cqbot
         self.cqbot = cqbot
 
     def handle(self):
@@ -308,7 +311,7 @@ class CQBot():
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
         self.local_addr = ("127.0.0.1", client_port)
-        self.server = APIServer(self.local_addr, APIRequestHandler(self))
+        self.server = APIServer(self.local_addr, APIRequestHandler)
         self.groups = []
 
         # Online mode
@@ -319,6 +322,8 @@ class CQBot():
         # Debug Mode
         #   True: print message instead of sending.
         self.debug = debug
+        global cqbot
+        cqbot = self
 
     def __del__(self):
         self.client.close()
