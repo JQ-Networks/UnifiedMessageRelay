@@ -266,7 +266,7 @@ def cq_send(update: telegram.Update, text: str, qq_group_id: int):
     ))
 
 
-def get_qq_name(qq_number, forward_index):
+def get_qq_name(qq_number: int, forward_index: int):
     """
     convert qq number into group card or nickname(if don't have a group card)
     :param qq_number: qq number
@@ -384,7 +384,7 @@ def new(message):
         result = '@' + qq_number
         if qq_number == QQ_BOT_ID:
             return '@bot'
-        result = '@' + get_qq_name(qq_number, forward_index)
+        result = '@' + get_qq_name(int(qq_number), forward_index)
         result = result.replace(':', ' ')
         return result
 
@@ -399,7 +399,7 @@ def new(message):
         text = 'some music'
 
     # replace QQ number to group member name, get full message text
-    full_msg = get_qq_name(message.qq, forward_index) + ': ' + text.strip()
+    full_msg = get_qq_name(int(message.qq), forward_index) + ': ' + text.strip()
 
     # send pictures to Telegram group
     pic_send_mode = 2
@@ -455,7 +455,7 @@ def new(message):
 
     # send plain text message with bold group member name
     if image_num == 0:
-        full_msg_bold = '<b>' + get_qq_name(message.qq, forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
+        full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
