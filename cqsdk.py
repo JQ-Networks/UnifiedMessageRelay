@@ -266,6 +266,9 @@ class FrameListener():
 
 
 class APIRequestHandler(socketserver.BaseRequestHandler):
+    def __init__(self, cqbot):
+        self.cqbot = cqbot
+
     def handle(self):
         data = self.request[0].decode()
         parts = data.split()
@@ -279,7 +282,7 @@ class APIRequestHandler(socketserver.BaseRequestHandler):
             return
 
         move_next = True
-        for group in self.groups:
+        for group in self.cqbot.groups:
             for listener in self.server.listeners[group]:
                 try:
                     if (isinstance(message, listener.frame_type) and
