@@ -19,8 +19,8 @@ class CQGroupMemberInfo(object):
     SpecialTitleExpiredTime = None
     IsAllowedToModifyCard   = None
 
-    def __init__(self, data, is_base64 = True):
-        data = base64.decodestring(data) if is_base64 else data
+    def __init__(self, data, is_base64=True):
+        data = base64.decodebytes(data.encode()) if is_base64 else data
         info = CQUnpack(data)
         self.GroupID                    = info.get_long()
         self.QQID                       = info.get_long()
@@ -33,8 +33,8 @@ class CQGroupMemberInfo(object):
         self.LastSpeakTime              = info.get_int()
         self.LevelName                  = info.get_length_str()
         self.Authority                  = info.get_int()
-        self.IsGroupAdmin               = self.Authority in [ 2, 3 ]
-        self.IsGroupOwner               = self.Authority in [ 3 ]
+        self.IsGroupAdmin               = self.Authority in [2, 3]
+        self.IsGroupOwner               = self.Authority in [3]
         self.IsBad                      = (info.get_int() == 1)
         self.SpecialTitle               = info.get_length_str()
         self.SpecialTitleExpiredTime    = info.get_int()
