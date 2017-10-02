@@ -325,25 +325,28 @@ def new(message):
     pic_send_mode = 1
     # mode = 0 -> direct mode: cqlink to tg server
     # mode = 1 -> download mode: cqlink to local to tg server
+    # mode = 2 -> download mode: cqlink to local, upload from disk to tg server
     image_num = 0
     for matches in CQImage.PATTERN.finditer(message.text):
         image_num = image_num + 1
         filename = matches.group(1)
         url = qq_get_pic_url(filename)
-        final_pic_url = url
+        pic = url
         if pic_send_mode == 1:
             qq_download_pic(filename)
             my_url = SERVER_PIC_URL + filename
-            final_pic_url = my_url
-        print(final_pic_url)
+            pic = my_url
+        elif pic_send_mode == 2:
+            qq_download_pic(filename)
+            pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
         # gif pictures send as document
         if filename.lower().endswith('gif'):
             try:
                 # the first image in message attach full message text
                 if image_num == 1:
-                    tg_bot.sendDocument(tg_group_id, final_pic_url, caption=full_msg)
+                    tg_bot.sendDocument(tg_group_id, pic, caption=full_msg)
                 else:
-                    tg_bot.sendDocument(tg_group_id, final_pic_url)
+                    tg_bot.sendDocument(tg_group_id, pic)
             except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
@@ -351,17 +354,17 @@ def new(message):
                 if pic_send_mode == 0:
                     qq_download_pic(filename)
                 my_url = get_short_url(SERVER_PIC_URL + filename)
-                final_pic_url = my_url
-                tg_bot.sendMessage(tg_group_id, final_pic_url + '\n' + full_msg)
+                pic = my_url
+                tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
 
         # jpg/png pictures send as photo
         else:
             try:
                 # the first image in message attach full message text
                 if image_num == 1:
-                    tg_bot.sendPhoto(tg_group_id, final_pic_url, caption=full_msg)
+                    tg_bot.sendPhoto(tg_group_id, pic, caption=full_msg)
                 else:
-                    tg_bot.sendPhoto(tg_group_id, final_pic_url)
+                    tg_bot.sendPhoto(tg_group_id, pic)
             except BadRequest:
                 # when error occurs, download picture and send link instead
                 error(message)
@@ -369,8 +372,8 @@ def new(message):
                 if pic_send_mode == 0:
                     qq_download_pic(filename)
                 my_url = get_short_url(SERVER_PIC_URL + filename)
-                final_pic_url = my_url
-                tg_bot.sendMessage(tg_group_id, final_pic_url + '\n' + full_msg)
+                pic = my_url
+                tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
 
     # send plain text message with bold group member name
     if image_num == 0:
