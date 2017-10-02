@@ -67,4 +67,4 @@ def drive_mode_on(tg_group_id):
     result = ''
     for command in global_vars.command_list:
         result += command.command + '\n'
-        global_vars.tg_bot.sendMessage(tg_group_id, result)
+    global_vars.tg_bot.sendMessage(tg_group_id, result)
