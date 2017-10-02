@@ -283,7 +283,7 @@ def get_forward_index(qq_group_id=0, tg_group_id=0):
     :param tg_group_id: optional, the telegram group id, either this or qq_group_id must be valid
     :return: qq_group_id, tg_group_id, forward_index
     """
-    for idx, (qq, tg, sticker, drive) in enumerate(FORWARD_LIST):
-        if tg == tg_group_id or qq == qq_group_id:
-            return qq, tg, idx
+    for idx, forward in enumerate(FORWARD_LIST):
+        if forward['TG'] == tg_group_id or forward['QQ'] == qq_group_id:
+            return forward['QQ'], forward['TG'], idx
     return 0, 0, -1  # -1 is not found
