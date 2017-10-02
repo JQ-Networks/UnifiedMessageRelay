@@ -3,7 +3,7 @@ from common import *
 DRIVE_MODE = []
 
 for forward in FORWARD_LIST:
-    DRIVE_MODE.append(FORWARD_LIST['Drive_mode'])
+    DRIVE_MODE.append(forward['Drive_mode'])
 
 
 def tg_drive_mode(bot, update):
