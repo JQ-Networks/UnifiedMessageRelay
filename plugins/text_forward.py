@@ -41,6 +41,102 @@ EMOJI_LIST = [10000035] + \
              [9999, 10002, 10004, 10006, 10024, 10035, 10036, 10052, 10055, 10060, 10062, 10067, 10068, 10069, 10071, 10084, 10133, 10134, 10135, 10145, 10160, 10175, 10548, 10549, 11013, 11014, 11015, 11035, 11036, 11088, 11093, 12336, 12349, 12951, 12953, 58634]
 
 
+qq_emoji_list = {
+    14  : u'\U0001F642',
+    1   : u'\U0001F623',
+    2   : u'\U0001F60D',
+    3   : u'\U0001F633',
+    4   : u'\U0001F60E',
+    5   : u'\U0001F62D',
+    6   : u'\U0000263A',
+    7   : u'\U0001F637',
+    8   : u'\U0001F634',
+    9   : u'\U0001F62D',
+    10  : u'\U0001F630',
+    11  : u'\U0001F621',
+    12  : u'\U0001F61D',
+    13  : u'\U0001F603',
+    0   : u'\U0001F62E',
+    50  : u'\U0001F641',
+    51  : u'\U0001F913',
+    96  : u'\U0001F630',
+    53  : u'\U0001F624',
+    54  : u'\U0001F92E',
+    73  : u'\U0001F60F',
+    74  : u'\U0001F60A',
+    75  : u'\U0001F644',
+    76  : u'\U0001F615',
+    77  : u'\U0001F924',
+    78  : u'\U0001F62A',
+    55  : u'\U0001F628',
+    56  : u'\U0001F613',
+    57  : u'\U0001F62C',
+    58  : u'\U0001F911',
+    79  : u'\U0001F44A',
+    80  : u'\U0001F624',
+    81  : u'\U0001F914',
+    82  : u'\U0001F910',
+    83  : u'\U0001F635',
+    84  : u'\U0001F629',
+    85  : u'\U0001F47F',
+    86  : u'\U0001F480',
+    87  : u'\U0001F915',
+    88  : u'\U0001F44B',
+    97  : u'\U0001F605',
+    98  : u'\U0001F925',
+    99  : u'\U0001F44F',
+    100 : u'\U0001F922',
+    101 : u'\U0001F62C',
+    102 : u'\U0001F610',
+    103 : u'\U0001F610',
+    104 : u'\U0001F629',
+    105 : u'\U0001F620',
+    106 : u'\U0001F61E',
+    107 : u'\U0001F61F',
+    108 : u'\U0001F60F',
+    109 : u'\U0001F619',
+    110 : u'\U0001F627',
+    111 : u'\U0001F920',
+    172 : u'\U0001F61C',
+    182 : u'\U0001F602',
+    179 : u'\U0001F4A9',
+    173 : u'\U0001F62D',
+    174 : u'\U0001F636',
+    212 : u'\U0001F633',
+    175 : u'\U0001F609',
+    178 : u'\U0001F61C',
+    177 : u'\U0001F635',
+    180 : u'\U0001F633',
+    181 : u'\U0001F913',
+    176 : u'\U0001F913',
+    183 : u'\U0001F913',
+    15  : u'\U0001F641',
+    16  : u'\U0001F913',
+    18  : u'\U0001F624',
+    19  : u'\U0001F628',
+    20  : u'\U0001F60F',
+    21  : u'\U0001F60A',
+    22  : u'\U0001F644',
+    23  : u'\U0001F615',
+    24  : u'\U0001F924',
+    25  : u'\U0001F62A',
+    26  : u'\U0001F628',
+    27  : u'\U0001F613',
+    28  : u'\U0001F62C',
+    29  : u'\U0001F911',
+    30  : u'\U0001F44A',
+    31  : u'\U0001F624',
+    32  : u'\U0001F914',
+    33  : u'\U0001F910',
+    34  : u'\U0001F635',
+    35  : u'\U0001F629',
+    36  : u'\U0001F47F',
+    37  : u'\U0001F480',
+    38  : u'\U0001F915',
+    39  : u'\U0001F44B'
+}
+
+
 def emoji_to_cqemoji(text):
     new_text = ''
     for char in text:
@@ -250,9 +346,6 @@ global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegr
 global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), 100)
 
 
-qq_name_lists = []
-
-
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 100)  # priority 100
 def new(message):
     # logging.info('(' + message.qq + '): ' + message.text)
@@ -262,7 +355,8 @@ def new(message):
 
     text = message.text  # get message text
 
-    name_list = qq_name_lists[forward_index]  # get reflect of this QQ group member
+    name_list = global_vars.group_members[forward_index]  # get reflect of this QQ group member
+    # name_list components: see CQGroupMemberListInfo.py for more information
 
     text, _ = re.subn(r'\[CQ:image.*?\]', '', text)  # clear CQ:image in text
 
@@ -277,10 +371,16 @@ def new(message):
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
-        if qq_number in qq_name_lists[forward_index]:
-            return '@' + qq_name_lists[forward_index][qq_number]
-        else:
-            return '@' + qq_number
+        result = '@' + qq_number
+        if qq_number == QQ_BOT_ID:
+            return '@bot'
+        for group_member in name_list:
+            # group_member: CQGroupMemberInfo
+            if group_member.QQID == qq_number:
+                result = '@' + group_member.Card if group_member.Card else group_member.Nickname
+                result = result.replace(':', ' ')
+                break
+        return result
 
     text = CQAt.PATTERN.sub(replace_name, text)  # replace qq's at to telegram's
 
@@ -292,13 +392,6 @@ def new(message):
     elif cq_music_regex.match(message.text):
         text = 'some music'
 
-    elif text == '[reload namelist]':
-        reload_qq_namelist()
-        qq_bot.send(SendGroupMessage(
-            group=qq_group_id,
-            text='QQ群名片已重置'
-        ))
-
     # replace QQ number to group member name, get full message text
     if str(message.qq) in name_list:
         full_msg = name_list[str(message.qq)] + ': ' + text.strip()
@@ -306,10 +399,10 @@ def new(message):
         full_msg = str(message.qq) + ': ' + text.strip()
 
     # send pictures to Telegram group
-    pic_send_mode = 1
-    # mode = 0 -> direct mode: cqlink to tg server
-    # mode = 1 -> (deprecated) download mode: cqlink download to local to tg server
-    # mode = 2 -> download mode: cqlink download to local, upload from disk to tg server
+    pic_send_mode = 2
+    # mode = 0 -> direct mode: send cqlink to tg server
+    # mode = 1 -> (deprecated) download mode: download to local，send local link to tg server
+    # mode = 2 -> download mode: download to local, upload from disk to tg server
     image_num = 0
     for matches in CQImage.PATTERN.finditer(message.text):
         image_num = image_num + 1
@@ -318,8 +411,7 @@ def new(message):
         pic = url
         if pic_send_mode == 1:
             qq_download_pic(filename)
-            my_url = SERVER_PIC_URL + filename
-            pic = my_url
+            pic = SERVER_PIC_URL + filename
         elif pic_send_mode == 2:
             qq_download_pic(filename)
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
@@ -337,9 +429,8 @@ def new(message):
                 traceback.print_exc()
                 if pic_send_mode == 0:
                     qq_download_pic(filename)
-                my_url = get_short_url(SERVER_PIC_URL + filename)
-                pic = my_url
-                tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
+                pic = get_short_url(SERVER_PIC_URL + filename)
+                global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
 
         # jpg/png pictures send as photo
         else:
@@ -368,19 +459,4 @@ def new(message):
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
-# add commands
 
-@command_listener('[drive mode on]')
-def drive_mode_on(forward_index, tg_group_id, qq_group_id):
-    DRIVE_MODE[forward_index] = True
-    msg = 'Telegram向QQ转发消息已暂停'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
-
-
-@command_listener('[drive mode off]')
-def drive_mode_on(forward_index, tg_group_id, qq_group_id):
-    DRIVE_MODE[forward_index] = False
-    msg = 'Telegram向QQ转发消息已重启'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))

@@ -44,36 +44,50 @@ def read_string(bytes_arr, start_index, length):
     return name_str
 
 
-def read_group_member_list(filename):
-    content = ''
+def parse_all_members_info(filename):
+    """
+    get all group member's info
+    :param filename:
+    :return:
+    """
     with open(os.path.join(CQ_GROUP_LIST_ROOT, filename), 'r', encoding='utf-8') as f:
         content = f.read()
     content_bytes = b64decode(content)
-    
+
     obj_struct = [
-        {'key': 'group_id'         , 'type': 'int', 'length': 8 },
-        {'key': 'qq_id'            , 'type': 'int', 'length': 8 },
-        {'key': 'nickname'         , 'type': 'str'              },
-        {'key': 'group_card'       , 'type': 'str'              },
-        {'key': 'sex'              , 'type': 'int', 'length': 4 },
-        {'key': 'age'              , 'type': 'int', 'length': 4 },
-        {'key': ''                 , 'type': 'int', 'length': 2 },
-        {'key': 'join_group_time'  , 'type': 'int', 'length': 4 },
-        {'key': 'last_message_time', 'type': 'int', 'length': 4 },
-        {'key': ''                 , 'type': 'int', 'length': 2 },
-        {'key': 'group_permission' , 'type': 'int', 'length': 4 },
-        {'key': ''                 , 'type': 'int', 'length': 4 },
-        {'key': 'special_title'    , 'type': 'str'              },
-        {'key': 'unknown_value1'   , 'type': 'int', 'length': 4 },
-        {'key': ''                 , 'type': 'int', 'length': 2 },
-        {'key': 'unknown_value2'   , 'type': 'int', 'length': 4 }
+        {'key': 'group_id', 'type': 'int', 'length': 8},
+        {'key': 'qq_id', 'type': 'int', 'length': 8},
+        {'key': 'nickname', 'type': 'str'},
+        {'key': 'group_card', 'type': 'str'},
+        {'key': 'sex', 'type': 'int', 'length': 4},
+        {'key': 'age', 'type': 'int', 'length': 4},
+        {'key': '', 'type': 'int', 'length': 2},
+        {'key': 'join_group_time', 'type': 'int', 'length': 4},
+        {'key': 'last_message_time', 'type': 'int', 'length': 4},
+        {'key': '', 'type': 'int', 'length': 2},
+        {'key': 'group_permission', 'type': 'int', 'length': 4},
+        {'key': '', 'type': 'int', 'length': 4},
+        {'key': 'special_title', 'type': 'str'},
+        {'key': 'unknown_value1', 'type': 'int', 'length': 4},
+        {'key': '', 'type': 'int', 'length': 2},
+        {'key': 'unknown_value2', 'type': 'int', 'length': 4}
     ]
     i = 6
     result = []
     while i < len(content_bytes):
         obj, i = fill_obj_by_struct(content_bytes, obj_struct, i)
         result.append(obj)
-    # print(result)
+    print(result)
+    return result
+
+
+def read_group_member_list(filename):
+    """
+    get all group member's info
+    :param filename:
+    :return:
+    """
+    result = parse_all_members_info(filename)
     namelist = {}
     for item in result:
         key = str(item['qq_id'])
@@ -86,6 +100,11 @@ def read_group_member_list(filename):
 
 
 def parse_member_info(bytes_arr):
+    """
+    get single member's info
+    :param bytes_arr:
+    :return:
+    """
     obj = {}
     obj_struct = [
         {'key': 'group_id'                  , 'type': 'int', 'length': 8},
