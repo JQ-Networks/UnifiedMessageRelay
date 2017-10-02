@@ -284,7 +284,7 @@ def get_qq_name(qq_number, forward_index):
 PIC_LINK_MODE = []
 
 for forward in FORWARD_LIST:
-    PIC_LINK_MODE.append(FORWARD_LIST['Pic_link'])
+    PIC_LINK_MODE.append(forward['Pic_link'])
 
 
 def photo_from_telegram(bot, update):
