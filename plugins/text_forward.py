@@ -399,7 +399,7 @@ def new(message):
         text = 'some music'
 
     # replace QQ number to group member name, get full message text
-    full_msg = get_qq_name(message.qq) + ': ' + text.strip()
+    full_msg = get_qq_name(message.qq, forward_index) + ': ' + text.strip()
 
     # send pictures to Telegram group
     pic_send_mode = 2
@@ -455,7 +455,7 @@ def new(message):
 
     # send plain text message with bold group member name
     if image_num == 0:
-        full_msg_bold = '<b>' + get_qq_name(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
+        full_msg_bold = '<b>' + get_qq_name(message.qq, forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
