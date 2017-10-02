@@ -254,7 +254,7 @@ def new(message):
     qq_group_id = int(message.group)
     _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
     if forward_index == -1:
-        return  # no forward rule, return
+        return False # no forward rule, return
 
     text = message.text  # get message text
 
@@ -263,7 +263,7 @@ def new(message):
         sticker = text.lstrip('!')
         if sticker in special_sticker_list:
             global_vars.tg_bot.sendSticker(tg_group_id, special_sticker_list[sticker])
-            return
+            return True
 
     name_list = qq_name_lists[forward_index]  # get reflect of this QQ group member
 
@@ -298,16 +298,16 @@ def new(message):
     # handle special instructions
     if text == '[sticker link on]':
         set_sticker_link_mode(forward_index, True, tg_group_id, qq_group_id)
-        return
+        return True
     elif text == '[sticker link off]':
         set_sticker_link_mode(forward_index, False, tg_group_id, qq_group_id)
-        return
+        return True
     elif text == '[drive mode on]':
         set_drive_mode(forward_index, True, tg_group_id, qq_group_id)
-        return
+        return True
     elif text == '[drive mode off]':
         set_drive_mode(forward_index, False, tg_group_id, qq_group_id)
-        return
+        return True
     elif text == '[reload namelist]':
         reload_qq_namelist()
         qq_bot.send(SendGroupMessage(
@@ -379,6 +379,7 @@ def new(message):
         else:
             full_msg_bold = '<b>' + str(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+    return True
 
 
 @qq_bot.listener(RcvGroupMemberList)
@@ -390,6 +391,7 @@ def handle_group_member_list(message):
     json_list[str(QQ_BOT_ID)] = 'bot'
     qq_name_lists.append(json_list)
     print(qq_name_lists)
+    return False
 
 
 def reload_qq_namelist():
