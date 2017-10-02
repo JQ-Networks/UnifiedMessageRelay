@@ -348,7 +348,7 @@ class CQBot():
 
     def listener(self, frame_type, group=0):
         if group not in self.listeners:
-            self.handlers[group] = list()
+            self.listeners[group] = list()
             self.groups.append(group)
             self.groups = sorted(self.groups)
 
@@ -368,6 +368,7 @@ if __name__ == '__main__':
     import utils
     try:
         qqbot = CQBot(11235)
+
         @qqbot.listener(RcvGroupMemberInfo)
         def log(message):
             info_bytes = b64decode(message.info)
