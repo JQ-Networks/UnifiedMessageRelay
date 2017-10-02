@@ -266,6 +266,19 @@ def cq_send(update: telegram.Update, text: str, qq_group_id: int):
     ))
 
 
+def get_qq_name(qq_number, forward_index):
+    """
+    convert qq number into group card or nickname(if don't have a group card)
+    :param qq_number: qq number
+    :param forward_index: index of FORWARD_LIST
+    :return: group card, nickname(if no group card set), or qq number(if both not found)
+    """
+    for group_member in global_vars.group_members[forward_index]:
+        # group_member: CQGroupMemberInfo
+        if group_member.QQID == qq_number:
+            return group_member.Card if group_member.Card else group_member.Nickname
+    return qq_number
+
 # endregion
 
 PIC_LINK_MODE = []
@@ -355,9 +368,6 @@ def new(message):
 
     text = message.text  # get message text
 
-    name_list = global_vars.group_members[forward_index]  # get reflect of this QQ group member
-    # name_list components: see CQGroupMemberListInfo.py for more information
-
     text, _ = re.subn(r'\[CQ:image.*?\]', '', text)  # clear CQ:image in text
 
     # replace special characters
@@ -374,12 +384,8 @@ def new(message):
         result = '@' + qq_number
         if qq_number == QQ_BOT_ID:
             return '@bot'
-        for group_member in name_list:
-            # group_member: CQGroupMemberInfo
-            if group_member.QQID == qq_number:
-                result = '@' + group_member.Card if group_member.Card else group_member.Nickname
-                result = result.replace(':', ' ')
-                break
+        result = '@' + get_qq_name(qq_number, forward_index)
+        result = result.replace(':', ' ')
         return result
 
     text = CQAt.PATTERN.sub(replace_name, text)  # replace qq's at to telegram's
@@ -393,10 +399,7 @@ def new(message):
         text = 'some music'
 
     # replace QQ number to group member name, get full message text
-    if str(message.qq) in name_list:
-        full_msg = name_list[str(message.qq)] + ': ' + text.strip()
-    else:
-        full_msg = str(message.qq) + ': ' + text.strip()
+    full_msg = get_qq_name(message.qq) + ': ' + text.strip()
 
     # send pictures to Telegram group
     pic_send_mode = 2
@@ -452,11 +455,21 @@ def new(message):
 
     # send plain text message with bold group member name
     if image_num == 0:
-        if str(message.qq) in name_list:
-            full_msg_bold = '<b>' + name_list[str(message.qq)] + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
-        else:
-            full_msg_bold = '<b>' + str(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
+        full_msg_bold = '<b>' + get_qq_name(message.qq) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
+@command_listener('[pic link on]')
+def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+    PIC_LINK_MODE[forward_index] = True
+    msg = 'QQ 图片链接模式已启动'
+    global_vars.tg_bot.sendMessage(tg_group_id, msg)
+    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
+
+@command_listener('[pic link off]')
+def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+    PIC_LINK_MODE[forward_index] = False
+    msg = 'QQ 图片链接模式已关闭'
+    global_vars.tg_bot.sendMessage(tg_group_id, msg)
+    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))

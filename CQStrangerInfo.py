@@ -1,5 +1,3 @@
-# -*- coding:gbk -*-
-
 import base64
 from CQPack import CQUnpack
 

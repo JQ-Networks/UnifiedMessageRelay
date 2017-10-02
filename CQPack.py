@@ -1,5 +1,3 @@
-# -*- coding:gbk -*-
-
 import struct
 
 
