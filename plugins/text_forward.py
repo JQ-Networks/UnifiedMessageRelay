@@ -277,7 +277,7 @@ def get_qq_name(qq_number: int, forward_index: int):
         # group_member: CQGroupMemberInfo
         if group_member.QQID == qq_number:
             return group_member.Card if group_member.Card else group_member.Nickname
-    return qq_number
+    return str(qq_number)
 
 # endregion
 
