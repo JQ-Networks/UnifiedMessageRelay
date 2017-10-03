@@ -1,4 +1,5 @@
-from common import *
+import global_vars
+from command import command_listener
 
 
 @command_listener('[show group id]', tg_only=True)

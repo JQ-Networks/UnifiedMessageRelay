@@ -1,4 +1,10 @@
-from common import *
+import global_vars
+from telegram.ext.dispatcher import DispatcherHandlerStop
+from utils import get_forward_index
+from telegram.ext import MessageHandler, Filters
+from cqsdk import RcvdGroupMessage, SendGroupMessage
+from command import command_listener
+
 import re
 
 
@@ -9,17 +15,17 @@ def tg_command(bot, update):
         if command.tg_only:
             if update.message.text == command.command:
                 command.handler(tg_group_id)
-                raise dispatcher.DispatcherHandlerStop()
+                raise DispatcherHandlerStop()
 
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
     if forward_index == -1:
-        raise dispatcher.DispatcherHandlerStop()
+        raise DispatcherHandlerStop()
 
     for command in global_vars.command_list:  # process all forward commands
         if not command.tg_only and not command.qq_only:
             if update.message.text == command.command:
                 command.handler(forward_index, tg_group_id, qq_group_id)
-                raise dispatcher.DispatcherHandlerStop()
+                raise DispatcherHandlerStop()
 
 
 global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), 0)  # priority 0

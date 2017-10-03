@@ -1,4 +1,10 @@
-from common import *
+from bot_constant import FORWARD_LIST
+import global_vars
+from utils import get_forward_index, CQ_GROUP_LIST_ROOT
+from cqsdk import SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
+from command import command_listener
+from CQGroupMemberListInfo import get_group_member_list_info
+import os
 
 global_vars.set_group_members([[]] * len(FORWARD_LIST))
 

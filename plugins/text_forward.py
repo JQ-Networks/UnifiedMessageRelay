@@ -1,4 +1,22 @@
-from common import *
+from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
+import global_vars
+from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
+    get_forward_from, get_reply_to, get_full_user_name, error
+from cqsdk import SendGroupMessage, RcvdGroupMessage, CQAt, CQImage
+from command import command_listener
+from PIL import Image
+from configparser import ConfigParser
+import requests
+from urllib.request import urlretrieve
+from telegram.ext import MessageHandler, Filters
+from telegram.error import BadRequest
+from cq_utils import cq_share_regex, cq_music_regex, cq_emoji_regex,\
+    qq_face_regex, extract_cq_share
+import traceback
+import telegram
+import json
+import os
+import re
 
 """
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE

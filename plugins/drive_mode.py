@@ -1,4 +1,10 @@
-from common import *
+from bot_constant import FORWARD_LIST
+import global_vars
+from utils import get_forward_index
+from telegram.ext import MessageHandler, Filters
+from telegram.ext.dispatcher import DispatcherHandlerStop
+from cqsdk import RcvdGroupMessage, SendGroupMessage
+from command import command_listener
 
 DRIVE_MODE = []
 
@@ -12,7 +18,7 @@ def tg_drive_mode(bot, update):
     # if forward_index == -1:
     #     raise dispatcher.DispatcherHandlerStop()
     if DRIVE_MODE[forward_index]:
-        raise dispatcher.DispatcherHandlerStop()
+        raise DispatcherHandlerStop()
 
 
 global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 1)  # priority 1

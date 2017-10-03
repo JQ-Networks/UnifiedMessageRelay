@@ -1,4 +1,4 @@
-from common import *
+from xxx import yyy
 
 """
 do whatever you want before adding handler here
@@ -13,9 +13,9 @@ def tg_drive_mode(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
     if forward_index == -1:
-        raise dispatcher.DispatcherHandlerStop()
+        raise DispatcherHandlerStop()
     if DRIVE_MODE[forward_index]:
-        raise dispatcher.DispatcherHandlerStop()
+        raise DispatcherHandlerStop()
 
 """
 add tg handlers
