@@ -28,7 +28,7 @@ class CQUnpack(object):
         length = self.get_short()
         ret = self._data[self._location:self._location + length]
         self._location += length
-        ret = ret.decode('utf8')
+        ret = ret.decode('gbk')
         return ret
 
     def length(self):
