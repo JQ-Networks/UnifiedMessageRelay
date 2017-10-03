@@ -31,10 +31,11 @@ def main():
     global_vars.set_dp(dp)
     dp.add_error_handler(error)
 
+    qq_bot.start()  # start bot before add handler, in order to execute init correctly
+    updater.start_polling(poll_interval=1.0, timeout=200)
+
     import plugins
 
-    qq_bot.start()
-    updater.start_polling(poll_interval=1.0, timeout=200)
     # Block until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
