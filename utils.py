@@ -28,141 +28,6 @@ def error(*args, **kwargs):
     print(*args, **kwargs, file=sys.stderr)
 
 
-def read_hex(bytes_arr, start_index, length):
-    result = 0
-    end_index = start_index + length
-    if end_index >= len(bytes_arr):
-        end_index = len(bytes_arr) - 1
-    for i in range(start_index, end_index):
-        result = (result << 8) + int(bytes_arr[i])
-    return result
-
-
-def read_string(bytes_arr, start_index, length):
-    name_bytes = bytes_arr[start_index:start_index + length]
-    name_str = name_bytes.decode('gbk', 'ignore')
-    return name_str
-
-
-def parse_all_members_info(filename):
-    """
-    get all group member's info
-    :param filename:
-    :return:
-    """
-    with open(os.path.join(CQ_GROUP_LIST_ROOT, filename), 'r', encoding='utf-8') as f:
-        content = f.read()
-    content_bytes = b64decode(content)
-
-    obj_struct = [
-        {'key': 'group_id', 'type': 'int', 'length': 8},
-        {'key': 'qq_id', 'type': 'int', 'length': 8},
-        {'key': 'nickname', 'type': 'str'},
-        {'key': 'group_card', 'type': 'str'},
-        {'key': 'sex', 'type': 'int', 'length': 4},
-        {'key': 'age', 'type': 'int', 'length': 4},
-        {'key': '', 'type': 'int', 'length': 2},
-        {'key': 'join_group_time', 'type': 'int', 'length': 4},
-        {'key': 'last_message_time', 'type': 'int', 'length': 4},
-        {'key': '', 'type': 'int', 'length': 2},
-        {'key': 'group_permission', 'type': 'int', 'length': 4},
-        {'key': '', 'type': 'int', 'length': 4},
-        {'key': 'special_title', 'type': 'str'},
-        {'key': 'unknown_value1', 'type': 'int', 'length': 4},
-        {'key': '', 'type': 'int', 'length': 2},
-        {'key': 'unknown_value2', 'type': 'int', 'length': 4}
-    ]
-    i = 6
-    result = []
-    while i < len(content_bytes):
-        obj, i = fill_obj_by_struct(content_bytes, obj_struct, i)
-        result.append(obj)
-    print(result)
-    return result
-
-
-def read_group_member_list(filename):
-    """
-    get all group member's info
-    :param filename:
-    :return:
-    """
-    result = parse_all_members_info(filename)
-    namelist = {}
-    for item in result:
-        key = str(item['qq_id'])
-        value = item['nickname']
-        if len(item['group_card']) > 0:
-            value = item['group_card']
-        namelist[key] = value
-    # print(namelist)
-    return namelist
-
-
-def parse_member_info(bytes_arr):
-    """
-    get single member's info
-    :param bytes_arr:
-    :return:
-    """
-    obj = {}
-    obj_struct = [
-        {'key': 'group_id'                  , 'type': 'int', 'length': 8},
-        {'key': 'qq_id'                     , 'type': 'int', 'length': 8},
-        {'key': 'nickname'                  , 'type': 'str'             },
-        {'key': 'group_card'                , 'type': 'str'             },
-        {'key': 'sex'                       , 'type': 'int', 'length': 4},
-        {'key': 'age'                       , 'type': 'int', 'length': 4},
-        {'key': 'district'                  , 'type': 'str'             },
-        {'key': 'join_group_time'           , 'type': 'int', 'length': 4},
-        {'key': 'last_message_time'         , 'type': 'int', 'length': 4},
-        {'key': 'group_level'               , 'type': 'str'             },
-        {'key': 'group_permission'          , 'type': 'int', 'length': 4},
-        {'key': ''                          , 'type': 'int', 'length': 4},
-        {'key': 'special_title'             , 'type': 'str'             },
-        {'key': 'special_title_expired_time', 'type': 'int', 'length': 4},
-        {'key': 'allow_modify_group_card'   , 'type': 'int', 'length': 4}
-    ]
-    
-    i = 0
-    obj, _ = fill_obj_by_struct(bytes_arr, obj_struct, i)
-    print(obj)
-    return obj
-
-
-def fill_obj_by_struct(bytes_arr, obj_struct, from_index):
-    i = from_index
-    obj = {}
-    for item in obj_struct:
-        if item['type'] == 'int':
-            value = read_hex(bytes_arr, i, item['length'])
-            if len(item['key']) > 0:
-                obj[item['key']] = value
-            i += item['length']
-        elif item['type'] == 'str':
-            str_len = read_hex(bytes_arr, i, 2)
-            i += 2
-            value = read_string(bytes_arr, i, str_len)
-            if len(item['key']) > 0:
-                obj[item['key']] = value
-            i += str_len
-    return obj, i
-
-
-def mkdir(path):
-    try:
-        os.makedirs(path)
-    except FileExistsError:
-        pass
-
-
-def match(text, keywords):
-    for keyword in keywords:
-        if keyword in text:
-            return True
-    return False
-
-
 def reply(qqbot, message, text):
     reply_msg = None
     if isinstance(message, RcvdPrivateMessage):
@@ -248,7 +113,7 @@ def get_forward_from(message: telegram.Message):
         # msg_parts = message_text.split(':')
         # if len(msg_parts) >= 2:
         #     result = msg_parts[0]
-    return '(forwarded from ' + result + ')'
+    return '(↩' + result + ')'
 
 
 def get_reply_to(reply_to_message: telegram.Message):
@@ -273,7 +138,7 @@ def get_reply_to(reply_to_message: telegram.Message):
         # message_parts = message_text.split(':')
         # if len(message_parts) >= 2:
         #     reply_to = message_parts[0]
-    return '(reply to ' + reply_to + ')'
+    return '(→' + reply_to + ')'
 
 
 def get_forward_index(qq_group_id=0, tg_group_id=0):
