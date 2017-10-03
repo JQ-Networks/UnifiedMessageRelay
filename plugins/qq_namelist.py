@@ -6,10 +6,6 @@ def reload_all_qq_namelist():
         global_vars.qq_bot.send(GetGroupMemberList(group=forward['QQ']))
 
 
-global_vars.set_group_members([[]] * len(FORWARD_LIST))
-reload_all_qq_namelist()
-
-
 @global_vars.qq_bot.listener(RcvGroupMemberList)
 def handle_group_member_list(message):
     with open(os.path.join(CQ_GROUP_LIST_ROOT, message.path.split('\\')[-1]), 'r', encoding='utf-8') as f:
@@ -26,3 +22,7 @@ def drive_mode_on(forward_index, tg_group_id, qq_group_id):
     msg = 'QQ群名片已重新加载'
     global_vars.tg_bot.sendMessage(tg_group_id, msg)
     global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+
+
+global_vars.set_group_members([[]] * len(FORWARD_LIST))
+reload_all_qq_namelist()
