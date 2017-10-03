@@ -1,8 +1,8 @@
 # coolq-telegram-bot 
 
-QQ和Telegram的消息互转机器人
+QQ和Telegram的消息互转机器人 **2.0**
 
-2.0 版本正在构建中，预计有生之年
+2.0 版本正在构建完成，从 1.0 迁移请注意修改 bot\_constant.py
 
 QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
@@ -65,33 +65,29 @@ server {
 
 ### 安装必须的python3包 
 
-`pip3 install urllib3 python_telegram_bot pillow APScheduler requests requests-oauthlib`
+`pip3 install -r requirements.txt`
 
 ## 参数和配置
 
 ### bot_constant.py
 
-提示：请在bot使用之前，将bot_constant-sample.py重命名为bot_constant.py
+提示：从 1.0 迁移请注意修改 bot\_constant.py
+
+请在bot使用之前，将bot_constant-sample.py重命名为bot_constant.py
 
 TOKEN：Telegram机器人的token
 
 QQ_BOT_ID：QQ机器人的QQ号
 
-FORWARD_LIST：一个list，可以定义多个转发关系，list中的每一个list [QQ群的群号, Telegram群的群ID，图片链接模式默认值，开车模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
+FORWARD\_LIST：一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
 
-SERVER_PIC_URL：图片访问的url前缀。
+SERVER\_PIC\_URL：图片访问的url前缀。
 
-CQ_ROOT_DIR：酷Q的根目录路径
+CQ\_ROOT\_DIR：酷Q的根目录路径
 
-CQ_PORT：酷Q Socket API 数据监听端口
+CQ\_PORT：酷Q Socket API 数据监听端口
 
-JQ_MODE：交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
-
-### special_sticker_list.py
-
-special_sticker_list：定义了`指令`和Telegram Sticker ID的对应。
-
-在QQ群里输入`!指令`，即在Telegram群里发送一个对应的Sticker。
+JQ\_MODE：交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
 
 ### qq_emoji_list.py
 
@@ -101,11 +97,27 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 ## Bot的运行
 
-保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名，使用`python3 mybot.py`命令即可启动。
+保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名，使用`python3 daemon.py`命令即可启动。
+
+目前还没有做自动后台模式，请使用`nohup python3 daemon.py &` 以后台运行
+
+## 查看命令开关
+
+发送 [show commands] 可以查看当前注册的所有命令，会只在发送的客户端显示
+
+## 查看 Telegram 群 ID
+
+在 Telegram 中发送 [show group id] 可以查看 Telegram 群号
+
+## 更新 QQ 群名片列表
+
+发送 [reload namelist] 可以更新当前转发的 QQ 群名片缓存
+
+注意： Coolq 的群名片更新可能很不及时，所以此功能主要用于新加入成员之后的首次更新
 
 ## Sticker导出模式 
 
-*此功能仅针对酷Q Air有效
+\*此功能仅针对酷Q Air有效\(JQ\_MODE=False\)
 
 开启：在QQ群或Telegram群中发送 [sticker link on]
 
@@ -119,4 +131,4 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 关闭：在QQ群或Telegram群中发送 [drive mode off]
 
-开启后，Telegram消息不会转发到QQ群内，QQ消息依然能转发到Telegram群组里。
+开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
