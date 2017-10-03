@@ -276,7 +276,7 @@ def get_qq_name(qq_number: int, forward_index: int):
     for group_member in global_vars.group_members[forward_index]:
         # group_member: CQGroupMemberInfo
         if group_member.QQID == qq_number:
-            return str(group_member.Card) if group_member.Card else str(group_member.Nickname)
+            return group_member.Card.decode('gb18030') if group_member.Card else group_member.Nickname.decode('gb18030')
     return str(qq_number)
 
 # endregion
