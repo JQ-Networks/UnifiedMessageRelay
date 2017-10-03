@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
-
 TOKEN = 'your telegram bot token'
-QQ_BOT_ID = 111111111  # qq number
+QQ_BOT_ID = 3553099690
 FORWARD_LIST = [
-    [12345678, -23456789, False, True], 
-    [87654321, -76543218, False, True]
-]  # (qq group id, tg group id, drive mode default, sticker link mode default)
+    {
+        'QQ': 12345678,
+        'TG': -23456789,
+        'Drive_mode': False,
+        'Pic_link': True
+    },
+    {
+        'QQ': 87654321,
+        'TG': -76543218,
+        'Drive_mode': False,
+        'Pic_link': True
+    },
+]
 SERVER_PIC_URL = 'http://example.com:8080/image/'
 CQ_ROOT = '/home/coolq/coolq_pro/'
 CQ_PORT = 11235
