@@ -1,5 +1,7 @@
 from common import *
 
+global_vars.set_group_members([[]] * len(FORWARD_LIST))
+
 
 def reload_all_qq_namelist():
     for forward in FORWARD_LIST:
@@ -24,5 +26,4 @@ def drive_mode_on(forward_index, tg_group_id, qq_group_id):
     global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
-global_vars.set_group_members([[]] * len(FORWARD_LIST))
 reload_all_qq_namelist()
