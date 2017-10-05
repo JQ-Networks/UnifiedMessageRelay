@@ -374,11 +374,11 @@ def new(message):
 
     # replace CQ:share/CQ:music, could be improved
 
-    if cq_share_regex.match(message.text):
-        url, title, content, image_url = extract_cq_share(message.text)
-        text = title + '\n' + url
-    elif cq_music_regex.match(message.text):
-        text = 'some music'
+    # if cq_share_regex.match(message.text):
+    #     url, title, content, image_url = extract_cq_share(message.text)
+    #     text = title + '\n' + url
+    # elif cq_music_regex.match(message.text):
+    #     text = 'some music'
 
     # replace QQ number to group member name, get full message text
     full_msg = get_qq_name(int(message.qq), forward_index) + ': ' + text.strip()

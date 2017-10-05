@@ -21,3 +21,4 @@ import plugins.drive_mode
 import plugins.qq_namelist
 import plugins.show_group_id
 import plugins.text_forward
+import plugins.cq_message_forward
