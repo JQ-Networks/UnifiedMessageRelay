@@ -7,12 +7,12 @@ class CQAnonymousInfo(object):
     AnonymousName = None
     Token = None
 
-    def __init__(self, data, is_base64=True):
-        data = base64.decodebytes(data.encode()) if is_base64 else data
+    def __init__(self, data: bytes, is_base64=True):
+        data = base64.decodebytes(data) if is_base64 else data
         info = CQUnpack(data)
         self.Identifier = info.get_long()
         self.AnonymousName = info.get_length_str().decode('gb18030')
-        self.Token = info.get_length_str().decode('gb18030')
+        self.Token = info.get_length_str()
 
     def __str__(self):
         t = {

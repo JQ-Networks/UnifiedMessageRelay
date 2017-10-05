@@ -1,6 +1,7 @@
 import global_vars
 from cqsdk import *
 from CQAnonymousInfo import CQAnonymousInfo
+import base64
 
 
 @global_vars.qq_bot.listener((RcvdPrivateMessage, ), 1)  # priority 1
@@ -13,7 +14,7 @@ def test(message):
 def test(message: RcvdGroupMessage):
     print(message)
     if message.from_anonymous:
-        print(CQAnonymousInfo(message.from_anonymous))
+        print(CQAnonymousInfo(base64.b64decode(message.from_anonymous)))
     return False
 
 
