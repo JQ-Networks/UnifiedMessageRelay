@@ -20,7 +20,7 @@ class CQGroupMemberInfo(object):
     IsAllowedToModifyCard   = None
 
     def __init__(self, data, is_base64=True):
-        data = base64.decodebytes(data.encode()) if is_base64 else data
+        data = base64.b64decode(data) if is_base64 else data
         info = CQUnpack(data)
         self.GroupID                    = info.get_long()
         self.QQID                       = info.get_long()

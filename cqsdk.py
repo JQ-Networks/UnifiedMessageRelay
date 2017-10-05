@@ -208,7 +208,7 @@ class CQImage:
 
 def load_frame(data):
     if isinstance(data, str):
-        parts = data.split()
+        parts = data.split(' ')
     elif isinstance(data, list):
         parts = data
     else:
