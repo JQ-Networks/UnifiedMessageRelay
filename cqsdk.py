@@ -12,7 +12,7 @@ from collections import namedtuple
 
 
 # Socket API 通讯消息
-ClientHello = namedtuple("ClientHello", ("port"))
+ClientHello = namedtuple("ClientHello", ("port",))
 ServerHello = namedtuple("ServerHello", ("client_timeout", "prefix_size", "playload_size", "frame_size"))
 
 # 聊天部分
@@ -94,7 +94,7 @@ SetGroupLeave = namedtuple("SetGroupLeave", ("group", "is_dismiss"))
 SetGroupSpecialTitle = namedtuple("SetGroupSpecialTitle", ("group", "qq", "new_special_title", "duration"))
 
 ## 离开讨论组
-SetDiscussLeave = namedtuple("SetDiscussLeave", ("discuss_id"))
+SetDiscussLeave = namedtuple("SetDiscussLeave", ("discuss_id",))
 
 ## 发送添加好友请求(Unknown)
 FriendAddRequest = namedtuple("FriendAddRequest", ("response_flag", "response_operation", "remark"))
@@ -106,37 +106,37 @@ GroupAddRequest = namedtuple("GroupAddRequest", ("response_flag", "request_type"
 
 ## 获取群成员信息
 GetGroupMemberInfo = namedtuple("GetGroupMemberInfo", ("group", "qq", "nocache"))
-RcvGroupMemberInfo = namedtuple("RcvGroupMemberInfo", ("info")) 
+RcvGroupMemberInfo = namedtuple("RcvGroupMemberInfo", ("info",))
 
 ## 获取群成员列表
-GetGroupMemberList = namedtuple("GetGroupMemberList", ("group"))
-RcvGroupMemberList = namedtuple("RcvGroupMemberList", ("path"))
+GetGroupMemberList = namedtuple("GetGroupMemberList", ("group",))
+RcvGroupMemberList = namedtuple("RcvGroupMemberList", ("path",))
 
 ## 获取陌生人信息
 GetStrangerInfo = namedtuple("GetStrangerInfo", ("qq", "nocache"))
-RcvStrangerInfo = namedtuple("RcvStrangerInfo", ("info"))
+RcvStrangerInfo = namedtuple("RcvStrangerInfo", ("info",))
 
 ## 获取Cookies
 GetCookies = namedtuple("GetCookies", ())
-RcvCookies = namedtuple("RcvCookies", ("cookies"))
+RcvCookies = namedtuple("RcvCookies", ("cookies",))
 
 ## 获取csrf token 
 GetCsrfToken = namedtuple("GetCsrfToken", ())
-RcvCsrfToken = namedtuple("RcvCsrfToken", ("token"))
+RcvCsrfToken = namedtuple("RcvCsrfToken", ("token",))
 
 ## 获取当前登录QQ
 GetLoginQQ = namedtuple("GetLoginQQ", ())
-RcvLoginQQ = namedtuple("RcvLoginQQ", ("qq"))
+RcvLoginQQ = namedtuple("RcvLoginQQ", ("qq",))
 
 ## 获取当前用户昵称
 GetLoginNickname = namedtuple("GetLoginNickname", ())
-RcvLoginNickname = namedtuple("RcvLoginNickname", ("nickname"))
+RcvLoginNickname = namedtuple("RcvLoginNickname", ("nickname",))
 
 ## 获取酷q应用目录
 GetAppDirectory = namedtuple("GetAppDirectory", ())
-RcvAppDirectory = namedtuple("RcvAppDirectory", ("app_dir"))
+RcvAppDirectory = namedtuple("RcvAppDirectory", ("app_dir",))
 
-Fatal = namedtuple("Fatal", ("text"))
+Fatal = namedtuple("Fatal", ("text",))
 
 FrameType = namedtuple("FrameType", ("prefix", "rcvd", "send"))
 FRAME_TYPES = (

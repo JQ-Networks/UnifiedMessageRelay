@@ -34,7 +34,6 @@ global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), 0)  # prior
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 0)  # priority 0
 def qq_drive_mode(message):
     qq_group_id = int(message.group)
-
     text = message.text  # get message text
     text, _ = re.subn('&amp;', '&', text)  # restore characters
     text, _ = re.subn('&#91;', '[', text)
@@ -60,7 +59,7 @@ def qq_drive_mode(message):
     return False
 
 
-@command_listener('[show commands]', qq_only=True)
+@command_listener('[show commands]', qq_only=True, description='print all commands')
 def drive_mode_on(qq_group_id):
     result = ''
     for command in global_vars.command_list:
@@ -68,9 +67,11 @@ def drive_mode_on(qq_group_id):
     global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=result))
 
 
-@command_listener('[show commands]', tg_only=True)
+@command_listener('[show commands]', tg_only=True, description='print all commands')
 def drive_mode_on(tg_group_id):
     result = ''
     for command in global_vars.command_list:
-        result += command.command + '\n'
+        result += command.command + ': ' + 'telegram only' if command.qq_only else '' + 'qq only' '\n'
+        if command.description:
+            result += '  ' + command.description + '\n'
     global_vars.tg_bot.sendMessage(tg_group_id, result)

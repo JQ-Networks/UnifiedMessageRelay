@@ -37,7 +37,7 @@ def qq_drive_mode(message):
 
 # add commands
 
-@command_listener('[drive mode on]')
+@command_listener('[drive mode on]', description='enable drive mode')
 def drive_mode_on(forward_index, tg_group_id, qq_group_id):
     DRIVE_MODE[forward_index] = True
     msg = 'Telegram向QQ转发消息已暂停'
@@ -45,7 +45,7 @@ def drive_mode_on(forward_index, tg_group_id, qq_group_id):
     global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
-@command_listener('[drive mode off]')
+@command_listener('[drive mode off]', description='disable drive mode')
 def drive_mode_on(forward_index, tg_group_id, qq_group_id):
     DRIVE_MODE[forward_index] = False
     msg = 'Telegram向QQ转发消息已重启'

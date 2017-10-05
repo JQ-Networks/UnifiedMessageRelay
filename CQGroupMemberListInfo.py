@@ -17,11 +17,3 @@ def get_group_member_list_info(data):
         member_list.append(member_info)
     
     return member_list
-        
-
-'''
-EXAMPLE:
-
-from CQGroupMemberInfo import CQGroupMemberInfo
-info = CQGroupMemberInfo(CQSDK.GetGroupMemberInfoV2(fromGroup, fromQQ))
-'''

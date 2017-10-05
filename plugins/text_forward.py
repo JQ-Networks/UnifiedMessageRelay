@@ -480,16 +480,20 @@ def new(message):
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
 
 
-@command_listener('[pic link on]')
+@command_listener('[pic link on]', description='enable pic link mode, only available when JQ_MODE=False')
 def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+    if JQ_MODE:
+        return
     PIC_LINK_MODE[forward_index] = True
     msg = 'QQ 图片链接模式已启动'
     global_vars.tg_bot.sendMessage(tg_group_id, msg)
     global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
 
 
-@command_listener('[pic link off]')
+@command_listener('[pic link off]', description='disable pic link mode, only available when JQ_MODE=False')
 def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+    if JQ_MODE:
+        return
     PIC_LINK_MODE[forward_index] = False
     msg = 'QQ 图片链接模式已关闭'
     global_vars.tg_bot.sendMessage(tg_group_id, msg)
