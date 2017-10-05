@@ -23,16 +23,16 @@ def new(message):
             text = '出了' + '石头' if rps == 1 else '剪刀' if rps == 2 else '布'
         elif cq_rich_regex.match(message.text):
             url, _text = extract_cq_rich(message.text)
-            text = ': ' + _text + '(' + url + ')'
+            text = ': [' + _text + '](' + url + ')'
         elif cq_share_regex.match(message.text):
             url, title, content, image_url = extract_cq_share(message.text)
-            text = '分享了 ' + title + '(' + url + ')'
+            text = '分享了[' + title + '](' + url + ')'
         elif cq_custom_music_regex.match(message.text):
             url, audio, title, content, image = extract_cq_custom_music(message.text)
-            text = '分享了 ' + title + '(' + url + ')'
+            text = '分享了[' + title + '](' + url + ')'
         elif cq_music_regex.match(message.text):
             _type, _id = extract_cq_music(message.text)
-            text = '分享了 音乐(https://y.qq.com/n/yqq/song/' + str(_id) + '_num.html)'
+            text = '分享了[音乐](https://y.qq.com/n/yqq/song/' + str(_id) + '_num.html)'
         elif cq_record_regex.match(message.text):
             file, magic = extract_cq_record(message.text)
             text = '说了句话，懒得转了'
