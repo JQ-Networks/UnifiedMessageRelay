@@ -24,7 +24,7 @@ class CQUnpack(object):
     def get_long(self):
         return self._get_('!Q', 8)
 
-    def get_length_str(self) -> object:
+    def get_length_str(self) -> str:
         length = self.get_short()
         ret = self._data[self._location:self._location + length]
         self._location += length
