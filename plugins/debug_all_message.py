@@ -11,9 +11,9 @@ def test(message):
 
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 1)  # priority 1
 def test(message: RcvdGroupMessage):
+    print(message)
     if message.from_anonymous:
         print(CQAnonymousInfo(message.from_anonymous))
-    print(message)
     return False
 
 
