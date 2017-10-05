@@ -59,103 +59,108 @@ EMOJI_LIST = [10000035] + \
              [9999, 10002, 10004, 10006, 10024, 10035, 10036, 10052, 10055, 10060, 10062, 10067, 10068, 10069, 10071, 10084, 10133, 10134, 10135, 10145, 10160, 10175, 10548, 10549, 11013, 11014, 11015, 11035, 11036, 11088, 11093, 12336, 12349, 12951, 12953, 58634]
 
 
-qq_emoji_list = {
-    14  : u'\U0001F642',
-    1   : u'\U0001F623',
-    2   : u'\U0001F60D',
-    3   : u'\U0001F633',
-    4   : u'\U0001F60E',
-    5   : u'\U0001F62D',
-    6   : u'\U0000263A',
-    7   : u'\U0001F637',
-    8   : u'\U0001F634',
-    9   : u'\U0001F62D',
-    10  : u'\U0001F630',
-    11  : u'\U0001F621',
-    12  : u'\U0001F61D',
-    13  : u'\U0001F603',
-    0   : u'\U0001F62E',
-    50  : u'\U0001F641',
-    51  : u'\U0001F913',
-    96  : u'\U0001F630',
-    53  : u'\U0001F624',
-    54  : u'\U0001F92E',
-    73  : u'\U0001F60F',
-    74  : u'\U0001F60A',
-    75  : u'\U0001F644',
-    76  : u'\U0001F615',
-    77  : u'\U0001F924',
-    78  : u'\U0001F62A',
-    55  : u'\U0001F628',
-    56  : u'\U0001F613',
-    57  : u'\U0001F62C',
-    58  : u'\U0001F911',
-    79  : u'\U0001F44A',
-    80  : u'\U0001F624',
-    81  : u'\U0001F914',
-    82  : u'\U0001F910',
-    83  : u'\U0001F635',
-    84  : u'\U0001F629',
-    85  : u'\U0001F47F',
-    86  : u'\U0001F480',
-    87  : u'\U0001F915',
-    88  : u'\U0001F44B',
-    97  : u'\U0001F605',
-    98  : u'\U0001F925',
-    99  : u'\U0001F44F',
-    100 : u'\U0001F922',
-    101 : u'\U0001F62C',
-    102 : u'\U0001F610',
-    103 : u'\U0001F610',
-    104 : u'\U0001F629',
-    105 : u'\U0001F620',
-    106 : u'\U0001F61E',
-    107 : u'\U0001F61F',
-    108 : u'\U0001F60F',
-    109 : u'\U0001F619',
-    110 : u'\U0001F627',
-    111 : u'\U0001F920',
-    172 : u'\U0001F61C',
-    182 : u'\U0001F602',
-    179 : u'\U0001F4A9',
-    173 : u'\U0001F62D',
-    174 : u'\U0001F636',
-    212 : u'\U0001F633',
-    175 : u'\U0001F609',
-    178 : u'\U0001F61C',
-    177 : u'\U0001F635',
-    180 : u'\U0001F633',
-    181 : u'\U0001F913',
-    176 : u'\U0001F913',
-    183 : u'\U0001F913',
-    15  : u'\U0001F641',
-    16  : u'\U0001F913',
-    18  : u'\U0001F624',
-    19  : u'\U0001F628',
-    20  : u'\U0001F60F',
-    21  : u'\U0001F60A',
-    22  : u'\U0001F644',
-    23  : u'\U0001F615',
-    24  : u'\U0001F924',
-    25  : u'\U0001F62A',
-    26  : u'\U0001F628',
-    27  : u'\U0001F613',
-    28  : u'\U0001F62C',
-    29  : u'\U0001F911',
-    30  : u'\U0001F44A',
-    31  : u'\U0001F624',
-    32  : u'\U0001F914',
-    33  : u'\U0001F910',
-    34  : u'\U0001F635',
-    35  : u'\U0001F629',
-    36  : u'\U0001F47F',
-    37  : u'\U0001F480',
-    38  : u'\U0001F915',
-    39  : u'\U0001F44B'
+qq_emoji_list = {  # created by JogleLew, optimizations are welcome
+    0: u'\U0001F62E',
+    1: u'\U0001F623',
+    2: u'\U0001F60D',
+    3: u'\U0001F633',
+    4: u'\U0001F60E',
+    5: u'\U0001F62D',
+    6: u'\U0000263A',
+    7: u'\U0001F637',
+    8: u'\U0001F634',
+    9: u'\U0001F62D',
+    10: u'\U0001F630',
+    11: u'\U0001F621',
+    12: u'\U0001F61D',
+    13: u'\U0001F603',
+    14: u'\U0001F642',
+    15: u'\U0001F641',
+    16: u'\U0001F913',
+    18: u'\U0001F624',
+    19: u'\U0001F628',
+    20: u'\U0001F60F',
+    21: u'\U0001F60A',
+    22: u'\U0001F644',
+    23: u'\U0001F615',
+    24: u'\U0001F924',
+    25: u'\U0001F62A',
+    26: u'\U0001F628',
+    27: u'\U0001F613',
+    28: u'\U0001F62C',
+    29: u'\U0001F911',
+    30: u'\U0001F44A',
+    31: u'\U0001F624',
+    32: u'\U0001F914',
+    33: u'\U0001F910',
+    34: u'\U0001F635',
+    35: u'\U0001F629',
+    36: u'\U0001F47F',
+    37: u'\U0001F480',
+    38: u'\U0001F915',
+    39: u'\U0001F44B',
+    50: u'\U0001F641',
+    51: u'\U0001F913',
+    53: u'\U0001F624',
+    54: u'\U0001F92E',
+    55: u'\U0001F628',
+    56: u'\U0001F613',
+    57: u'\U0001F62C',
+    58: u'\U0001F911',
+    73: u'\U0001F60F',
+    74: u'\U0001F60A',
+    75: u'\U0001F644',
+    76: u'\U0001F615',
+    77: u'\U0001F924',
+    78: u'\U0001F62A',
+    79: u'\U0001F44A',
+    80: u'\U0001F624',
+    81: u'\U0001F914',
+    82: u'\U0001F910',
+    83: u'\U0001F635',
+    84: u'\U0001F629',
+    85: u'\U0001F47F',
+    86: u'\U0001F480',
+    87: u'\U0001F915',
+    88: u'\U0001F44B',
+    96: u'\U0001F630',
+    97: u'\U0001F605',
+    98: u'\U0001F925',
+    99: u'\U0001F44F',
+    100: u'\U0001F922',
+    101: u'\U0001F62C',
+    102: u'\U0001F610',
+    103: u'\U0001F610',
+    104: u'\U0001F629',
+    105: u'\U0001F620',
+    106: u'\U0001F61E',
+    107: u'\U0001F61F',
+    108: u'\U0001F60F',
+    109: u'\U0001F619',
+    110: u'\U0001F627',
+    111: u'\U0001F920',
+    172: u'\U0001F61C',
+    173: u'\U0001F62D',
+    174: u'\U0001F636',
+    175: u'\U0001F609',
+    176: u'\U0001F913',
+    177: u'\U0001F635',
+    178: u'\U0001F61C',
+    179: u'\U0001F4A9',
+    180: u'\U0001F633',
+    181: u'\U0001F913',
+    182: u'\U0001F602',
+    183: u'\U0001F913',
+    212: u'\U0001F633',
 }
 
 
 def emoji_to_cqemoji(text):
+    """
+    according to coolq rules, chars in EMOJI_LIST should be encoded.
+    :param text:
+    :return:
+    """
     new_text = ''
     for char in text:
         if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
@@ -185,7 +190,7 @@ def create_png_image(path, name):
     im.save(os.path.join(path, name + ".png"), "PNG")
 
 
-def qq_get_pic_url(filename):
+def cq_get_pic_url(filename):
     """
     get real image url from cqimg file
     :param filename:
@@ -198,7 +203,7 @@ def qq_get_pic_url(filename):
     return url
 
 
-def qq_download_pic(filename):
+def cq_download_pic(filename):
     """
     download image by cqimg file
     :param filename: cqimg file name
@@ -221,7 +226,7 @@ def qq_download_pic(filename):
 
 def get_short_url(long_url):
     """
-    generate short url
+    generate short url using Sina Weibo api
     :param long_url: the original url
     :return: short url
     """
@@ -244,10 +249,10 @@ def tg_get_pic_url(file_id: str, pic_type: str):
     download image from Telegram Server, and generate new image link that send to QQ group
     :param file_id: telegram file id
     :param pic_type: picture extension name
-    :return:
+    :return: pic url
     """
     file = global_vars.tg_bot.getFile(file_id)
-    urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))
+    urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))  # download image
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
         pic_url = get_short_url(SERVER_PIC_URL + file_id + '.jpg')
@@ -263,9 +268,8 @@ def cq_send(update: telegram.Update, text: str, qq_group_id: int):
     """
     send telegram message to qq with forward of reply support
     :param update: telegram.Update
-    :param text:
-    :param qq_group_id:
-    :return:
+    :param text: text to send, in coolq format
+    :param qq_group_id: which group to send
     """
     sender_name = get_full_user_name(update.message.from_user)
     forward_from = get_forward_from(update.message)
@@ -294,14 +298,14 @@ def get_qq_name(qq_number: int, forward_index: int):
     for group_member in global_vars.group_members[forward_index]:
         # group_member: CQGroupMemberInfo
         if group_member.QQID == qq_number:
-            return group_member.Card.decode('gb18030') if group_member.Card else group_member.Nickname.decode('gb18030')
+            return group_member.Card if group_member.Card else group_member.Nickname
     return str(qq_number)
 
 # endregion
 
-PIC_LINK_MODE = []
+PIC_LINK_MODE = []  # pic_link_mode per group
 
-for forward in FORWARD_LIST:
+for forward in FORWARD_LIST:  # initialize
     PIC_LINK_MODE.append(forward['Pic_link'])
 
 
@@ -317,6 +321,7 @@ def photo_from_telegram(bot, update):
         text = '[图片, 请点击查看' + pic_url + ']'
     if update.message.caption:
         text += update.message.caption
+
     cq_send(update, text, qq_group_id)
 
 
@@ -362,8 +367,7 @@ def text_from_telegram(bot, update):
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
     text = update.message.text
-
-    if text.startswith('//'):
+    if text.startswith('//'):  # feature, comment will no be send to qq
         return
     else:
         cq_send(update, text, qq_group_id)
@@ -399,14 +403,13 @@ def new(message):
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
-        result = '@' + qq_number
-        if qq_number == QQ_BOT_ID:
+        if int(qq_number) == QQ_BOT_ID:
             return '@bot'
         result = '@' + get_qq_name(int(qq_number), forward_index)
         result = result.replace(':', ' ')
         return result
 
-    text = CQAt.PATTERN.sub(replace_name, text)  # replace qq's at to telegram's
+    text = CQAt.PATTERN.sub(replace_name, text)  # replace CQAt to @username
 
     # replace CQ:share/CQ:music, could be improved
 
@@ -428,13 +431,13 @@ def new(message):
     for matches in CQImage.PATTERN.finditer(message.text):
         image_num = image_num + 1
         filename = matches.group(1)
-        url = qq_get_pic_url(filename)
+        url = cq_get_pic_url(filename)
         pic = url
         if pic_send_mode == 1:
-            qq_download_pic(filename)
+            cq_download_pic(filename)
             pic = SERVER_PIC_URL + filename
         elif pic_send_mode == 2:
-            qq_download_pic(filename)
+            cq_download_pic(filename)
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
         # gif pictures send as document
         if filename.lower().endswith('gif'):
@@ -449,7 +452,7 @@ def new(message):
                 error(message)
                 traceback.print_exc()
                 if pic_send_mode == 0:
-                    qq_download_pic(filename)
+                    cq_download_pic(filename)
                 pic = get_short_url(SERVER_PIC_URL + filename)
                 global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
 
@@ -466,7 +469,7 @@ def new(message):
                 error(message)
                 traceback.print_exc()
                 if pic_send_mode == 0:
-                    qq_download_pic(filename)
+                    cq_download_pic(filename)
                 my_url = get_short_url(SERVER_PIC_URL + filename)
                 pic = my_url
                 global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
