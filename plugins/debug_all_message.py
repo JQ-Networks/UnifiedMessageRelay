@@ -1,6 +1,6 @@
 import global_vars
 from cqsdk import *
-from CQStrangerInfo import CQStrangerInfo
+from CQAnonymousInfo import CQAnonymousInfo
 
 
 @global_vars.qq_bot.listener((RcvdPrivateMessage, ), 1)  # priority 1
@@ -12,7 +12,7 @@ def test(message):
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 1)  # priority 1
 def test(message: RcvdGroupMessage):
     if message.from_anonymous:
-        print(CQStrangerInfo(message.from_anonymous))
+        print(CQAnonymousInfo(message.from_anonymous))
     print(message)
     return False
 

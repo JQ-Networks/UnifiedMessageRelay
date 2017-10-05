@@ -18,10 +18,10 @@ class CQStrangerInfo(object):
 
     def __str__(self):
         t = {
-            'QQºÅ': self.QQID,
-            'êÇ³Æ': self.Nickname,
-            'ÐÔ±ð': self.Sex,
-            'ÄêÁä': self.Age,
+            'QQ号': self.QQID,
+            '昵称': self.Nickname,
+            '性别': self.Sex,
+            '年龄': self.Age,
         }
         lines = []
         for (k, v) in t.items():
