@@ -478,6 +478,7 @@ def new(message):
     if image_num == 0:
         full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+    return True
 
 
 @command_listener('[pic link on]', description='enable pic link mode, only available when JQ_MODE=False')

@@ -22,6 +22,7 @@ def handle_group_member_list(message):
     qq_group_id = member_list[0].GroupID
     _, _, forward_index = get_forward_index(qq_group_id=int(qq_group_id))
     global_vars.set_group_members(member_list, index=forward_index)
+    return True
 
 
 @command_listener('[reload namelist]', description='update namelist for current group')
