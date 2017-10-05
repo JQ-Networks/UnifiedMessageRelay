@@ -208,7 +208,7 @@ class CQImage:
 
 def load_frame(data):
     if isinstance(data, str):
-        parts = data.split(' ')
+        parts = data.split()
     elif isinstance(data, list):
         parts = data
     else:
@@ -275,7 +275,7 @@ class APIRequestHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         data = self.request[0].decode()
-        parts = data.split()
+        parts = data.split(' ')
 
         try:
             message = load_frame(parts)
