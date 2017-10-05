@@ -22,7 +22,7 @@ RcvdPrivateMessage = namedtuple("RcvdPrivateMessage", ("subtype", "qq", "text"))
 SendPrivateMessage = namedtuple("SendPrivateMessage", ("qq", "text"))
 
 ## 群消息
-RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("subtype", "group", "qq", "text"))
+RcvdGroupMessage = namedtuple("RcvdGroupMessage", ("subtype", "group", "qq", "from_anonymous", "text"))
 SendGroupMessage = namedtuple("SendGroupMessage", ("group", "text"))
 
 ## 讨论组消息
