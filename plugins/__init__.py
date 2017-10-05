@@ -17,7 +17,7 @@ import os
 # del automodinit
 
 import plugins.command
-import plugins.debug_all_message
+import plugins.drive_mode
 import plugins.qq_namelist
 import plugins.show_group_id
 import plugins.text_forward

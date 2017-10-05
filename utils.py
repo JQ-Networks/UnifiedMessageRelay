@@ -152,3 +152,45 @@ def get_forward_index(qq_group_id=0, tg_group_id=0):
         if forward['TG'] == tg_group_id or forward['QQ'] == qq_group_id:
             return forward['QQ'], forward['TG'], idx
     return 0, 0, -1  # -1 is not found
+
+
+def decode_cq_escape(text):
+    return text.replace('&amp;', '&').replace('&#91;', '[').replace('&#93;', ']').replace('&#44;', ',')
+
+
+def cq_send(update: telegram.Update, text: str, qq_group_id: int):
+    """
+    send telegram message to qq with forward of reply support
+    :param update: telegram.Update
+    :param text: text to send, in coolq format
+    :param qq_group_id: which group to send
+    """
+    sender_name = get_full_user_name(update.message.from_user)
+    forward_from = get_forward_from(update.message)
+    reply_to = get_reply_to(update.message.reply_to_message)
+
+    # get real sender from telegram message
+    if forward_from and update.message.forward_from.id == global_vars.tg_bot_id:
+        left_start = text.find(': ')
+        if left_start != -1:
+            text = text[left_start + 2:]
+    text = emoji_to_cqemoji(text)
+
+    global_vars.qq_bot.send(SendGroupMessage(
+        group=qq_group_id,
+        text=sender_name + reply_to + forward_from + ': ' + text
+    ))
+
+
+def get_qq_name(qq_number: int, forward_index: int):
+    """
+    convert qq number into group card or nickname(if don't have a group card)
+    :param qq_number: qq number
+    :param forward_index: index of FORWARD_LIST
+    :return: group card, nickname(if no group card set), or qq number(if both not found)
+    """
+    for group_member in global_vars.group_members[forward_index]:
+        # group_member: CQGroupMemberInfo
+        if group_member.QQID == qq_number:
+            return group_member.Card if group_member.Card else group_member.Nickname
+    return str(qq_number)
