@@ -371,8 +371,7 @@ def new(message):
             else:
                 try:
                     # the first image in message attach full message text
-                    if image_num == 1:
-                        global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=part_msg)
+                    global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=part_msg)
                 except BadRequest:
                     # when error occurs, download picture and send link instead
                     error(message)
