@@ -5,6 +5,7 @@ from utils import decode_cq_escape
 cq_emoji_regex = re.compile(r'\[CQ:emoji,id=(\d+?)\]')
 qq_face_regex = re.compile(r'\[CQ:face,id=(\d+?)\]')
 cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+?)\]')
+cq_image_regex = re.compile(r'\[CQ:image,file=(.+?)\]')
 
 # whole message
 cq_shake_regex = re.compile(r'\[CQ:shake\]')

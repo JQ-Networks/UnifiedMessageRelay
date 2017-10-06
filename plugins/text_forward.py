@@ -11,8 +11,7 @@ import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest
-from cq_utils import cq_share_regex, cq_music_regex, cq_emoji_regex,\
-    qq_face_regex, extract_cq_share
+from cq_utils import cq_emoji_regex, qq_face_regex, cq_image_regex
 import traceback
 import telegram
 import json
@@ -304,7 +303,7 @@ def new(message):
 
     text = message.text  # get message text
 
-    text, _ = re.subn(r'\[CQ:image.*?\]', '', text)  # clear CQ:image in text
+    text, _ = cq_image_regex.subn('', text)   # clear CQ:image in text
 
     # replace special characters
     decode_cq_escape(text)
@@ -322,65 +321,67 @@ def new(message):
 
     text = CQAt.PATTERN.sub(replace_name, text)  # replace CQAt to @username
 
-    # replace QQ number to group member name, get full message text
-    full_msg = get_qq_name(int(message.qq), forward_index) + ': ' + text.strip()
-
     # send pictures to Telegram group
     pic_send_mode = 2
     # mode = 0 -> direct mode: send cqlink to tg server
     # mode = 1 -> (deprecated) download mode: download to local，send local link to tg server
     # mode = 2 -> download mode: download to local, upload from disk to tg server
-    image_num = 0
-    for matches in CQImage.PATTERN.finditer(message.text):
-        image_num = image_num + 1
-        filename = matches.group(1)
-        url = cq_get_pic_url(filename)
-        pic = url
-        if pic_send_mode == 1:
-            cq_download_pic(filename)
-            pic = SERVER_PIC_URL + filename
-        elif pic_send_mode == 2:
-            cq_download_pic(filename)
-            pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
-        # gif pictures send as document
-        if filename.lower().endswith('gif'):
-            try:
-                # the first image in message attach full message text
-                if image_num == 1:
-                    global_vars.tg_bot.sendDocument(tg_group_id, pic, caption=full_msg)
-                else:
-                    global_vars.tg_bot.sendDocument(tg_group_id, pic)
-            except BadRequest:
-                # when error occurs, download picture and send link instead
-                error(message)
-                traceback.print_exc()
-                if pic_send_mode == 0:
-                    cq_download_pic(filename)
-                pic = get_short_url(SERVER_PIC_URL + filename)
-                global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
-
-        # jpg/png pictures send as photo
-        else:
-            try:
-                # the first image in message attach full message text
-                if image_num == 1:
-                    global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=full_msg)
-                else:
-                    global_vars.tg_bot.sendPhoto(tg_group_id, pic)
-            except BadRequest:
-                # when error occurs, download picture and send link instead
-                error(message)
-                traceback.print_exc()
-                if pic_send_mode == 0:
-                    cq_download_pic(filename)
-                my_url = get_short_url(SERVER_PIC_URL + filename)
-                pic = my_url
-                global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + full_msg)
-
-    # send plain text message with bold group member name
+    message_parts = cq_image_regex.split(message.text)
+    message_parts_count = len(message_parts)
+    image_num = message_parts_count - 1
     if image_num == 0:
+        # send plain text message with bold group member name
         full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
         global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+    else:
+        if message_parts[0]:
+            part_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' +\
+                        '(1/' + str(message_parts_count) + ')' + message_parts[0].strip().replace('<', '&lt;').replace('>', '&gt;')
+            global_vars.tg_bot.sendMessage(tg_group_id, part_msg_bold, parse_mode='HTML')
+        else:
+            message_parts_count -= 1
+        part_index = 1
+        for matches in CQImage.PATTERN.finditer(message.text):
+            # replace QQ number to group member name, get full message text
+            part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
+            part_index += 1
+            filename = matches.group(1)
+            url = cq_get_pic_url(filename)
+            pic = url
+            if pic_send_mode == 1:
+                cq_download_pic(filename)
+                pic = SERVER_PIC_URL + filename
+            elif pic_send_mode == 2:
+                cq_download_pic(filename)
+                pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
+            # gif pictures send as document
+            if filename.lower().endswith('gif'):
+                try:
+                    global_vars.tg_bot.sendDocument(tg_group_id, pic, caption=part_msg)
+                except BadRequest:
+                    # when error occurs, download picture and send link instead
+                    error(message)
+                    traceback.print_exc()
+                    if pic_send_mode == 0:
+                        cq_download_pic(filename)
+                    pic = get_short_url(SERVER_PIC_URL + filename)
+                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
+
+            # jpg/png pictures send as photo
+            else:
+                try:
+                    # the first image in message attach full message text
+                    if image_num == 1:
+                        global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=part_msg)
+                except BadRequest:
+                    # when error occurs, download picture and send link instead
+                    error(message)
+                    traceback.print_exc()
+                    if pic_send_mode == 0:
+                        cq_download_pic(filename)
+                    my_url = get_short_url(SERVER_PIC_URL + filename)
+                    pic = my_url
+                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
     return True
 
 
