@@ -99,7 +99,7 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名，使用`python3 daemon.py`命令即可启动。
 
-目前还没有做自动后台模式，请使用`nohup python3 daemon.py &` 以后台运行
+目前已经实现了 daemon 模式，请使用 `python3 daemon.py start` 以后台运行
 
 ## 查看命令开关
 
