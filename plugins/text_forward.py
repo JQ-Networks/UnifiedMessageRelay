@@ -338,9 +338,11 @@ def new(message):
             part_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' +\
                         '(1/' + str(message_parts_count) + ')' + message_parts[0].strip().replace('<', '&lt;').replace('>', '&gt;')
             global_vars.tg_bot.sendMessage(tg_group_id, part_msg_bold, parse_mode='HTML')
+            part_index = 1
         else:
+            message_parts.pop(0)
             message_parts_count -= 1
-        part_index = 1
+            part_index = 0
         for matches in CQImage.PATTERN.finditer(message.text):
             # replace QQ number to group member name, get full message text
             part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
