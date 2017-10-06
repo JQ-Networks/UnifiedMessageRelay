@@ -24,42 +24,6 @@ request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
 """
 # region utils
 
-EMOJI_LIST = [10000035] + \
-             list(range(10000048, 10000058)) + \
-             [126980, 127183, 127344, 127345, 127358, 127359, 127374] + \
-             list(range(127377, 127387)) + \
-             [127489, 127490, 127514, 127535] + \
-             list(range(127538, 127547)) + \
-             [127568, 127569] + \
-             list(range(127744, 127777)) + \
-             list(range(127792, 127798)) + \
-             list(range(127799, 127869)) + \
-             list(range(127872, 127892)) + \
-             list(range(127904, 127941)) + \
-             list(range(127942, 127947)) + \
-             list(range(127968, 127985)) + \
-             list(range(128000, 128063)) + \
-             [128064] + \
-             list(range(128066, 128248)) + \
-             [128249, 128250, 128251, 128252] + \
-             list(range(128256, 128318)) + \
-             list(range(128336, 128360)) + \
-             list(range(128507, 128577)) + \
-             list(range(128581, 128592)) + \
-             list(range(128640, 128710)) + \
-             [8252, 8265, 8482, 8505] + \
-             list(range(8596, 8602)) + \
-             [8617, 8618, 8986, 8987] + \
-             list(range(9193, 9197)) + \
-             [9200, 9203, 9410, 9642, 9643, 9654, 9664] + \
-             list(range(9723, 9727)) + \
-             [9728, 9729, 9742, 9745, 9748, 9749, 9757, 9786] + \
-             list(range(9800, 9812)) + \
-             [9824, 9827, 9829, 9830, 9832, 9851, 9855, 9875, 9888, 9889, 9898, 9899, 9917, 9918, 9924, 9925, 9934, 9940, 9962, 9970, 9971, 9973, 9978, 9981, 9986, 9989] + \
-             list(range(9992, 9997)) + \
-             [9999, 10002, 10004, 10006, 10024, 10035, 10036, 10052, 10055, 10060, 10062, 10067, 10068, 10069, 10071, 10084, 10133, 10134, 10135, 10145, 10160, 10175, 10548, 10549, 11013, 11014, 11015, 11035, 11036, 11088, 11093, 12336, 12349, 12951, 12953, 58634]
-
-
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     0: u'\U0001F62E',
     1: u'\U0001F623',
@@ -155,20 +119,6 @@ qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     212: u'\U0001F633',
 }
 
-
-def emoji_to_cqemoji(text):
-    """
-    according to coolq rules, chars in EMOJI_LIST should be encoded.
-    :param text:
-    :return:
-    """
-    new_text = ''
-    for char in text:
-        if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
-            new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
-        else:
-            new_text += char
-    return new_text
 
 
 def create_jpg_image(path, name):
@@ -371,14 +321,6 @@ def new(message):
         return result
 
     text = CQAt.PATTERN.sub(replace_name, text)  # replace CQAt to @username
-
-    # replace CQ:share/CQ:music, could be improved
-
-    # if cq_share_regex.match(message.text):
-    #     url, title, content, image_url = extract_cq_share(message.text)
-    #     text = title + '\n' + url
-    # elif cq_music_regex.match(message.text):
-    #     text = 'some music'
 
     # replace QQ number to group member name, get full message text
     full_msg = get_qq_name(int(message.qq), forward_index) + ': ' + text.strip()
