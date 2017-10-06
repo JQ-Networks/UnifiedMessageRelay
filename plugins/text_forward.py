@@ -345,7 +345,10 @@ def new(message):
             part_index = 0
         for matches in CQImage.PATTERN.finditer(message.text):
             # replace QQ number to group member name, get full message text
-            part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
+            if message_parts_count == 1:
+                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + message_parts[part_index].strip()
+            else:
+                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
             part_index += 1
             filename = matches.group(1)
             url = cq_get_pic_url(filename)
