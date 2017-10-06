@@ -11,7 +11,7 @@ import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest
-from cq_utils import cq_emoji_regex, qq_face_regex, cq_image_regex
+from cq_utils import cq_emoji_regex, qq_face_regex, cq_image_regex, cq_image_simple_regex
 import traceback
 import telegram
 import json
@@ -326,7 +326,7 @@ def new(message):
     # mode = 0 -> direct mode: send cqlink to tg server
     # mode = 1 -> (deprecated) download mode: download to local，send local link to tg server
     # mode = 2 -> download mode: download to local, upload from disk to tg server
-    message_parts = cq_image_regex.split(message.text)
+    message_parts = cq_image_simple_regex.split(message.text)
     message_parts_count = len(message_parts)
     image_num = message_parts_count - 1
     if image_num == 0:

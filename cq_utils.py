@@ -6,6 +6,7 @@ cq_emoji_regex = re.compile(r'\[CQ:emoji,id=(\d+?)\]')
 qq_face_regex = re.compile(r'\[CQ:face,id=(\d+?)\]')
 cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+?)\]')
 cq_image_regex = re.compile(r'\[CQ:image,file=(.+?)\]')
+cq_image_simple_regex = re.compile(r'\[CQ:image.*?\]')
 
 # whole message
 cq_shake_regex = re.compile(r'\[CQ:shake\]')
