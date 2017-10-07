@@ -11,7 +11,8 @@ import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest
-from cq_utils import cq_emoji_regex, qq_face_regex, cq_image_regex, cq_image_simple_regex
+from cq_utils import cq_emoji_regex, cq_face_regex, cq_image_regex, cq_image_simple_regex, \
+    cq_bface_regex, cq_sface_regex
 import traceback
 import telegram
 import json
@@ -309,7 +310,9 @@ def new(message):
     decode_cq_escape(text)
 
     text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
-    text = qq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
+    text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
+    text = cq_bface_regex.sub('\u2753', text)  # replace bface to '?'
+    text = cq_sface_regex.sub('\u2753', text)  # replace sface to '?'
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)

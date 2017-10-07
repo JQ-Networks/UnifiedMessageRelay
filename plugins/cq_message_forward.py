@@ -23,7 +23,10 @@ def new(message):
             text = '出了' + '石头' if rps == 1 else '剪刀' if rps == 2 else '布'
         elif cq_rich_regex.match(message.text):
             url, _text = extract_cq_rich(message.text)
-            text = ': [' + _text + '](' + url + ')'
+            if url:
+                text = ': [' + _text + '](' + url + ')'
+            else:
+                text = ': ' + _text
         elif cq_share_regex.match(message.text):
             url, title, content, image_url = extract_cq_share(message.text)
             text = '分享了[' + title + '](' + url + ')'
