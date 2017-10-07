@@ -119,6 +119,48 @@ qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     212: u'\U0001F633',
 }
 
+qq_sface_list = {
+    1: '[拜拜]',
+    2: '[鄙视]',
+    3: '[菜刀]',
+    4: '[沧桑]',
+    5: '[馋了]',
+    6: '[吃惊]',
+    7: '[微笑]',
+    8: '[得意]',
+    9: '[嘚瑟]',
+    10: '[瞪眼]',
+    11: '[震惊]',
+    12: '[鼓掌]',
+    13: '[害羞]',
+    14: '[好的]',
+    15: '[惊呆了]',
+    16: '[静静看]',
+    17: '[可爱]',
+    18: '[困]',
+    19: '[脸红]',
+    20: '[你懂的]',
+    21: '[期待]',
+    22: '[亲亲]',
+    23: '[伤心]',
+    24: '[生气]',
+    25: '[摇摆]',
+    26: '[帅]',
+    27: '[思考]',
+    28: '[震惊哭]',
+    29: '[痛心]',
+    30: '[偷笑]',
+    31: '[挖鼻孔]',
+    32: '[抓狂]',
+    33: '[笑着哭]',
+    34: '[无语]',
+    35: '[捂脸]',
+    36: '[喜欢]',
+    37: '[笑哭]',
+    38: '[疑惑]',
+    39: '[赞]',
+    40: '[眨眼]'
+}
 
 
 def create_jpg_image(path, name):
@@ -312,7 +354,7 @@ def new(message):
     text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
     text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
     text = cq_bface_regex.sub('\u2753', text)  # replace bface to '?'
-    text = cq_sface_regex.sub('\u2753', text)  # replace sface to '?'
+    text = cq_sface_regex.sub(lambda x: qq_sface_list[int(x.group(1)) & 255] if int(x.group(1)) > 100000 and int(x.group(1)) & 255 in qq_sface_list else '\u2753', text)  # replace [CQ:sface,id=*], https://cqp.cc/t/26206
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
