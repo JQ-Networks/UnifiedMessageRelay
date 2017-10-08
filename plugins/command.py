@@ -72,7 +72,7 @@ def drive_mode_on(qq_group_id: int, qq: int):
 def drive_mode_on(tg_group_id: int, user: User):
     result = ''
     for command in global_vars.command_list:
-        result += command.command + ': ' + 'telegram only' if command.qq_only else '' + 'qq only' '\n'
+        result += command.command + ': ' + ('telegram only' if command.qq_only else '') + 'qq only' '\n'
         if command.description:
             result += '  ' + command.description + '\n'
     global_vars.tg_bot.sendMessage(tg_group_id, result)
