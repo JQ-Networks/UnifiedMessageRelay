@@ -15,32 +15,32 @@ def new(message):
         text = ''
         if cq_dice_regex.match(message.text):
             dice = extract_cq_dice(message.text)
-            text = '扔了' + str(dice)
+            text = '掷筛子掷出了' + str(dice)
         elif cq_shake_regex.match(message.text):
             text = '发送了一个抖动'
         elif cq_rps_regex.match(message.text):
             rps = extract_cq_rps(message.text)
-            text = '出了' + '石头' if rps == 1 else '剪刀' if rps == 2 else '布'
+            text = '出了' + {'1': '石头', '2': '剪刀', '3': '布'}[rps]
         elif cq_rich_regex.match(message.text):
             url, _text = extract_cq_rich(message.text)
             if url:
-                text = ': [' + _text + '](' + url + ')'
+                text = '<a href="' + url + '">' + _text + '</a>'
             else:
-                text = ': ' + _text
+                text = _text
         elif cq_share_regex.match(message.text):
             url, title, content, image_url = extract_cq_share(message.text)
-            text = '分享了[' + title + '](' + url + ')'
+            text = '分享了<a href="' + url + '">' + title + '</a>'
         elif cq_custom_music_regex.match(message.text):
             url, audio, title, content, image = extract_cq_custom_music(message.text)
-            text = '分享了[' + title + '](' + url + ')'
+            text = '分享了<a href="' + url + '">' + title + '</a>'
         elif cq_music_regex.match(message.text):
             _type, _id = extract_cq_music(message.text)
-            text = '分享了[音乐](https://y.qq.com/n/yqq/song/' + str(_id) + '_num.html)'
+            text = '分享了<a href="https://y.qq.com/n/yqq/song/' + + str(_id) + + '_num.html"> qq 音乐</a>'
         elif cq_record_regex.match(message.text):
             file, magic = extract_cq_record(message.text)
             text = '说了句话，懒得转了'
         if text:
-            full_msg = get_qq_name(int(message.qq), forward_index) + text.strip()
-            global_vars.tg_bot.sendMessage(tg_group_id, full_msg, parse_mode='Markdown')
+            full_msg = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip()
+            global_vars.tg_bot.sendMessage(tg_group_id, full_msg, parse_mode='HTML')
             return True
     return False
