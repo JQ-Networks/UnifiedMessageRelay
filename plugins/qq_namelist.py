@@ -26,7 +26,7 @@ def handle_group_member_list(message):
 
 
 @command_listener('[reload namelist]', description='update namelist for current group')
-def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
     global_vars.qq_bot.send(GetGroupMemberList(group=qq_group_id))  # send reload action
     msg = 'QQ群名片已重新加载'
     global_vars.tg_bot.sendMessage(tg_group_id, msg)

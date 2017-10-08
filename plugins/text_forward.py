@@ -435,7 +435,7 @@ def new(message):
 
 
 @command_listener('[pic link on]', description='enable pic link mode, only available when JQ_MODE=False')
-def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
     if JQ_MODE:
         return
     PIC_LINK_MODE[forward_index] = True
@@ -445,7 +445,7 @@ def drive_mode_on(forward_index, tg_group_id, qq_group_id):
 
 
 @command_listener('[pic link off]', description='disable pic link mode, only available when JQ_MODE=False')
-def drive_mode_on(forward_index, tg_group_id, qq_group_id):
+def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
     if JQ_MODE:
         return
     PIC_LINK_MODE[forward_index] = False
