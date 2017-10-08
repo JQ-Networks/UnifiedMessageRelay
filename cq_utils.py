@@ -44,7 +44,7 @@ def extract_cq_rps(message):
     :param message: raw cq message
     :return: rps number(stone: 1, scissors: 2, paper: 3)
     """
-    result = cq_dice_regex.findall(message)[0]
+    result = cq_rps_regex.findall(message)[0]
     return decode_cq_escape(result[0])
 
 
@@ -95,7 +95,7 @@ def extract_cq_custom_music(message):
     :param message:
     :return: url, audio, title, content, image
     """
-    result = cq_record_regex.findall(message)[0]
+    result = cq_custom_music_regex.findall(message)[0]
     return decode_cq_escape(result[0]), decode_cq_escape(result[1]), \
         decode_cq_escape(result[2]), decode_cq_escape(result[3]), \
         decode_cq_escape(result[4])
