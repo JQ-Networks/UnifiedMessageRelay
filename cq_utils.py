@@ -4,7 +4,7 @@ from utils import decode_cq_escape
 # part message
 cq_emoji_regex = re.compile(r'\[CQ:emoji,id=(\d+?)\]')
 cq_face_regex = re.compile(r'\[CQ:face,id=(\d+?)\]')
-cq_bface_regex = re.compile(r'\[CQ:bface,p=(\d+?),id=(\d+?)\]')
+cq_bface_regex = re.compile(r'\[CQ:bface,p=(\d+?),id=(\w+?)\]')
 cq_sface_regex = re.compile(r'\[CQ:sface,id=(\d+?)\]')
 cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+?)\]')
 cq_image_regex = re.compile(r'\[CQ:image,file=(.+?)\]')
