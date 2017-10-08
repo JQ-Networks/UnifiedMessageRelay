@@ -15,12 +15,12 @@ def new(message):
         text = ''
         if cq_dice_regex.match(message.text):
             dice = extract_cq_dice(message.text)
-            text = '掷筛子掷出了' + str(dice)
+            text = '掷出了 <b>' + str(dice) + '</b>'
         elif cq_shake_regex.match(message.text):
             text = '发送了一个抖动'
         elif cq_rps_regex.match(message.text):
             rps = extract_cq_rps(message.text)
-            text = '出了' + {'1': '石头', '2': '剪刀', '3': '布'}[rps]
+            text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[rps] + '</b>'
         elif cq_rich_regex.match(message.text):
             url, _text = extract_cq_rich(message.text)
             if url:
