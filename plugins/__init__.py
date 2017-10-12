@@ -22,5 +22,5 @@ import plugins.qq_namelist
 import plugins.show_group_id
 import plugins.text_forward
 import plugins.cq_message_forward
-import plugins.debug_all_message
+# import plugins.debug_all_message
 import plugins.for_fun
