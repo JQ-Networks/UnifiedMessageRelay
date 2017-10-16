@@ -3,8 +3,28 @@ from cqsdk import RcvdGroupMessage
 from cq_utils import cq_regex, cq_share_regex, cq_music_regex, cq_dice_regex,\
     cq_custom_music_regex, cq_shake_regex, cq_rps_regex, cq_record_regex, cq_rich_regex, \
     extract_cq_share, extract_cq_dice, extract_cq_music, extract_cq_record, \
-    extract_cq_rich, extract_cq_rps, extract_cq_custom_music
-from utils import get_forward_index, get_qq_name
+    extract_cq_rich, extract_cq_rps, extract_cq_custom_music, create_cq_share
+from utils import get_forward_index, get_qq_name, cq_send
+from telegram.ext import MessageHandler, Filters
+import re
+from newspaper import Article
+from utils import get_full_user_name
+
+
+def link_from_telegram(bot, update):
+    tg_group_id = update.message.chat_id  # telegram group id
+    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    link_regex = re.compile(r'^https?://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]$')
+    text = update.message.text
+    if link_regex.match(text):  # feature, comment will no be send to qq
+        article = Article(text)
+        article.download()
+        article.parse()
+        sender_name = get_full_user_name(update.message.from_user)
+        msg = create_cq_share(text, sender_name, article.text, article.top_image if article.top_image else '')
+        cq_send(update, msg, qq_group_id)
+
+global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, link_from_telegram), 99)  # priority 99
 
 
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 99)  # priority 100

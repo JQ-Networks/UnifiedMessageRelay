@@ -329,7 +329,7 @@ def text_from_telegram(bot, update):
         cq_send(update, text, qq_group_id)
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram), 100) # priority 100
+global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram), 100)  # priority 100
 global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), 100)
 global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), 100)
 global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram), 100)

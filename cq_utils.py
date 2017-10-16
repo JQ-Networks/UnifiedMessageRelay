@@ -102,3 +102,8 @@ def extract_cq_custom_music(message):
     return decode_cq_escape(result[0]), decode_cq_escape(result[1]), \
         decode_cq_escape(result[2]), decode_cq_escape(result[3]), \
         decode_cq_escape(result[4])
+
+
+def create_cq_share(url, title, content, image_url):
+    result = "[CQ:share,url=%s,title=%s,content=%s,image=%s]" % (url, title, content, image_url)
+    return result
