@@ -21,7 +21,7 @@ def link_from_telegram(bot, update):
         article.download()
         article.parse()
         sender_name = trim_emoji(get_full_user_name(update.message.from_user)) + ':'  # unicode emoji cannot pass into create_cq_share
-        msg = create_cq_share(text, sender_name, article.text, article.top_image if article.top_image else '')
+        msg = create_cq_share(text, sender_name, article.title, article.top_image if article.top_image else '')
         cq_send(update, msg, qq_group_id)
         raise DispatcherHandlerStop()
 
