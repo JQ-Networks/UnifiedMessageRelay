@@ -182,6 +182,21 @@ def emoji_to_cqemoji(text):
     return new_text
 
 
+def trim_emoji(text):
+    """
+    some api cannot use cqemoji, so trim it
+    :param text:
+    :return:
+    """
+    new_text = ''
+    for char in text:
+        if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
+            pass
+        else:
+            new_text += char
+    return new_text
+
+
 def cq_send(update: telegram.Update, text: str, qq_group_id: int):
     """
     send telegram message to qq with forward of reply support

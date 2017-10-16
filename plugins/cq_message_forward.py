@@ -8,7 +8,7 @@ from utils import get_forward_index, get_qq_name, cq_send
 from telegram.ext import MessageHandler, Filters
 import re
 from newspaper import Article
-from utils import get_full_user_name
+from utils import get_full_user_name, trim_emoji
 
 
 def link_from_telegram(bot, update):
@@ -20,11 +20,11 @@ def link_from_telegram(bot, update):
         article = Article(text)
         article.download()
         article.parse()
-        sender_name = get_full_user_name(update.message.from_user)
+        sender_name = trim_emoji(get_full_user_name(update.message.from_user))  # unicode emoji cannot pass into create_cq_share
         msg = create_cq_share(text, sender_name, article.text, article.top_image if article.top_image else '')
         cq_send(update, msg, qq_group_id)
 
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, link_from_telegram), 99)  # priority 99
+global_vars.dp.add_handler(MessageHandler(Filters.text, link_from_telegram), 99)  # priority 99
 
 
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 99)  # priority 100

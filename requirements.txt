@@ -1,5 +1,4 @@
 APScheduler==3.3.1
-automodinit==0.16
 beautifulsoup4==4.6.0
 certifi==2017.7.27.1
 chardet==3.0.4
