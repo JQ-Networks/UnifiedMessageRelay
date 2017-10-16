@@ -5,11 +5,7 @@ import sys
 import threading
 import traceback
 import requests
-from base64 import b64encode, b64decode
-from cqsdk import RE_CQ_SPECIAL, \
-    RcvdPrivateMessage, RcvdGroupMessage, RcvdDiscussMessage, \
-    SendPrivateMessage, SendGroupMessage, SendDiscussMessage, \
-    GroupMemberDecrease, GroupMemberIncrease
+from cqsdk import SendGroupMessage
 from bot_constant import *
 import telegram
 import global_vars

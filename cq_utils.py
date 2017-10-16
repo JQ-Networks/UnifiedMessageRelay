@@ -1,6 +1,9 @@
 import re
 from utils import decode_cq_escape
 
+# general regex
+cq_regex = re.compile(r'\[CQ:\w+(,.+?)?\]', re.DOTALL)  # re.DOTALL can match '\n', useful here
+
 # part message
 cq_emoji_regex = re.compile(r'\[CQ:emoji,id=(\d+?)\]')
 cq_face_regex = re.compile(r'\[CQ:face,id=(\d+?)\]')
@@ -14,7 +17,7 @@ cq_image_simple_regex = re.compile(r'\[CQ:image.*?\]')
 cq_shake_regex = re.compile(r'\[CQ:shake\]')
 cq_dice_regex = re.compile(r'\[CQ:dice(?:,type=(\d))?\]')
 cq_rps_regex = re.compile(r'\[CQ:rps(?:,type=(\d))?\]')
-cq_rich_regex = re.compile(r'\[CQ:rich(?:,url=(.*))?,text=(.*)\]', re.DOTALL)
+cq_rich_regex = re.compile(r'\[CQ:rich(?:,url=(.*))?,text=(.*)\]', re.DOTALL)  # re.DOTALL can match '\n', useful here
 cq_music_regex = re.compile(r'\[CQ:music,type=(.*),id=(\d+)\]', re.DOTALL)
 cq_custom_music_regex = re.compile(r'\[CQ:share,type=custom,url=(.*),audio=(.*),title=(.*),content=(.*),image=(.*)\]',
                                    re.DOTALL)

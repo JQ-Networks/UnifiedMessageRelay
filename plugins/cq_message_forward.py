@@ -1,6 +1,6 @@
 import global_vars
-from cqsdk import RcvdGroupMessage, RE_CQ_SPECIAL
-from cq_utils import cq_share_regex, cq_music_regex, cq_dice_regex,\
+from cqsdk import RcvdGroupMessage
+from cq_utils import cq_regex, cq_share_regex, cq_music_regex, cq_dice_regex,\
     cq_custom_music_regex, cq_shake_regex, cq_rps_regex, cq_record_regex, cq_rich_regex, \
     extract_cq_share, extract_cq_dice, extract_cq_music, extract_cq_record, \
     extract_cq_rich, extract_cq_rps, extract_cq_custom_music
@@ -11,7 +11,7 @@ from utils import get_forward_index, get_qq_name
 def new(message):
     qq_group_id = int(message.group)
     _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
-    if RE_CQ_SPECIAL.match(message.text):
+    if cq_regex.match(message.text):
         text = ''
         if cq_dice_regex.match(message.text):
             dice = extract_cq_dice(message.text)
