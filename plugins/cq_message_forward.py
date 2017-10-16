@@ -5,7 +5,7 @@ from cq_utils import cq_regex, cq_share_regex, cq_music_regex, cq_dice_regex,\
     extract_cq_share, extract_cq_dice, extract_cq_music, extract_cq_record, \
     extract_cq_rich, extract_cq_rps, extract_cq_custom_music, create_cq_share
 from utils import get_forward_index, get_qq_name, cq_send
-from telegram.ext import MessageHandler, Filters
+from telegram.ext import MessageHandler, Filters, DispatcherHandlerStop
 import re
 from newspaper import Article
 from utils import get_full_user_name, trim_emoji
@@ -20,9 +20,11 @@ def link_from_telegram(bot, update):
         article = Article(text)
         article.download()
         article.parse()
-        sender_name = trim_emoji(get_full_user_name(update.message.from_user))  # unicode emoji cannot pass into create_cq_share
+        sender_name = trim_emoji(get_full_user_name(update.message.from_user)) + ':'  # unicode emoji cannot pass into create_cq_share
         msg = create_cq_share(text, sender_name, article.text, article.top_image if article.top_image else '')
         cq_send(update, msg, qq_group_id)
+        raise DispatcherHandlerStop()
+
 
 global_vars.dp.add_handler(MessageHandler(Filters.text, link_from_telegram), 99)  # priority 99
 
