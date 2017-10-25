@@ -13,4 +13,4 @@ def ignore_old_message(bot, update):  # ignore old message that are more than 60
         raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, ignore_old_message), 5)  # priority 5
+global_vars.dp.add_handler(MessageHandler(Filters.all, ignore_old_message), 1)  # priority 1
