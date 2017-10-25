@@ -21,10 +21,10 @@ def tg_drive_mode(bot, update):
         raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 1)  # priority 1
+global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 5)  # priority 5
 
 
-@global_vars.qq_bot.listener((RcvdGroupMessage, ), 1)  # priority 1
+@global_vars.qq_bot.listener((RcvdGroupMessage, ), 5)  # priority 5
 def qq_drive_mode(message):
     qq_group_id = int(message.group)
     _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
