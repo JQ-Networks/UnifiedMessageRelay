@@ -9,7 +9,7 @@ def ignore_old_message(bot, update):  # ignore old message that are more than 60
     tg_group_id = update.message.chat_id  # telegram group id
     qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
-    if (update.message.date - datetime.datetime.now()).total_seconds() > 60:
+    if (datetime.datetime.now() - update.message.date).total_seconds() > 60:
         raise DispatcherHandlerStop()
 
 
