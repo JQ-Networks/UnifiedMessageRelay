@@ -39,9 +39,10 @@ Coolq 群名片功能基础为[慕晓飞/cq_python_sdk](https://gitee.com/muxiao
 ### 安装酷Q Socket API
 
 1. 由于酷Q Socket API的发布页发布的版本较旧，请使用本仓库提供编译的最新版的Socket API，[点击这里](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/releases)下载org.dazzyd.cqsocketapi.cpk文件。
-1. 将org.dazzyd.cqsocketapi.cpk文件放置到coolq/app下 
-1. 修改coolq/conf/CQP.cfg文件，在[App]项目中加入一行：org.dazzyd.cqsocketapi.status=1 
-1. 通过远程连接进入远程桌面，重启酷Q。在酷Q的插件管理界面中可以看到Socket API已启用。 
+2. 将org.dazzyd.cqsocketapi.cpk文件放置到coolq/app下 
+3. 修改coolq/conf/CQP.cfg文件，在[App]项目中加入一行：org.dazzyd.cqsocketapi.status=1 
+4. 通过远程连接进入远程桌面，重启酷Q。在酷Q的插件管理界面中可以看到Socket API已启用。 
+5. 原来的repo协议已经不再更新，新的协议见[这里](./doc/protocol.md)
 
 ### 开启图片静态资源访问
 
