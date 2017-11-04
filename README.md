@@ -98,6 +98,8 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 ## Bot的运行
 
+请注意，bot需要 python3.5及以上版本，如运行报错请检查此项是否满足。
+
 保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名。
 
 目前已经实现了 daemon 模式，请使用 `python3 daemon.py start` 以后台运行
