@@ -1,4 +1,4 @@
-import automodinit
+# import automodinit
 import os
 
 # __all__ = []
