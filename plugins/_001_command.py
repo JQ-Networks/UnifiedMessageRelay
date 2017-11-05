@@ -11,7 +11,8 @@ import re
 
 def tg_command(bot, update: Update):
     tg_group_id = update.message.chat_id  # telegram group id
-
+    if tg_group_id > 0:  # ignore private chat
+        raise DispatcherHandlerStop()
     for command in global_vars.command_list:  # process all non-forward commands
         if command.tg_only:
             if update.message.text == command.command:
@@ -25,14 +26,14 @@ def tg_command(bot, update: Update):
     for command in global_vars.command_list:  # process all forward commands
         if not command.tg_only and not command.qq_only:
             if update.message.text == command.command:
-                command.handler(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
+                command.handler(forward_index, tg_group_id, update.message.from_user, qq_group_id, 1)
                 raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), 0)  # priority 0
+global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), 1)  # priority 1
 
 
-@global_vars.qq_bot.listener((RcvdGroupMessage, ), 0)  # priority 0
+@global_vars.qq_bot.listener((RcvdGroupMessage, ), 1)  # priority 1
 def qq_drive_mode(message):
     qq_group_id = int(message.group)
     text = message.text  # get message text

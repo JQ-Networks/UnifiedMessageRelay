@@ -361,6 +361,7 @@ class CQBot():
 
         def decorator(handler):
             self.listeners[group].append(FrameListener(handler, frame_type))
+            return handler
         return decorator
 
     def send(self, message):

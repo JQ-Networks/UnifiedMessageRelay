@@ -14,4 +14,5 @@ class Command:
 def command_listener(command, require_admin=False, tg_only=False, qq_only=False, description=''):
     def decorator(handler):
         global_vars.append_command(Command(command, handler, require_admin, tg_only, qq_only, description))
+        return handler
     return decorator
