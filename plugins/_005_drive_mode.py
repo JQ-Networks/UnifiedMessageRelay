@@ -127,12 +127,19 @@ def add_channel(bot, update):
             return CHANNEL
 
 
+def cancel_add_channel(bot, update):
+    update.message.reply_text('Done.')
+    return ConversationHandler.END
+
+
 conv_handler = ConversationHandler(
         entry_points=[CommandHandler('begin_add_channel', begin_add_channel)],
 
         states={
             CHANNEL: [MessageHandler(Filters.all, add_channel)]
         },
+
+        fallbacks=[CommandHandler('cancel', cancel_add_channel)]
     )
 
 
