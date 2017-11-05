@@ -92,6 +92,9 @@ def add_keyword(bot, update, args):
         update.message.reply_text('Usage: /add_keyword keyword1 keyword2 ...')
         return
     for keyword in args:
+        if keyword in filter_list['keywords']:
+            update.message.reply_text('Keyword: "' + keyword + '" already in list')
+            continue
         filter_list['keywords'].append(keyword)
     update.message.reply_text('Success!')
     save_data()
@@ -108,9 +111,12 @@ def add_channel(bot, update):
     if update.message.forward_from_chat:
         update.message.reply_text(update.message.forward_from_chat.type)
         if update.message.forward_from_chat.type == 'channel':
-            filter_list['channels'].append(update.message.forward_from_chat.id)
-            save_data()
-            update.message.reply_text('Okay, please send me another, or use /cancel to stop')
+            if update.message.forward_from_chat.id not in filter_list['channels']:
+                filter_list['channels'].append(update.message.forward_from_chat.id)
+                save_data()
+                update.message.reply_text('Okay, please send me another, or use /cancel to stop')
+            else:
+                update.message.reply_text('Already in list. Send me another or use /cancel to stop')
             return CHANNEL
     else:
         if update.message.text == '/cancel':
