@@ -112,8 +112,9 @@ def begin_add_channel(bot, update):
 
 def add_channel(bot, update):
     if update.message.forward_from_chat:
-        update.message.reply_text(update.message.forward_from_chat.type)
         if update.message.forward_from_chat.type == 'channel':
+            print(update.message.forward_from_chat.type)
+            print(update.message.forward_from_chat.id)
             if update.message.forward_from_chat.id not in filter_list['channels']:
                 filter_list['channels'].append(update.message.forward_from_chat.id)
                 save_data()
