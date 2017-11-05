@@ -32,7 +32,7 @@ Coolq 群名片功能基础为[慕晓飞/cq_python_sdk](https://gitee.com/muxiao
 
 ### Wine 酷Q
 
-推荐使用Docker镜像，可以参考[coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)，因为酷Q Socket API用到了一个数据监听端口，默认为11235端口，为方便起见，建议在容器内部运行本bot。
+推荐使用Docker镜像，可以参考[coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)，因为酷Q Socket API用到了一个数据监听端口，默认为127.0.0.1:11235端口，为方便起见，**建议在容器内部运行本bot**，具体方法点击[这里](https://askubuntu.com/questions/505506/how-to-get-bash-or-ssh-into-a-running-container-in-background-mode)。
 
 如果不使用Docker，Wine 酷Q的安装可以参照[【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
 
