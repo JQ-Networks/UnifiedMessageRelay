@@ -97,7 +97,7 @@ def add_keyword(bot, update, args):
             update.message.reply_text('Keyword: "' + keyword + '" already in list')
             continue
         filter_list['keywords'].append(keyword)
-    update.message.reply_text('Success!')
+    update.message.reply_text('Done.')
     save_data()
 
 CHANNEL = range(1)
