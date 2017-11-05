@@ -51,7 +51,6 @@ def tg_drive_mode(bot, update):
                 raise DispatcherHandlerStop()
         elif update.message.text:
             if keyword in update.message.text:
-                print(update.message.chat_id)
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
                 raise DispatcherHandlerStop()
 
