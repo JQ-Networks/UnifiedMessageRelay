@@ -41,19 +41,17 @@ def tg_drive_mode(bot, update):
     if update.message.forward_from_chat:
         if update.message.forward_from_chat.type == 'channel':
             if update.message.forward_from_chat.id in filter_list['channels']:
-                print(1)
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
                 raise DispatcherHandlerStop()
 
     for keyword in filter_list['keywords']:
         if update.message.caption:
             if keyword in update.message.caption:
-                print(2)
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
                 raise DispatcherHandlerStop()
         elif update.message.text:
             if keyword in update.message.text:
-                print(3)
+                print(update.message.chat_id)
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
                 raise DispatcherHandlerStop()
 
