@@ -11,7 +11,6 @@ import re
 
 def tg_command(bot, update: Update):
     tg_group_id = update.message.chat_id  # telegram group id
-    print(tg_group_id)
     if tg_group_id > 0:  # ignore private chat
         raise DispatcherHandlerStop()
     for command in global_vars.command_list:  # process all non-forward commands
