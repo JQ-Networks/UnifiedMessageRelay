@@ -13,7 +13,11 @@ import sys
 import os
 
 logger = logging.getLogger(__name__)
-
+hdlr = logging.FileHandler('bot.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+hdlr.setFormatter(formatter)
+logger.addHandler(hdlr)
+logger.setLevel(logging.WARNING)
 
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
