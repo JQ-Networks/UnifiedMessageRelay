@@ -113,13 +113,12 @@ def add_channel(bot, update):
             update.message.reply_text('Okay, please send me another, or use /cancel to stop')
             return CHANNEL
     else:
-        update.message.reply_text('Message type error. Please forward me a message from channel, or use /cancel to stop')
-        return CHANNEL
-
-
-def cancel_add_channel(bot, update):
-    update.message.reply_text('Done.')
-    return ConversationHandler.END
+        if update.message.text == '/cancel':
+            update.message.reply_text('Done.')
+            return ConversationHandler.END
+        else:
+            update.message.reply_text('Message type error. Please forward me a message from channel, or use /cancel to stop')
+            return CHANNEL
 
 
 conv_handler = ConversationHandler(
@@ -128,8 +127,6 @@ conv_handler = ConversationHandler(
         states={
             CHANNEL: [MessageHandler(Filters.all, add_channel)]
         },
-
-        fallbacks=[CommandHandler('cancel', cancel_add_channel)]
     )
 
 
