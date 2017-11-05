@@ -47,9 +47,11 @@ def tg_drive_mode(bot, update):
         if update.message.caption:
             if keyword in update.message.caption:
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
+                raise DispatcherHandlerStop()
         elif update.message.text:
             if keyword in update.message.text:
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
+                raise DispatcherHandlerStop()
 
 
 global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 5)  # priority 5
@@ -91,6 +93,7 @@ def add_keyword(bot, update, args):
         return
     for keyword in args:
         filter_list['keywords'].append(keyword)
+    update.message.reply_text('Success!')
     save_data()
 
 CHANNEL = range(1)
@@ -103,6 +106,7 @@ def begin_add_channel(bot, update):
 
 def add_channel(bot, update):
     if update.message.forward_from_chat:
+        update.message.reply_text(update.message.forward_from_chat.type)
         if update.message.forward_from_chat.type == 'channel':
             filter_list['channels'].append(update.message.forward_from_chat.id)
             save_data()
