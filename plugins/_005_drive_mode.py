@@ -42,7 +42,10 @@ def tg_drive_mode(bot, update):
     if update.forward_from_chat:
         if update.forward_from_chat.id in filter_list['channels']:
             drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
+            raise DispatcherHandlerStop()
 
+    print(filter_list['keywords'])
+    print(update.message.text)
     for keyword in filter_list['keywords']:
         if update.message.caption:
             if keyword in update.message.caption:
@@ -50,7 +53,9 @@ def tg_drive_mode(bot, update):
                 raise DispatcherHandlerStop()
         elif update.message.text:
             if keyword in update.message.text:
+                print('gotcha')
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
+                print('drive mode on')
                 raise DispatcherHandlerStop()
 
 
