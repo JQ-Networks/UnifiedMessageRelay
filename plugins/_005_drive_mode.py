@@ -38,15 +38,10 @@ def tg_drive_mode(bot, update):
 
     if DRIVE_MODE[forward_index]:
         raise DispatcherHandlerStop()
-    print(update.message.text)
-    if update.forward_from_chat:
-        print('1')
-        if update.forward_from_chat.type == 'channel':
-            print('2')
-            if update.forward_from_chat.id in filter_list['channels']:
-                print('3')
+    if update.message.forward_from_chat:
+        if update.message.forward_from_chat.type == 'channel':
+            if update.message.forward_from_chat.id in filter_list['channels']:
                 drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
-                print('4')
                 raise DispatcherHandlerStop()
 
     print(filter_list['keywords'])
