@@ -19,6 +19,7 @@ hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
 logger.setLevel(logging.WARNING)
 
+
 def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
 
@@ -43,8 +44,6 @@ class MainProcess(Daemon):
         global_vars.set_dp(dp)
         dp.add_error_handler(error)
         dp.add_handler(CommandHandler('start', start), group=0)
-
-        logger.warn(os.getcwd())
 
         qq_bot.start()  # start bot before add handler, in order to execute init correctly
         updater.start_polling(poll_interval=1.0, timeout=200)

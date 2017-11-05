@@ -104,6 +104,8 @@ CHANNEL = range(1)
 
 
 def begin_add_channel(bot, update):
+    if update.message.chat_id < 0:
+        return
     update.message.reply_text('Please forward me message from channels:')
     return CHANNEL
 
