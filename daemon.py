@@ -10,6 +10,7 @@ import telegram.ext
 import logging
 from DaemonClass import Daemon
 import sys
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +39,8 @@ class MainProcess(Daemon):
         global_vars.set_dp(dp)
         dp.add_error_handler(error)
         dp.add_handler(CommandHandler('start', start), group=0)
+
+        logger.info(os.getcwd())
 
         qq_bot.start()  # start bot before add handler, in order to execute init correctly
         updater.start_polling(poll_interval=1.0, timeout=200)
