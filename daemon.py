@@ -18,6 +18,10 @@ def error(bot, update, error):
     logger.warning('Update "%s" caused error "%s"' % (update, error))
 
 
+def start(bot, update):
+    update.message.reply_text('This is a QQ <-> Telegram Relay bot, source code is available on [Github](https://github.com/jqqqqqqqqqq/coolq-telegram-bot)', parse_mode='Markdown')
+
+
 class MainProcess(Daemon):
     def run(self):
         qq_bot = CQBot(CQ_PORT)
@@ -33,6 +37,7 @@ class MainProcess(Daemon):
         dp = updater.dispatcher
         global_vars.set_dp(dp)
         dp.add_error_handler(error)
+        dp.add_handler(CommandHandler('start', start), group=0)
 
         qq_bot.start()  # start bot before add handler, in order to execute init correctly
         updater.start_polling(poll_interval=1.0, timeout=200)

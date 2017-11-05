@@ -130,4 +130,4 @@ conv_handler = ConversationHandler(
 
 
 global_vars.dp.add_handler(conv_handler, group=0)
-global_vars.dp.add_handler(add_keyword, group=0, pass_args=True)
+global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=0)
