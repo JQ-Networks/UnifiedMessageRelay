@@ -74,17 +74,29 @@ server {
 
 提示：从 1.0 迁移请注意修改 bot\_constant.py
 
-请在bot使用之前，将bot_constant-sample.py重命名为bot_constant.py
+请在bot使用之前，将`bot_constant-sample.py`重命名为`bot_constant.py`
 
-键   | 值
-:--- | ---
-`TOKEN` | Telegram机器人的token
-`QQ_BOT_ID` | QQ机器人的QQ号
-`FORWARD_LIST` | 一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
-`SERVER_PIC_URL` | 图片访问的url前缀。
-`CQ_ROOT_DIR` | 酷Q的根目录路径
-`CQ_PORT` | 酷Q Socket API 数据监听端口
-`JQ_MODE` | 交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
+键               | 值
+:--------------- | ---
+`TOKEN`          | Telegram机器人的token
+`QQ_BOT_ID`      | QQ机器人的QQ号
+`FORWARD_LIST`   | 一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
+`SERVER_PIC_URL` | 图片访问的url前缀
+`CQ_ROOT_DIR`    | 酷Q的根目录路径
+`CQ_PORT`        | 酷Q Socket API 数据监听端口
+`JQ_MODE`        | 交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
+
+### bot_constant.json
+键值对的对应关系与bot_constant.py相同。
+
+如要使用JSON格式的配置文件，请将`bot_constant-json.py`重命名为`bot_constant.py`以启用JSON配置文件支持特性。
+
+如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `CTB_JSON_SETTINGS_PATH`
+例：
+
+```shell
+$ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
+```
 
 ### qq_emoji_list.py
 
