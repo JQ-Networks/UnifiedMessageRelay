@@ -76,19 +76,15 @@ server {
 
 请在bot使用之前，将bot_constant-sample.py重命名为bot_constant.py
 
-TOKEN：Telegram机器人的token
-
-QQ_BOT_ID：QQ机器人的QQ号
-
-FORWARD\_LIST：一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
-
-SERVER\_PIC\_URL：图片访问的url前缀。
-
-CQ\_ROOT\_DIR：酷Q的根目录路径
-
-CQ\_PORT：酷Q Socket API 数据监听端口
-
-JQ\_MODE：交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
+键   | 值
+:--- | ---
+`TOKEN` | Telegram机器人的token
+`QQ_BOT_ID` | QQ机器人的QQ号
+`FORWARD_LIST` | 一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
+`SERVER_PIC_URL` | 图片访问的url前缀。
+`CQ_ROOT_DIR` | 酷Q的根目录路径
+`CQ_PORT` | 酷Q Socket API 数据监听端口
+`JQ_MODE` | 交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
 
 ### qq_emoji_list.py
 
