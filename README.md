@@ -97,6 +97,7 @@ server {
 ```shell
 $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
+`tools/bot_constant-py2json.py`提供了将`bot_constant.py`转换为`bot_constant.json`的工具
 
 ### qq_emoji_list.py
 
