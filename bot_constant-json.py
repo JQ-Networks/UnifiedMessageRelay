@@ -21,4 +21,4 @@ SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
 CQ_PORT = settingsJSON['CQ_PORT']
 JQ_MODE = settingsJSON['JQ_MODE']  # if use Coolq Pro, set as True, otherwise False
-print('[CTBot] JSON Config file support [EN]')
+print('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')
