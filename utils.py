@@ -205,9 +205,14 @@ def cq_send(update: telegram.Update, text: str, qq_group_id: int, edited: bool =
     :param qq_group_id: which group to send
     :param edited: add '✎' icon
     """
-    sender_name = get_full_user_name(update.message.from_user)
-    forward_from = get_forward_from(update.message)
-    reply_to = get_reply_to(update.message.reply_to_message)
+    if edited:
+        sender_name = get_full_user_name(update.edited_message.from_user)
+        forward_from = get_forward_from(update.edited_message)
+        reply_to = get_reply_to(update.edited_message.reply_to_message)
+    else:
+        sender_name = get_full_user_name(update.message.from_user)
+        forward_from = get_forward_from(update.message)
+        reply_to = get_reply_to(update.message.reply_to_message)
 
     # get real sender from telegram message
     if forward_from and update.message.forward_from.id == global_vars.tg_bot_id:
