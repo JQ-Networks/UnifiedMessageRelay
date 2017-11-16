@@ -197,12 +197,13 @@ def trim_emoji(text):
     return new_text
 
 
-def cq_send(update: telegram.Update, text: str, qq_group_id: int):
+def cq_send(update: telegram.Update, text: str, qq_group_id: int, edited: bool = False):
     """
     send telegram message to qq with forward of reply support
     :param update: telegram.Update
     :param text: text to send, in coolq format
     :param qq_group_id: which group to send
+    :param edited: add '✎' icon
     """
     sender_name = get_full_user_name(update.message.from_user)
     forward_from = get_forward_from(update.message)
@@ -215,9 +216,14 @@ def cq_send(update: telegram.Update, text: str, qq_group_id: int):
             text = text[left_start + 2:]
     text = emoji_to_cqemoji(text)
 
+    if edited:
+        edit_mark = ' ✎ '
+    else:
+        edit_mark = ''
+
     global_vars.qq_bot.send(SendGroupMessage(
         group=qq_group_id,
-        text=sender_name + reply_to + forward_from + ': ' + text
+        text=sender_name + reply_to + forward_from + edit_mark + ': ' + text
     ))
 
 

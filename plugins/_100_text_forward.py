@@ -266,19 +266,33 @@ for forward in FORWARD_LIST:  # initialize
 
 
 def photo_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    if update.message:
+        tg_group_id = update.message.chat_id  # telegram group id
+        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
-    file_id = update.message.photo[-1].file_id
-    pic_url = tg_get_pic_url(file_id, 'jpg')
-    if JQ_MODE:
-        text = '[CQ:image,file=' + file_id + '.jpg]'
-    else:
-        text = '[图片, 请点击查看' + pic_url + ']'
-    if update.message.caption:
-        text += update.message.caption
+        file_id = update.message.photo[-1].file_id
+        pic_url = tg_get_pic_url(file_id, 'jpg')
+        if JQ_MODE:
+            text = '[CQ:image,file=' + file_id + '.jpg]'
+        else:
+            text = '[图片, 请点击查看' + pic_url + ']'
+        if update.message.caption:
+            text += update.message.caption
 
-    cq_send(update, text, qq_group_id)
+        cq_send(update, text, qq_group_id)
+    elif update.edited_message:
+        tg_group_id = update.edited_message.chat_id  # telegram group id
+        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+
+        file_id = update.edited_message.photo[-1].file_id
+        pic_url = tg_get_pic_url(file_id, 'jpg')
+        if JQ_MODE:
+            text = '[CQ:image,file=' + file_id + '.jpg]'
+        else:
+            text = '[图片, 请点击查看' + pic_url + ']'
+        if update.edited_message.caption:
+            text += update.edited_message.caption
+        cq_send(update, text, qq_group_id, edited=True)
 
 
 def video_from_telegram(bot, update):
@@ -319,20 +333,30 @@ def sticker_from_telegram(bot, update):
 
 
 def text_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    if update.message:
+        tg_group_id = update.message.chat_id  # telegram group id
+        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
-    text = update.message.text
-    if text.startswith('//'):  # feature, comment will no be send to qq
-        return
-    else:
-        cq_send(update, text, qq_group_id)
+        text = update.message.text
+        if text.startswith('//'):  # feature, comment will no be send to qq
+            return
+        else:
+            cq_send(update, text, qq_group_id)
+    elif update.edited_message:
+        tg_group_id = update.edited_message.chat_id  # telegram group id
+        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+
+        text = update.edited_message.text
+        if text.startswith('//'):  # feature, comment will no be send to qq
+            return
+        else:
+            cq_send(update, text, qq_group_id, edited=True)
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram), 100)  # priority 100
+global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), 100)  # priority 100
 global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), 100)
 global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram), 100)
+global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram, edited_updates=True), 100)
 global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegram), 100)
 global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), 100)
 
