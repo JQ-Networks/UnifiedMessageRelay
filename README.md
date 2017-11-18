@@ -1,8 +1,16 @@
 # coolq-telegram-bot 
 
-QQ和Telegram的消息互转机器人 **2.0**
+QQ和Telegram的消息互转机器人 **2.1**
 
-2.0 版本正在构建完成，从 1.0 迁移请注意修改 bot\_constant.py
+FAQ 正在构建，欢迎大家提任何issue，我会收录一些看起来比较有意义的的问题。提问参照下面 Issue 格式。
+
+docker 版正在构建，使用方法：
+
+1. Star 本 Repo
+2. Star [这个](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
+3. 参考 coolq-telegram-bot-docker 的 [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md) 完成构建
+
+2.0 版本构建完成，从 1.0 迁移请注意修改 bot\_constant.py
 
 QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
@@ -144,3 +152,18 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 关闭：在QQ群或Telegram群中发送 [drive mode off]
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
+
+# Issue 格式
+
+## 提问前请检查
+
+ 1. 请在提问前检查是否使用 Python 3.5+，是否安装 requirements.txt，是否正确部署cqsocketapi并在coolq中启用
+ 2. bot 是否与coolq主程序可以通过127.0.0.1直连，如果一个在docker内部一个在外部是连不上的，参考 [#10](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/10)
+
+## 提问需要携带的信息
+
+1. 症状描述
+2. python3 daemon.py run 的执行输出
+
+
+
