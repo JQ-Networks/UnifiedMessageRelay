@@ -289,7 +289,7 @@ def photo_from_telegram(bot, update):
         if JQ_MODE:
             text = '[CQ:image,file=' + file_id + '.jpg]'
         else:
-            text = '[图片, 请点击查看' + pic_url + ']'
+            text = '[图片, 请点击查看' + pic_url + ' ]'
         if update.edited_message.caption:
             text += update.edited_message.caption
         cq_send(update, text, qq_group_id, edited=True)
