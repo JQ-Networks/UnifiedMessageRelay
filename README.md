@@ -1,4 +1,6 @@
 # coolq-telegram-bot 
+![](https://img.shields.io/badge/Python-3.5%2B-brightgreen.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPL
+v3-000000.svg?style=flat-square)
 
 QQ和Telegram的消息互转机器人 **2.1**
 
