@@ -1,5 +1,6 @@
 import base64
 from CQPack import CQUnpack
+from utils import decode_cq_escape
 
 
 class CQStrangerInfo(object):
@@ -12,7 +13,7 @@ class CQStrangerInfo(object):
         data = base64.decodebytes(data.encode()) if is_base64 else data
         info = CQUnpack(data)
         self.QQID = info.get_long()
-        self.Nickname = info.get_length_str().decode('gb18030')
+        self.Nickname = decode_cq_escape(info.get_length_str().decode('gb18030'))
         self.Sex = info.get_int()
         self.Age = info.get_int()
 
