@@ -370,10 +370,10 @@ def new(message):
 
     text = message.text  # get message text
 
-    text, _ = cq_image_regex.subn('', text)   # clear CQ:image in text
+    # text, _ = cq_image_regex.subn('', text)   # clear CQ:image in text
 
     # replace special characters
-    decode_cq_escape(text)
+    text = decode_cq_escape(text)
 
     text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
     text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
@@ -395,7 +395,7 @@ def new(message):
     # mode = 0 -> direct mode: send cqlink to tg server
     # mode = 1 -> (deprecated) download mode: download to local，send local link to tg server
     # mode = 2 -> download mode: download to local, upload from disk to tg server
-    message_parts = cq_image_simple_regex.split(message.text)
+    message_parts = cq_image_simple_regex.split(text)
     message_parts_count = len(message_parts)
     image_num = message_parts_count - 1
     if image_num == 0:
@@ -419,6 +419,7 @@ def new(message):
             else:
                 part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
             part_index += 1
+            decode_cq_escape(part_msg)
             filename = matches.group(1)
             url = cq_get_pic_url(filename)
             pic = url

@@ -1,6 +1,5 @@
 import base64
 from CQPack import CQUnpack
-from utils import decode_cq_escape
 
 class CQGroupMemberInfo(object):
     GroupID                 = None
@@ -24,8 +23,8 @@ class CQGroupMemberInfo(object):
         info = CQUnpack(data)
         self.GroupID                    = info.get_long()
         self.QQID                       = info.get_long()
-        self.Nickname                   = decode_cq_escape(info.get_length_str().decode('gb18030'))
-        self.Card                       = decode_cq_escape(info.get_length_str().decode('gb18030'))
+        self.Nickname                   = info.get_length_str().decode('gb18030')
+        self.Card                       = info.get_length_str().decode('gb18030')
         self.Sex                        = info.get_int()
         self.Age                        = info.get_int()
         self.Address                    = info.get_length_str().decode('gb18030')
@@ -36,7 +35,7 @@ class CQGroupMemberInfo(object):
         self.IsGroupAdmin               = self.Authority in [2, 3]
         self.IsGroupOwner               = self.Authority in [3]
         self.IsBad                      = (info.get_int() == 1)
-        self.SpecialTitle               = decode_cq_escape(info.get_length_str().decode('gb18030'))
+        self.SpecialTitle               = info.get_length_str().decode('gb18030')
         self.SpecialTitleExpiredTime    = info.get_int()
         self.IsAllowedToModifyCard      = (info.get_int() == 1)
 
