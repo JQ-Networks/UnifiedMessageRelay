@@ -3,6 +3,8 @@
 
 QQ和Telegram的消息互转机器人 **2.1**
 
+Pending update: Coolq 更新了消息撤回和消息 id 功能，准备更新 cqsocketsdk 和本 bot，敬请期待
+
 FAQ 正在构建，欢迎大家提任何issue，我会收录一些看起来比较有意义的的问题。提问参照下面 Issue 格式。
 
 docker 版正在构建，使用方法：
