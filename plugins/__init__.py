@@ -22,6 +22,6 @@ import plugins.qq_namelist
 import plugins.show_group_id
 import plugins._100_text_forward
 import plugins._099_cq_message_forward
-# import plugins.debug_all_message
+import plugins.debug_all_message
 import plugins.for_fun
 import plugins._002_filter_old_message
