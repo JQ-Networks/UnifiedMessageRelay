@@ -280,7 +280,7 @@ def photo_from_telegram(bot, update):
         if update.message.caption:
             text += update.message.caption
 
-            cq_send(update, text, qq_group_id)
+        cq_send(update, text, qq_group_id)
     elif update.edited_message:
         tg_group_id = update.edited_message.chat_id  # telegram group id
         qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
