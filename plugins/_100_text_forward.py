@@ -246,7 +246,7 @@ def tg_get_pic_url(file_id: str, pic_type: str):
     """
     file = global_vars.tg_bot.getFile(file_id)
     # urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))  # download image
-    file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id + '.' + pic_type))
+    file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id))
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
         pic_url = get_short_url(SERVER_PIC_URL + file_id + '.jpg')
