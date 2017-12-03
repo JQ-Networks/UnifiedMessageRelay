@@ -353,7 +353,7 @@ class CQBot():
             self.send(ClientHello(port))
             time.sleep(30)
 
-    def listener(self, frame_type, group=0):
+    def listener(self, frame_type, group=0):  # group: call sequence, lower group index means higher priority
         if group not in self.listeners:
             self.listeners[group] = list()
             self.groups.append(group)

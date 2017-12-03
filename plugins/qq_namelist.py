@@ -14,7 +14,7 @@ def reload_all_qq_namelist():
         global_vars.qq_bot.send(GetGroupMemberList(group=forward['QQ']))
 
 
-@global_vars.qq_bot.listener(RcvGroupMemberList)
+@global_vars.qq_bot.listener(RcvGroupMemberList, 10)  # priority 10
 def handle_group_member_list(message):
     with open(os.path.join(CQ_GROUP_LIST_ROOT, message.path.split('\\')[-1]), 'r', encoding='utf-8') as f:
         data = f.read()
