@@ -271,16 +271,16 @@ def photo_from_telegram(bot, update):
         tg_group_id = update.message.chat_id  # telegram group id
         qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
-    file_id = update.message.photo[-1].file_id
-    pic_url = tg_get_pic_url(file_id, 'jpg')
-    if JQ_MODE:
-        text = '[CQ:image,file=' + file_id + '.jpg]'
-    else:
-        text = '[ 图片, 请点击查看' + pic_url + ' ]'
-    if update.message.caption:
-        text += update.message.caption
+        file_id = update.message.photo[-1].file_id
+        pic_url = tg_get_pic_url(file_id, 'jpg')
+        if JQ_MODE:
+            text = '[CQ:image,file=' + file_id + '.jpg]'
+        else:
+            text = '[ 图片, 请点击查看' + pic_url + ' ]'
+        if update.message.caption:
+            text += update.message.caption
 
-        cq_send(update, text, qq_group_id)
+            cq_send(update, text, qq_group_id)
     elif update.edited_message:
         tg_group_id = update.edited_message.chat_id  # telegram group id
         qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
