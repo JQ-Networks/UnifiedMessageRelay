@@ -15,8 +15,6 @@ oauthlib==2.0.2
 olefile==0.44
 Pillow==4.2.1
 pycurl==7.43.0
-pygobject==3.20.0
-python-apt==1.1.0b1
 python-dateutil==2.6.1
 python-telegram-bot==8.0
 pytz==2017.2
