@@ -27,3 +27,5 @@ tldextract==2.1.0
 tzlocal==1.4
 unattended-upgrades==0.1
 urllib3==1.22
+cqhttp==1.1.0
+bottle==0.12.13
