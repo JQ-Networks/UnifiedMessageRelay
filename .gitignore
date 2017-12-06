@@ -100,7 +100,7 @@ bot.log
 nohup.out
 bot_constant.py
 special_sticker_list.py
-nouse.py
+_0010_nouse.py
 
 .DS_Store
 .idea

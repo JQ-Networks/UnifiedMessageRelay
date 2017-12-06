@@ -6,7 +6,9 @@ from command import command_listener
 from CQGroupMemberListInfo import get_group_member_list_info
 import os
 
-global_vars.set_group_members([[]] * len(FORWARD_LIST))
+global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
+
+# TODO reconstruct this feature
 
 
 def reload_all_qq_namelist():
