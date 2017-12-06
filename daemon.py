@@ -2,22 +2,24 @@
 # -*- coding: utf-8 -*-
 from bot_constant import *
 import global_vars
-from cqsdk import CQBot, CQAt, CQImage, RcvdPrivateMessage, RcvdGroupMessage,\
-    SendGroupMessage, GetGroupMemberList, RcvGroupMemberList
-from telegram.ext import Updater, CommandHandler, InlineQueryHandler,\
-    ConversationHandler, RegexHandler, MessageHandler, Filters
-import telegram.ext
+
+from telegram.ext import Updater, CommandHandler
+
 import logging
 from DaemonClass import Daemon
 import sys
-import os
 
+from cqhttp import CQHttp
+
+# region log
 logger = logging.getLogger(__name__)
 hdlr = logging.FileHandler('bot.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
+
+# endregion
 
 
 def error(bot, update, error):
@@ -30,25 +32,26 @@ def start(bot, update):
 
 class MainProcess(Daemon):
     def run(self):
-        qq_bot = CQBot(CQ_PORT)
-        tg_bot = None
-        global_vars.set_qq_bot(qq_bot)
-        global_vars.set_tg_bot_id(int(TOKEN.split(':')[0]))
+        qq_bot = CQHttp(api_root='http://127.0.0.1:5700/',
+                        access_token='your-token',
+                        secret='your-secret')
+
+        global_vars.qq_bot = qq_bot
+        global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
         updater = Updater(TOKEN)
         job_queue = updater.job_queue
-        tg_bot = updater.bot
-        global_vars.set_tg_bot(tg_bot)
+        global_vars.tg_bot = updater.bot
         # Get the dispatcher to register handlers
         dp = updater.dispatcher
-        global_vars.set_dp(dp)
+        global_vars.dp = dp
         dp.add_error_handler(error)
         dp.add_handler(CommandHandler('start', start), group=0)
 
         qq_bot.start()  # start bot before add handler, in order to execute init correctly
         updater.start_polling(poll_interval=1.0, timeout=200)
 
-        import plugins
+        import plugins  # load all plugins
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since

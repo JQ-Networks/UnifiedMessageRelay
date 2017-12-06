@@ -1,151 +1,83 @@
 from bot_constant import FORWARD_LIST
 import global_vars
-from utils import get_forward_index
+from utils import get_forward_index, send_all_except_current, get_plugin_priority
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
 from telegram.ext.dispatcher import DispatcherHandlerStop
-from cqsdk import RcvdGroupMessage, SendGroupMessage
 from command import command_listener
-from pathlib import Path
-import json
 
-DRIVE_MODE = []
-
-filter_list = {'keywords': [], 'channels': []}
+import telegram
 
 
-def load_data():
-    global filter_list
-    json_file = Path('./plugins/conf/_006_water_meter_filter.json')
-    if json_file.is_file():
-        filter_list = json.load(open('./plugins/conf/_006_water_meter_filter.json', 'r'))
-
-
-def save_data():
-    global filter_list
-    json.dump(filter_list, open('./plugins/conf/_006_water_meter_filter.json', 'w'), ensure_ascii=False, indent=4)
-
-
-load_data()
+global_vars.create_variable('DRIVE_MODE', [])
 
 
 for forward in FORWARD_LIST:
-    DRIVE_MODE.append(forward['Drive_mode'])
+    global_vars.DRIVE_MODE.append(forward['Drive_mode'])
 
 
 def tg_drive_mode(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    if update.message:
+        message: telegram.Message = update.message
+    else:
+        message: telegram.Message = update.edited_message
 
-    if DRIVE_MODE[forward_index]:
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+
+    if global_vars.DRIVE_MODE[forward_index]:  # normal block
         raise DispatcherHandlerStop()
-    if update.message.forward_from_chat:
-        if update.message.forward_from_chat.type == 'channel':
-            if update.message.forward_from_chat.id in filter_list['channels']:
-                drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
-                raise DispatcherHandlerStop()
-
-    for keyword in filter_list['keywords']:
-        if update.message.caption:
-            if keyword in update.message.caption:
-                drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
-                raise DispatcherHandlerStop()
-        elif update.message.text:
-            if keyword in update.message.text:
-                drive_mode_on(forward_index, tg_group_id, update.message.from_user, qq_group_id, 0)
-                raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), 5)  # priority 5
+global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), get_plugin_priority(__name__))
 
 
-@global_vars.qq_bot.listener((RcvdGroupMessage, ), 5)  # priority 5
-def qq_drive_mode(message):
-    qq_group_id = int(message.group)
-    _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
+@global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
+def qq_drive_mode(context: dict):
+    qq_group_id = context.get('group_id')
+    qq_discuss_id = context.get('discuss_id')
 
-    if DRIVE_MODE[forward_index]:
-        return True
-    return False
+    forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
+
+    if global_vars.DRIVE_MODE[forward_index]:
+        return ''
+    return {'pass': True}
 
 
 # add commands
 
-@command_listener('[drive mode on]', description='enable drive mode')
-def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
-    DRIVE_MODE[forward_index] = True
-    msg = 'Telegram向QQ转发消息已暂停'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+# forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id
 
+@command_listener('drive mode on', 'dmon', description='enable drive mode')
+def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
+                  tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
+    global_vars.DRIVE_MODE[forward_index] = True
 
-@command_listener('[drive mode off]', description='disable drive mode')
-def drive_mode_off(forward_index, tg_group_id, tg_user, qq_group_id, qq):
-    DRIVE_MODE[forward_index] = False
-    msg = 'Telegram向QQ转发消息已重启'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+    message = 'Status changed: 451'
 
-
-def add_keyword(bot, update, args):
-    if update.message.chat_id < 0:
-        return
-    if len(args) == 0:
-        update.message.reply_text('Usage: /add_keyword keyword1 keyword2 ...')
-        return
-    for keyword in args:
-        if keyword in filter_list['keywords']:
-            update.message.reply_text('Keyword: "' + keyword + '" already in list')
-            continue
-        filter_list['keywords'].append(keyword)
-    update.message.reply_text('Done.')
-    save_data()
-
-CHANNEL = range(1)
-
-
-def begin_add_channel(bot, update):
-    if update.message.chat_id < 0:
-        return
-    update.message.reply_text('Please forward me message from channels:')
-    return CHANNEL
-
-
-def add_channel(bot, update):
-    if update.message.forward_from_chat:
-        if update.message.forward_from_chat.type == 'channel':
-            print(update.message.forward_from_chat.type)
-            print(update.message.forward_from_chat.id)
-            if update.message.forward_from_chat.id not in filter_list['channels']:
-                filter_list['channels'].append(update.message.forward_from_chat.id)
-                save_data()
-                update.message.reply_text('Okay, please send me another, or use /cancel to stop')
-            else:
-                update.message.reply_text('Already in list. Send me another or use /cancel to stop')
-            return CHANNEL
+    if tg_group_id:
+        send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
+        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+    elif qq_group_id:
+        send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
+        return {'reply': message}
     else:
-        if update.message.text == '/cancel':
-            update.message.reply_text('Done.')
-            return ConversationHandler.END
-        else:
-            update.message.reply_text('Message type error. Please forward me a message from channel, or use /cancel to stop')
-            return CHANNEL
+        send_all_except_current(forward_index, message, qq_discuss_id=qq_discuss_id)
+        return {'reply': message}
 
 
-def cancel_add_channel(bot, update):
-    update.message.reply_text('Done.')
-    return ConversationHandler.END
+@command_listener('drive mode off', 'dmoff', description='disable drive mode')
+def drive_mode_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
+                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
+    global_vars.DRIVE_MODE[forward_index] = False
 
+    message = 'Status changed: 200'
 
-conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('begin_add_channel', begin_add_channel)],
-
-        states={
-            CHANNEL: [MessageHandler(Filters.all, add_channel)]
-        },
-
-        fallbacks=[CommandHandler('cancel', cancel_add_channel)]
-    )
-
-
-global_vars.dp.add_handler(conv_handler, group=0)
-global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=0)
+    if tg_group_id:
+        send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
+        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+    elif qq_group_id:
+        send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
+        return {'reply': message}
+    else:
+        send_all_except_current(forward_index, message, qq_discuss_id=qq_discuss_id)
+        return {'reply': message}

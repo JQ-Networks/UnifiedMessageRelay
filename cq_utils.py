@@ -27,6 +27,8 @@ cq_record_regex = re.compile(r'\[CQ:record,file=(.*)(?:,magic=(true|false))?\]')
 # unknown
 cq_anonymous_regex = re.compile(r'\[CQ:anonymous,ignore=(true|false)\]')
 
+cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
+
 # https://d.cqp.me/Pro/CQ码
 # to be continued
 

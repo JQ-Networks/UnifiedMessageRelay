@@ -2,7 +2,7 @@ from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
 import global_vars
 from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
     get_forward_from, get_reply_to, get_full_user_name, error, decode_cq_escape, \
-    cq_send, get_qq_name
+    cq_send, get_qq_name, send_all_except_current, get_plugin_priority
 from cqsdk import SendGroupMessage, RcvdGroupMessage, CQAt, CQImage
 from command import command_listener
 from PIL import Image
@@ -268,213 +268,319 @@ for forward in FORWARD_LIST:  # initialize
 
 def photo_from_telegram(bot, update):
     if update.message:
-        tg_group_id = update.message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+        message: telegram.Message = update.message
+        edited = False
+    else:
+        message: telegram.Message = update.edited_message
+        edited = True
 
-        file_id = update.message.photo[-1].file_id
-        pic_url = tg_get_pic_url(file_id, 'jpg')
-        if JQ_MODE:
-            text = '[CQ:image,file=' + file_id + '.jpg]'
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    reply_entity = list()
+
+    file_id = message.photo[-1].file_id
+    pic_url = tg_get_pic_url(file_id, 'jpg')
+    if JQ_MODE:
+        reply_entity.append({
+            'type': 'image',
+            'data': {'file': file_id + '.jpg'}
+        })
+        if message.caption:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': message.caption}
+            })
+    else:
+        if message.caption:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]' + message.caption}
+            })
         else:
-            text = '[ 图片, 请点击查看' + pic_url + ' ]'
-        if update.message.caption:
-            text += update.message.caption
-
-        cq_send(update, text, qq_group_id)
-    elif update.edited_message:
-        tg_group_id = update.edited_message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-
-        file_id = update.edited_message.photo[-1].file_id
-        pic_url = tg_get_pic_url(file_id, 'jpg')
-        if JQ_MODE:
-            text = '[CQ:image,file=' + file_id + '.jpg]'
-        else:
-            text = '[图片, 请点击查看' + pic_url + ' ]'
-        if update.edited_message.caption:
-            text += update.edited_message.caption
-        cq_send(update, text, qq_group_id, edited=True)
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]'}
+            })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def video_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-    text = '[视频]'
-    cq_send(update, text, qq_group_id)
+    if update.message:
+        message: telegram.Message = update.message
+        edited = False
+    else:
+        message: telegram.Message = update.edited_message
+        edited = True
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    reply_entity = list()
+
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': '[ 视频 ]'}
+    })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def audio_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-    text = '[音频]'
-    cq_send(update, text, qq_group_id)
+    if update.message:
+        message: telegram.Message = update.message
+        edited = False
+    else:
+        message: telegram.Message = update.edited_message
+        edited = True
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    reply_entity = list()
+
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': '[ 音频 ]'}
+    })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def document_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-    text = '[文件]'
-    cq_send(update, text, qq_group_id)
+    if update.message:
+        message: telegram.Message = update.message
+        edited = False
+    else:
+        message: telegram.Message = update.edited_message
+        edited = True
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    reply_entity = list()
+
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': '[ 文件 ]'}
+    })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def sticker_from_telegram(bot, update):
-    tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    if update.message:
+        message: telegram.Message = update.message
+        edited = False
+    else:
+        message: telegram.Message = update.edited_message
+        edited = True
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    reply_entity = list()
 
     if PIC_LINK_MODE[forward_index]:
         file_id = update.message.sticker.file_id
         pic_url = tg_get_pic_url(file_id, 'png')
         if JQ_MODE:
-            text = '[CQ:image,file=' + file_id + '.png]'
+            reply_entity.append({
+                'type': 'image',
+                'data': {'file': file_id + '.png'}
+            })
         else:
-            text = '[ ' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ ' + message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'}
+            })
     else:
-        text = '[' + update.message.sticker.emoji + ' sticker]'
-    cq_send(update, text, qq_group_id)
+        reply_entity.append({
+            'type': 'text',
+            'data': {'text': '[ ' + message.sticker.emoji + ' sticker ]'}
+        })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def text_from_telegram(bot, update):
     if update.message:
-        tg_group_id = update.message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-
-        text = update.message.text
-        if text.startswith('//'):  # feature, comment will no be send to qq
-            return
-        else:
-            cq_send(update, text, qq_group_id)
-    elif update.edited_message:
-        tg_group_id = update.edited_message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-
-        text = update.edited_message.text
-        if text.startswith('//'):  # feature, comment will no be send to qq
-            return
-        else:
-            cq_send(update, text, qq_group_id, edited=True)
-
-
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), 100)  # priority 100
-global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram, edited_updates=True), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), 100)
-
-
-@global_vars.qq_bot.listener((RcvdGroupMessage, ), 100)  # priority 100
-def new(message):
-    # logging.info('(' + message.qq + '): ' + message.text)
-
-    qq_group_id = int(message.group)
-    _, tg_group_id, forward_index = get_forward_index(qq_group_id=qq_group_id)
-
-    text = message.text  # get message text
-
-    # text, _ = cq_image_regex.subn('', text)   # clear CQ:image in text
-
-    # replace special characters
-    text = decode_cq_escape(text)
-
-    text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
-    text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
-    text = cq_bface_regex.sub('\u2753', text)  # replace bface to '?'
-    text = cq_sface_regex.sub(lambda x: qq_sface_list[int(x.group(1)) & 255] if int(x.group(1)) > 100000 and int(x.group(1)) & 255 in qq_sface_list else '\u2753', text)  # replace [CQ:sface,id=*], https://cqp.cc/t/26206
-
-    def replace_name(qq_number):  # replace each qq number with preset id
-        qq_number = qq_number.group(1)
-        if int(qq_number) == QQ_BOT_ID:
-            return '@bot'
-        result = '@' + get_qq_name(int(qq_number), forward_index)
-        result = result.replace(':', ' ')
-        return result
-
-    text = CQAt.PATTERN.sub(replace_name, text)  # replace CQAt to @username
-
-    # send pictures to Telegram group
-    pic_send_mode = 2
-    # mode = 0 -> direct mode: send cqlink to tg server
-    # mode = 1 -> (deprecated) download mode: download to local，send local link to tg server
-    # mode = 2 -> download mode: download to local, upload from disk to tg server
-    message_parts = cq_image_simple_regex.split(text)
-    message_parts_count = len(message_parts)
-    image_num = message_parts_count - 1
-    if image_num == 0:
-        # send plain text message with bold group member name
-        full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
-        global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+        message: telegram.Message = update.message
+        edited = False
     else:
-        if message_parts[0]:
-            part_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' +\
-                        '(1/' + str(message_parts_count) + ')' + message_parts[0].strip().replace('<', '&lt;').replace('>', '&gt;')
-            global_vars.tg_bot.sendMessage(tg_group_id, part_msg_bold, parse_mode='HTML')
-            part_index = 1
-        else:
-            message_parts.pop(0)
-            message_parts_count -= 1
-            part_index = 0
-        for matches in CQImage.PATTERN.finditer(message.text):
-            # replace QQ number to group member name, get full message text
-            if message_parts_count == 1:
-                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + message_parts[part_index].strip()
+        message: telegram.Message = update.edited_message
+        edited = True
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    if message.text.startswith('//'):
+        return
+
+    reply_entity = list()
+
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': message.text}
+    })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+
+
+global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram, edited_updates=True), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegram), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), get_plugin_priority(__name__))
+
+
+@global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
+def handle_forward(context):
+    qq_group_id = context.get('group_id')
+    qq_discuss_id = context.get('discuss_id')
+
+    forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
+
+    pending_text = ''
+    pending_image = ''
+
+    message_list = list()
+
+    for message_part in context['message']:
+        if message_part['type'] == 'image':
+            if pending_image:
+                if pending_text:
+                    message_list.append({'image': pending_image, 'text': pending_text})
+                    pending_text = None
+                else:
+                    message_list.append({'image': pending_image})
+
+            elif pending_text:
+                message_list.append({'text': pending_text})
+                pending_text = None
+            pending_image = message_part['data']['file']
+        elif message_part['type'] == 'text':
+            pending_text += message_part['data']['text']
+        elif message_part['type'] == 'at':
+            qq_number = int(message_part['data']['qq'])
+            if qq_number == QQ_BOT_ID:
+                pending_text += ' @bot '
             else:
-                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
-            part_index += 1
-            decode_cq_escape(part_msg)
-            filename = matches.group(1)
+                pending_text = '@' + get_qq_name(qq_number, forward_index)
+        elif message_part['type'] == 'face':
+            qq_face = int(message_part['data']['id'])
+            if qq_face in qq_emoji_list:
+                pending_text += qq_emoji_list[qq_face]
+            else:
+                pending_text += '\u2753'  # ❓
+        elif message_part['type'] == 'bface':
+            pending_text += '\u2753'
+        elif message_part['type'] == 'sface':
+            qq_face = int(message_part['data']['id']) & 255
+            if qq_face in qq_sface_list:
+                pending_text += qq_sface_list[qq_face]
+            else:
+                pending_text += '\u2753'  # ❓
+
+    if pending_text:
+        if pending_image:
+            message_list.append({'image': pending_image, 'text': pending_text})
+        else:
+            message_list.append({'text': pending_text})
+    elif pending_image:
+        message_list.append({'image': pending_image})
+
+    message_count = len(message_list)
+
+    for idx, message_part in enumerate(message_list):
+        if message_part.get('image'):
+            filename = message_part['image']
             url = cq_get_pic_url(filename)
-            pic = url
-            if pic_send_mode == 1:
-                cq_download_pic(filename)
-                pic = SERVER_PIC_URL + filename
-            elif pic_send_mode == 2:
-                cq_download_pic(filename)
-                pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
+            cq_download_pic(filename)
+            pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
             # gif pictures send as document
             if filename.lower().endswith('gif'):
                 try:
-                    global_vars.tg_bot.sendDocument(tg_group_id, pic, caption=part_msg)
-                except BadRequest:
-                    # when error occurs, download picture and send link instead
-                    error(message)
+                    if message_part.get('text'):
+                        if message_count == 1:
+                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': ' + message_list[0][
+                                'text']
+                        else:
+                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': '\
+                                    + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                        global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                    else:
+                        global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic)
+                except telegram.error.TelegramError:
+                    error(context)
                     traceback.print_exc()
-                    if pic_send_mode == 0:
-                        cq_download_pic(filename)
-                    pic = get_short_url(SERVER_PIC_URL + filename)
-                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
 
             # jpg/png pictures send as photo
             else:
                 try:
-                    # the first image in message attach full message text
-                    global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=part_msg)
-                except BadRequest:
-                    # when error occurs, download picture and send link instead
-                    error(message)
+                    if message_part.get('text'):
+                        if message_count == 1:
+                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': ' + message_list[0][
+                                'text']
+                        else:
+                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': '\
+                                    + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                        global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                    else:
+                        global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic)
+                except telegram.error.TelegramError:
+                    error(context)
                     traceback.print_exc()
-                    if pic_send_mode == 0:
-                        cq_download_pic(filename)
-                    my_url = get_short_url(SERVER_PIC_URL + filename)
-                    pic = my_url
-                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
-    return True
+
+        else:
+            # only first message could be pure text
+            if message_count == 1:
+                full_msg_bold = '<b>' + get_qq_name(int(context['user_id']), forward_index) + '</b>: ' \
+                                + message_list[0]['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+            else:
+                full_msg_bold = '<b>' + get_qq_name(int(context['user_id']), forward_index) + '</b>: ' \
+                                + '(1/' + str(message_count) + ')' \
+                                + message_part['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+            global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
+
+    return ''
 
 
-@command_listener('[pic link on]', description='enable pic link mode, only available when JQ_MODE=False')
-def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
+@command_listener('pic link on', 'plon', description='enable pic link mode, only available when JQ_MODE=False')
+def pic_link_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
+                  tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     if JQ_MODE:
         return
     PIC_LINK_MODE[forward_index] = True
-    msg = 'QQ 图片链接模式已启动'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+    message = 'QQ 图片链接模式已启动'
+
+    if tg_group_id:
+        send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
+        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+    elif qq_group_id:
+        send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
+        return {'reply': message}
+    else:
+        send_all_except_current(forward_index, message, qq_discuss_id=qq_discuss_id)
+        return {'reply': message}
 
 
-@command_listener('[pic link off]', description='disable pic link mode, only available when JQ_MODE=False')
-def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
+@command_listener('pic link off', 'ploff', description='disable pic link mode, only available when JQ_MODE=False')
+def pic_link_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
+                  tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     if JQ_MODE:
         return
     PIC_LINK_MODE[forward_index] = False
-    msg = 'QQ 图片链接模式已关闭'
-    global_vars.tg_bot.sendMessage(tg_group_id, msg)
-    global_vars.qq_bot.send(SendGroupMessage(group=qq_group_id, text=msg))
+    message = 'QQ 图片链接模式已关闭'
+
+    if tg_group_id:
+        send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
+        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+    elif qq_group_id:
+        send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
+        return {'reply': message}
+    else:
+        send_all_except_current(forward_index, message, qq_discuss_id=qq_discuss_id)
+        return {'reply': message}

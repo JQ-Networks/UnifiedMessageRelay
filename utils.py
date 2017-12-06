@@ -9,6 +9,8 @@ from cqsdk import SendGroupMessage
 from bot_constant import *
 import telegram
 import global_vars
+import re
+from typing import Union
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 CQ_GROUP_LIST_ROOT = os.path.join(CQ_ROOT, r'app/org.dazzyd.cqsocketapi/GroupListCache')
@@ -114,7 +116,7 @@ def get_reply_to(reply_to_message: telegram.Message):
     return '(→' + reply_to + ')'
 
 
-def get_forward_index(qq_group_id=0, tg_group_id=0):
+def get_forward_index(qq_group_id=None, qq_discuss_id=None, tg_group_id=None):  # TODO: reconstruction
     """
     Get forward index from FORWARD_LIST
     :param qq_group_id: optional, the qq group id, either this or tg_group_id must be valid
@@ -244,3 +246,31 @@ def get_qq_name(qq_number: int, forward_index: int):
         if group_member.QQID == qq_number:
             return group_member.Card if group_member.Card else group_member.Nickname
     return str(qq_number)
+
+
+priority = re.compile(r'_(\d+)_*')
+
+
+def get_plugin_priority(name):
+    """
+    calculate the priority of the plugin
+    :param name: plugin's __name__
+    :return: calculated priority
+    """
+    return int(priority.findall(name)[0])
+
+
+def send_all(forward_index, message):
+    """
+    forward message to all other sessions
+    :param message:
+    :return:
+    """
+    pass
+
+
+def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
+                            qq_discuss_id: int = 0, qq_user: int=None, tg_group_id: int = 0,
+                            tg_user: telegram.User=None, tg_forward_from: telegram.User=None,
+                            tg_reply_to:telegram.User=None, edited: bool=False, auto_escape: bool=True):
+    pass
