@@ -49,6 +49,9 @@ class CQHttp(_ApiClient):
         self._app = Bottle()
         self._app.post('/')(self._handle)
         self._groups = []
+        self.on_message = self._deco_maker('message')
+        self.on_event = self._deco_maker('event')
+        self.on_request = self._deco_maker('request')
 
     def _deco_maker(self, post_type):
         def deco_decorator(*types, group=0):
@@ -72,10 +75,6 @@ class CQHttp(_ApiClient):
             return decorator
 
         return deco_decorator
-
-    on_message = _deco_maker('message')
-    on_event = _deco_maker('event')
-    on_request = _deco_maker('request')
 
     def _handle(self):
         if self._secret:
