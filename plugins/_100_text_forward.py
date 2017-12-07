@@ -300,7 +300,7 @@ def photo_from_telegram(bot, update):
                 'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]'}
             })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def video_from_telegram(bot, update):
@@ -321,7 +321,7 @@ def video_from_telegram(bot, update):
         'data': {'text': '[ 视频 ]'}
     })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def audio_from_telegram(bot, update):
@@ -342,7 +342,7 @@ def audio_from_telegram(bot, update):
         'data': {'text': '[ 音频 ]'}
     })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def document_from_telegram(bot, update):
@@ -363,7 +363,7 @@ def document_from_telegram(bot, update):
         'data': {'text': '[ 文件 ]'}
     })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def sticker_from_telegram(bot, update):
@@ -398,7 +398,7 @@ def sticker_from_telegram(bot, update):
             'data': {'text': '[ ' + message.sticker.emoji + ' sticker ]'}
         })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 def text_from_telegram(bot, update):
@@ -422,7 +422,7 @@ def text_from_telegram(bot, update):
         'data': {'text': message.text}
     })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message.forward_from, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
 global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), get_plugin_priority(__name__))
