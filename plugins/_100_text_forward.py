@@ -1,9 +1,7 @@
 from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
 import global_vars
-from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
-    get_forward_from, get_reply_to, get_full_user_name, error, decode_cq_escape, \
-    cq_send, get_qq_name, send_all_except_current, get_plugin_priority
-from cqsdk import SendGroupMessage, RcvdGroupMessage, CQAt, CQImage
+from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, error, \
+    get_qq_name, send_all_except_current, get_plugin_priority
 from command import command_listener
 from PIL import Image
 from configparser import ConfigParser
@@ -11,8 +9,7 @@ import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
 from telegram.error import BadRequest
-from cq_utils import cq_emoji_regex, cq_face_regex, cq_image_regex, cq_image_simple_regex, \
-    cq_bface_regex, cq_sface_regex
+
 import traceback
 import telegram
 import json
@@ -443,107 +440,8 @@ def handle_forward(context):
 
     forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
 
-    pending_text = ''
-    pending_image = ''
-
-    message_list = list()
-
-    for message_part in context['message']:
-        if message_part['type'] == 'image':
-            if pending_image:
-                if pending_text:
-                    message_list.append({'image': pending_image, 'text': pending_text})
-                    pending_text = None
-                else:
-                    message_list.append({'image': pending_image})
-
-            elif pending_text:
-                message_list.append({'text': pending_text})
-                pending_text = None
-            pending_image = message_part['data']['file']
-        elif message_part['type'] == 'text':
-            pending_text += message_part['data']['text']
-        elif message_part['type'] == 'at':
-            qq_number = int(message_part['data']['qq'])
-            if qq_number == QQ_BOT_ID:
-                pending_text += ' @bot '
-            else:
-                pending_text = '@' + get_qq_name(qq_number, forward_index)
-        elif message_part['type'] == 'face':
-            qq_face = int(message_part['data']['id'])
-            if qq_face in qq_emoji_list:
-                pending_text += qq_emoji_list[qq_face]
-            else:
-                pending_text += '\u2753'  # ❓
-        elif message_part['type'] == 'bface':
-            pending_text += '\u2753'
-        elif message_part['type'] == 'sface':
-            qq_face = int(message_part['data']['id']) & 255
-            if qq_face in qq_sface_list:
-                pending_text += qq_sface_list[qq_face]
-            else:
-                pending_text += '\u2753'  # ❓
-
-    if pending_text:
-        if pending_image:
-            message_list.append({'image': pending_image, 'text': pending_text})
-        else:
-            message_list.append({'text': pending_text})
-    elif pending_image:
-        message_list.append({'image': pending_image})
-
-    message_count = len(message_list)
-
-    for idx, message_part in enumerate(message_list):
-        if message_part.get('image'):
-            filename = message_part['image']
-            url = cq_get_pic_url(filename)
-            cq_download_pic(filename)
-            pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
-            # gif pictures send as document
-            if filename.lower().endswith('gif'):
-                try:
-                    if message_part.get('text'):
-                        if message_count == 1:
-                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': ' + message_list[0][
-                                'text']
-                        else:
-                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': '\
-                                    + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                        global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                    else:
-                        global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic)
-                except telegram.error.TelegramError:
-                    error(context)
-                    traceback.print_exc()
-
-            # jpg/png pictures send as photo
-            else:
-                try:
-                    if message_part.get('text'):
-                        if message_count == 1:
-                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': ' + message_list[0][
-                                'text']
-                        else:
-                            full_msg = get_qq_name(int(context['user_id']), forward_index) + ': '\
-                                    + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                        global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                    else:
-                        global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic)
-                except telegram.error.TelegramError:
-                    error(context)
-                    traceback.print_exc()
-
-        else:
-            # only first message could be pure text
-            if message_count == 1:
-                full_msg_bold = '<b>' + get_qq_name(int(context['user_id']), forward_index) + '</b>: ' \
-                                + message_list[0]['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
-            else:
-                full_msg_bold = '<b>' + get_qq_name(int(context['user_id']), forward_index) + '</b>: ' \
-                                + '(1/' + str(message_count) + ')' \
-                                + message_part['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
-            global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
+    send_all_except_current(forward_index, message=context['message'], qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id,
+                            qq_user=context['user_id'])
 
     return ''
 

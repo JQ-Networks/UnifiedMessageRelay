@@ -5,15 +5,15 @@ import sys
 import threading
 import traceback
 import requests
-from cqsdk import SendGroupMessage
 from bot_constant import *
 import telegram
 import global_vars
 import re
 from typing import Union
+from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic, cq_location_regex
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
-CQ_GROUP_LIST_ROOT = os.path.join(CQ_ROOT, r'app/org.dazzyd.cqsocketapi/GroupListCache')
+
 
 
 def info(*args, **kwargs):
@@ -129,109 +129,6 @@ def get_forward_index(qq_group_id=None, qq_discuss_id=None, tg_group_id=None):  
     return 0, 0, -1  # -1 is not found
 
 
-def decode_cq_escape(text):
-    return text.replace('&amp;', '&').replace('&#91;', '[').replace('&#93;', ']').replace('&#44;', ',')
-
-
-EMOJI_LIST = [10000035] + \
-             list(range(10000048, 10000058)) + \
-             [126980, 127183, 127344, 127345, 127358, 127359, 127374] + \
-             list(range(127377, 127387)) + \
-             [127489, 127490, 127514, 127535] + \
-             list(range(127538, 127547)) + \
-             [127568, 127569] + \
-             list(range(127744, 127777)) + \
-             list(range(127792, 127798)) + \
-             list(range(127799, 127869)) + \
-             list(range(127872, 127892)) + \
-             list(range(127904, 127941)) + \
-             list(range(127942, 127947)) + \
-             list(range(127968, 127985)) + \
-             list(range(128000, 128063)) + \
-             [128064] + \
-             list(range(128066, 128248)) + \
-             [128249, 128250, 128251, 128252] + \
-             list(range(128256, 128318)) + \
-             list(range(128336, 128360)) + \
-             list(range(128507, 128577)) + \
-             list(range(128581, 128592)) + \
-             list(range(128640, 128710)) + \
-             [8252, 8265, 8482, 8505] + \
-             list(range(8596, 8602)) + \
-             [8617, 8618, 8986, 8987] + \
-             list(range(9193, 9197)) + \
-             [9200, 9203, 9410, 9642, 9643, 9654, 9664] + \
-             list(range(9723, 9727)) + \
-             [9728, 9729, 9742, 9745, 9748, 9749, 9757, 9786] + \
-             list(range(9800, 9812)) + \
-             [9824, 9827, 9829, 9830, 9832, 9851, 9855, 9875, 9888, 9889, 9898, 9899, 9917, 9918, 9924, 9925, 9934, 9940, 9962, 9970, 9971, 9973, 9978, 9981, 9986, 9989] + \
-             list(range(9992, 9997)) + \
-             [9999, 10002, 10004, 10006, 10024, 10035, 10036, 10052, 10055, 10060, 10062, 10067, 10068, 10069, 10071, 10084, 10133, 10134, 10135, 10145, 10160, 10175, 10548, 10549, 11013, 11014, 11015, 11035, 11036, 11088, 11093, 12336, 12349, 12951, 12953, 58634]
-
-
-def emoji_to_cqemoji(text):
-    """
-    according to coolq rules, chars in EMOJI_LIST should be encoded.
-    :param text:
-    :return:
-    """
-    new_text = ''
-    for char in text:
-        if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
-            new_text += "[CQ:emoji,id=" + str(ord(char)) + "]"
-        else:
-            new_text += char
-    return new_text
-
-
-def trim_emoji(text):
-    """
-    some api cannot use cqemoji, so trim it
-    :param text:
-    :return:
-    """
-    new_text = ''
-    for char in text:
-        if (8252 <= ord(char) < 12287 or 126980 < ord(char) < 129472) and ord(char) in EMOJI_LIST:
-            pass
-        else:
-            new_text += char
-    return new_text
-
-
-def cq_send(update: telegram.Update, text: str, qq_group_id: int, edited: bool = False):
-    """
-    send telegram message to qq with forward of reply support
-    :param update: telegram.Update
-    :param text: text to send, in coolq format
-    :param qq_group_id: which group to send
-    :param edited: add '✎' icon
-    """
-    if edited:
-        sender_name = get_full_user_name(update.edited_message.from_user)
-        forward_from = get_forward_from(update.edited_message)
-        reply_to = get_reply_to(update.edited_message.reply_to_message)
-    else:
-        sender_name = get_full_user_name(update.message.from_user)
-        forward_from = get_forward_from(update.message)
-        reply_to = get_reply_to(update.message.reply_to_message)
-
-    # get real sender from telegram message
-    if forward_from and update.message.forward_from.id == global_vars.tg_bot_id:
-        left_start = text.find(': ')
-        if left_start != -1:
-            text = text[left_start + 2:]
-    text = emoji_to_cqemoji(text)
-
-    if edited:
-        edit_mark = ' ✎ '
-    else:
-        edit_mark = ''
-
-    global_vars.qq_bot.send(SendGroupMessage(
-        group=qq_group_id,
-        text=sender_name + reply_to + forward_from + edit_mark + ': ' + text
-    ))
 
 
 def get_qq_name(qq_number: int, forward_index: int):
@@ -242,9 +139,8 @@ def get_qq_name(qq_number: int, forward_index: int):
     :return: group card, nickname(if no group card set), or qq number(if both not found)
     """
     for group_member in global_vars.group_members[forward_index]:
-        # group_member: CQGroupMemberInfo
-        if group_member.QQID == qq_number:
-            return group_member.Card if group_member.Card else group_member.Nickname
+        if group_member['user_id'] == qq_number:
+            return group_member['card'] if group_member.get('card') else group_member['nickname']
     return str(qq_number)
 
 
@@ -260,8 +156,14 @@ def get_plugin_priority(name):
     return int(priority.findall(name)[0])
 
 
+def extract_mqqapi(link):
+    locations = cq_location_regex.findall(link)  # [('lat', 'lon', 'name', 'addr')]
+    return locations[0], locations[1], locations[2], locations[3]
+
+
 def send_all(forward_index, message):
     """
+    currently not used
     forward message to all other sessions
     :param message:
     :return:
@@ -271,6 +173,179 @@ def send_all(forward_index, message):
 
 def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
                             qq_discuss_id: int = 0, qq_user: int=None, tg_group_id: int = 0,
-                            tg_user: telegram.User=None, tg_forward_from: telegram.User=None,
-                            tg_reply_to:telegram.User=None, edited: bool=False, auto_escape: bool=True):
-    pass
+                            tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
+                            tg_reply_to:telegram.Message=None, edited: bool=False, auto_escape: bool=True):
+    if tg_group_id:
+        sender_name = get_full_user_name(tg_user)
+        forward_from = get_forward_from(tg_forward_from)
+        reply_to = get_reply_to(tg_reply_to)
+
+        if edited:
+            edit_mark = ' ✎ '
+        else:
+            edit_mark = ''
+
+        if forward_from and tg_forward_from.id == global_vars.tg_bot_id:
+            if isinstance(message, str):
+                left_start = message.find(': ')
+                if left_start != -1:
+                    message = message[left_start + 2:]
+            else:
+                left_start = message[0]['data']['text'].find(': ')
+                if left_start != -1:
+                    message[0]['data']['text'] = message[0]['data']['text'][left_start + 2:]
+
+        if isinstance(message, str):
+            message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
+        else:
+            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + message[0]['data']['text']
+
+        if FORWARD_LIST[forward_index].get('QQ'):
+            if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
+                global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message, auto_escape=auto_escape)
+            else:
+                for group in FORWARD_LIST[forward_index]['QQ']:
+                    global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
+
+        if FORWARD_LIST[forward_index].get('DISCUSS'):
+            if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):
+                global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message, auto_escape=auto_escape)
+            else:
+                for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
+                    global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
+
+    else:
+
+        pending_text = ''
+        pending_image = ''
+
+        message_list = list()
+        if isinstance(message, str):  # message from qq will never be str, due to settings of cq http api
+            pass  # this if is only used for warning removal
+        else:
+            for message_part in message:
+                if message_part['type'] == 'share':
+                    pending_text = '分享了<a href="' + message_part['data']['url'] + '">' + message_part['data']['title'] + '</a>'
+                elif message_part['type'] == 'rich':
+                    if message_part['data'].get('url'):
+                        if message_part['data']['url'].startswith('mqqapi'):
+                            lat, lon, name, addr = extract_mqqapi(message_part['data']['url'])
+                            text = message_part['data']['text']
+                            if qq_group_id:
+                                send_all_except_current(forward_index, text, qq_group_id=qq_group_id)
+                            else:
+                                send_all_except_current(forward_index, text, qq_discuss_id=qq_discuss_id)
+                            global_vars.tg_bot.sendLocation(chat_id=FORWARD_LIST[forward_index]['TG'],
+                                                            latitude=float(lat), longitude=float(lon))
+                            return ''
+                        else:
+                            pending_text = '<a href="' + message_part['data']['url'] + '">' + \
+                                   message_part['data']['text'] + '</a>'
+                    else:
+                        pending_text = message_part['data']['text']
+                elif message_part['type'] == 'dice':
+                    pending_text = '掷出了 <b>' + message_part['data']['type'] + '</b>'
+                elif message_part['type'] == 'rps':
+                    pending_text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[message_part['data']['type']] + '</b>'
+                elif message_part['type'] == 'shake':  # not available in group and discuss
+                    pending_text = '发送了一个抖动'
+                elif message_part['type'] == 'music':
+                    pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + message_part['data'][
+                        'id'] + '_num.html"> qq 音乐</a>'
+                elif message_part['type'] == 'record':
+                    pending_text = '说了句话，懒得转了'
+                elif message_part['type'] == 'image':
+                    if pending_image:
+                        if pending_text:
+                            message_list.append({'image': pending_image, 'text': pending_text})
+                            pending_text = None
+                        else:
+                            message_list.append({'image': pending_image})
+
+                    elif pending_text:
+                        message_list.append({'text': pending_text})
+                        pending_text = None
+                    pending_image = message_part['data']['file']
+                elif message_part['type'] == 'text':
+                    pending_text += message_part['data']['text']
+                elif message_part['type'] == 'at':
+                    qq_number = int(message_part['data']['qq'])
+                    if qq_number == QQ_BOT_ID:
+                        pending_text += ' @bot '
+                    else:
+                        pending_text = '@' + get_qq_name(qq_number, forward_index)
+                elif message_part['type'] == 'face':
+                    qq_face = int(message_part['data']['id'])
+                    if qq_face in qq_emoji_list:
+                        pending_text += qq_emoji_list[qq_face]
+                    else:
+                        pending_text += '\u2753'  # ❓
+                elif message_part['type'] == 'bface':
+                    pending_text += '\u2753'
+                elif message_part['type'] == 'sface':
+                    qq_face = int(message_part['data']['id']) & 255
+                    if qq_face in qq_sface_list:
+                        pending_text += qq_sface_list[qq_face]
+                    else:
+                        pending_text += '\u2753'  # ❓
+
+            if pending_text:
+                if pending_image:
+                    message_list.append({'image': pending_image, 'text': pending_text})
+                else:
+                    message_list.append({'text': pending_text})
+            elif pending_image:
+                message_list.append({'image': pending_image})
+
+            message_count = len(message_list)
+
+            for idx, message_part in enumerate(message_list):
+                if message_part.get('image'):
+                    filename = message_part['image']
+                    url = cq_get_pic_url(filename)
+                    cq_download_pic(filename)
+                    pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
+                    # gif pictures send as document
+                    if filename.lower().endswith('gif'):
+                        try:
+                            if message_part.get('text'):
+                                if message_count == 1:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
+                                        'text']
+                                else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                                global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                            else:
+                                global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic)
+                        except telegram.error.TelegramError:
+                            error(message)
+                            traceback.print_exc()
+
+                    # jpg/png pictures send as photo
+                    else:
+                        try:
+                            if message_part.get('text'):
+                                if message_count == 1:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
+                                        'text']
+                                else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                                global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                            else:
+                                global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic)
+                        except telegram.error.TelegramError:
+                            error(message)
+                            traceback.print_exc()
+
+                else:
+                    # only first message could be pure text
+                    if message_count == 1:
+                        full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
+                                        + message_list[0]['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+                    else:
+                        full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
+                                        + '(1/' + str(message_count) + ')' \
+                                        + message_part['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+                    global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')

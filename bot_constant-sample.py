@@ -1,6 +1,16 @@
 # -*- coding: utf-8 -*-
 TOKEN = 'your telegram bot token'
-QQ_BOT_ID = 3553099690
+QQ_BOT_ID = 1234567890
+
+# cq-http-api server config
+API_ROOT = 'http://127.0.0.1:5700/'
+ACCESS_TOKEN = 'your_token'
+SECRET = 'your_secret'
+
+# cq-http-api client config
+HOST = '127.0.0.1'
+PORT = 8080
+
 FORWARD_LIST = [
     {
         'QQ': 12345678,

@@ -1,111 +1,202 @@
 import re
-from utils import decode_cq_escape
-
-# general regex
-cq_regex = re.compile(r'\[CQ:\w+(,.+?)?\]', re.DOTALL)  # re.DOTALL can match '\n', useful here
-
-# part message
-cq_emoji_regex = re.compile(r'\[CQ:emoji,id=(\d+?)\]')
-cq_face_regex = re.compile(r'\[CQ:face,id=(\d+?)\]')
-cq_bface_regex = re.compile(r'\[CQ:bface,p=(\d+?),id=(\w+?)\]')
-cq_sface_regex = re.compile(r'\[CQ:sface,id=(\d+?)\]')
-cq_at_regex = re.compile(r'\[CQ:at,qq=(\d+?)\]')
-cq_image_regex = re.compile(r'\[CQ:image,file=(.+?)\]')
-cq_image_simple_regex = re.compile(r'\[CQ:image.*?\]')
-
-# whole message
-cq_shake_regex = re.compile(r'\[CQ:shake\]')
-cq_dice_regex = re.compile(r'\[CQ:dice(?:,type=(\d))?\]')
-cq_rps_regex = re.compile(r'\[CQ:rps(?:,type=(\d))?\]')
-cq_rich_regex = re.compile(r'\[CQ:rich(?:,url=(.*))?,text=(.*)\]', re.DOTALL)  # re.DOTALL can match '\n', useful here
-cq_music_regex = re.compile(r'\[CQ:music,type=(.*),id=(\d+)\]', re.DOTALL)
-cq_custom_music_regex = re.compile(r'\[CQ:share,type=custom,url=(.*),audio=(.*),title=(.*),content=(.*),image=(.*)\]',
-                                   re.DOTALL)
-cq_share_regex = re.compile(r'\[CQ:share,url=(.*),title=(.*),content=(.*),image=(.*)\]', re.DOTALL)
-cq_record_regex = re.compile(r'\[CQ:record,file=(.*)(?:,magic=(true|false))?\]')
-
-# unknown
-cq_anonymous_regex = re.compile(r'\[CQ:anonymous,ignore=(true|false)\]')
+from PIL import Image
+from configparser import ConfigParser
+import os
+from utils import CQ_IMAGE_ROOT, error
+from urllib.request import urlretrieve
+import traceback
 
 cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
 
-# https://d.cqp.me/Pro/CQ码
-# to be continued
+
+qq_emoji_list = {  # created by JogleLew, optimizations are welcome
+    0: u'\U0001F62E',
+    1: u'\U0001F623',
+    2: u'\U0001F60D',
+    3: u'\U0001F633',
+    4: u'\U0001F60E',
+    5: u'\U0001F62D',
+    6: u'\U0000263A',
+    7: u'\U0001F637',
+    8: u'\U0001F634',
+    9: u'\U0001F62D',
+    10: u'\U0001F630',
+    11: u'\U0001F621',
+    12: u'\U0001F61D',
+    13: u'\U0001F603',
+    14: u'\U0001F642',
+    15: u'\U0001F641',
+    16: u'\U0001F913',
+    18: u'\U0001F624',
+    19: u'\U0001F628',
+    20: u'\U0001F60F',
+    21: u'\U0001F60A',
+    22: u'\U0001F644',
+    23: u'\U0001F615',
+    24: u'\U0001F924',
+    25: u'\U0001F62A',
+    26: u'\U0001F628',
+    27: u'\U0001F613',
+    28: u'\U0001F62C',
+    29: u'\U0001F911',
+    30: u'\U0001F44A',
+    31: u'\U0001F624',
+    32: u'\U0001F914',
+    33: u'\U0001F910',
+    34: u'\U0001F635',
+    35: u'\U0001F629',
+    36: u'\U0001F47F',
+    37: u'\U0001F480',
+    38: u'\U0001F915',
+    39: u'\U0001F44B',
+    50: u'\U0001F641',
+    51: u'\U0001F913',
+    53: u'\U0001F624',
+    54: u'\U0001F92E',
+    55: u'\U0001F628',
+    56: u'\U0001F613',
+    57: u'\U0001F62C',
+    58: u'\U0001F911',
+    73: u'\U0001F60F',
+    74: u'\U0001F60A',
+    75: u'\U0001F644',
+    76: u'\U0001F615',
+    77: u'\U0001F924',
+    78: u'\U0001F62A',
+    79: u'\U0001F44A',
+    80: u'\U0001F624',
+    81: u'\U0001F914',
+    82: u'\U0001F910',
+    83: u'\U0001F635',
+    84: u'\U0001F629',
+    85: u'\U0001F47F',
+    86: u'\U0001F480',
+    87: u'\U0001F915',
+    88: u'\U0001F44B',
+    96: u'\U0001F630',
+    97: u'\U0001F605',
+    98: u'\U0001F925',
+    99: u'\U0001F44F',
+    100: u'\U0001F922',
+    101: u'\U0001F62C',
+    102: u'\U0001F610',
+    103: u'\U0001F610',
+    104: u'\U0001F629',
+    105: u'\U0001F620',
+    106: u'\U0001F61E',
+    107: u'\U0001F61F',
+    108: u'\U0001F60F',
+    109: u'\U0001F619',
+    110: u'\U0001F627',
+    111: u'\U0001F920',
+    172: u'\U0001F61C',
+    173: u'\U0001F62D',
+    174: u'\U0001F636',
+    175: u'\U0001F609',
+    176: u'\U0001F913',
+    177: u'\U0001F635',
+    178: u'\U0001F61C',
+    179: u'\U0001F4A9',
+    180: u'\U0001F633',
+    181: u'\U0001F913',
+    182: u'\U0001F602',
+    183: u'\U0001F913',
+    212: u'\U0001F633',
+}
+
+qq_sface_list = {
+    1: '[拜拜]',
+    2: '[鄙视]',
+    3: '[菜刀]',
+    4: '[沧桑]',
+    5: '[馋了]',
+    6: '[吃惊]',
+    7: '[微笑]',
+    8: '[得意]',
+    9: '[嘚瑟]',
+    10: '[瞪眼]',
+    11: '[震惊]',
+    12: '[鼓掌]',
+    13: '[害羞]',
+    14: '[好的]',
+    15: '[惊呆了]',
+    16: '[静静看]',
+    17: '[可爱]',
+    18: '[困]',
+    19: '[脸红]',
+    20: '[你懂的]',
+    21: '[期待]',
+    22: '[亲亲]',
+    23: '[伤心]',
+    24: '[生气]',
+    25: '[摇摆]',
+    26: '[帅]',
+    27: '[思考]',
+    28: '[震惊哭]',
+    29: '[痛心]',
+    30: '[偷笑]',
+    31: '[挖鼻孔]',
+    32: '[抓狂]',
+    33: '[笑着哭]',
+    34: '[无语]',
+    35: '[捂脸]',
+    36: '[喜欢]',
+    37: '[笑哭]',
+    38: '[疑惑]',
+    39: '[赞]',
+    40: '[眨眼]'
+}
 
 
-def extract_cq_dice(message):
+def create_jpg_image(path, name):
     """
-    get dice parameters
-    :param message: raw cq message
-    :return: dice number
+    convert Telegram webp image to jpg image
+    :param path: save path
+    :param name: image name
     """
-    result = cq_dice_regex.findall(message)[0]
-    return decode_cq_escape(result[0])
+    im = Image.open(os.path.join(path, name)).convert("RGB")
+    im.save(os.path.join(path, name + ".jpg"), "JPEG")
 
 
-def extract_cq_rps(message):
+def create_png_image(path, name):
     """
-    get rps parameters
-    :param message: raw cq message
-    :return: rps number(stone: 1, scissors: 2, paper: 3)
+    convert Telegram webp image to png image
+    :param path: save path
+    :param name: image name
     """
-    result = cq_rps_regex.findall(message)[0]
-    return decode_cq_escape(result[0])
+    im = Image.open(os.path.join(path, name)).convert("RGBA")
+    im.save(os.path.join(path, name + ".png"), "PNG")
 
 
-def extract_cq_rich(message):
+def cq_get_pic_url(filename):
     """
-    get rich text parameters
-    :param message: raw cq message
-    :return: url, text
+    get real image url from cqimg file
+    :param filename:
+    :return: image url
     """
-    result = cq_rich_regex.findall(message)[0]
-    return decode_cq_escape(result[0]), decode_cq_escape(result[1])
+    cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
+    parser = ConfigParser()
+    parser.read(cqimg)
+    url = parser['image']['url']
+    return url
 
 
-def extract_cq_music(message):
+def cq_download_pic(filename):
     """
-    get music parameters
-    :param message: raw cq message
-    :return: type, id
+    download image by cqimg file
+    :param filename: cqimg file name
     """
-    result = cq_music_regex.findall(message)[0]
-    return decode_cq_escape(result[0]), decode_cq_escape(result[1])
+    try:
+        path = os.path.join(CQ_IMAGE_ROOT, filename)
+        if os.path.exists(path):
+            return
 
+        cqimg = os.path.join(CQ_IMAGE_ROOT, filename + '.cqimg')
+        parser = ConfigParser()
+        parser.read(cqimg)
 
-def extract_cq_share(message):
-    """
-    get share parameters
-    :param message: raw cq message
-    :return: url, title, content, image_url
-    """
-    result = cq_share_regex.findall(message)[0]
-    return decode_cq_escape(result[0]), decode_cq_escape(result[1]), \
-        decode_cq_escape(result[2]), decode_cq_escape(result[3])
-
-
-def extract_cq_record(message):
-    """
-    get record parameters
-    :param message: raw cq message
-    :return: file, magic
-    """
-    result = cq_record_regex.findall(message)[0]
-    return decode_cq_escape(result[0]), decode_cq_escape(result[1])
-
-
-def extract_cq_custom_music(message):
-    """
-    get custom music patameters
-    :param message:
-    :return: url, audio, title, content, image
-    """
-    result = cq_custom_music_regex.findall(message)[0]
-    return decode_cq_escape(result[0]), decode_cq_escape(result[1]), \
-        decode_cq_escape(result[2]), decode_cq_escape(result[3]), \
-        decode_cq_escape(result[4])
-
-
-def create_cq_share(url, title, content, image_url):
-    result = "[CQ:share,url=%s,title=%s,content=%s,image=%s]" % (url, title, content, image_url)
-    return result
+        url = parser['image']['url']
+        urlretrieve(url, path)
+    except:
+        error(filename)
+        traceback.print_exc()
