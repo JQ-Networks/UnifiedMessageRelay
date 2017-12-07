@@ -2,7 +2,6 @@ from command import command_listener
 import global_vars
 from utils import get_full_user_name, get_forward_index, send_all_except_current
 from telegram.ext.dispatcher import DispatcherHandlerStop
-from cqsdk import SendGroupMessage
 import telegram
 
 
