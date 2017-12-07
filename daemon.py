@@ -43,10 +43,12 @@ class MainProcess(Daemon):
         global_vars.dp = dp
         dp.add_error_handler(error)
 
+        import plugins  # load all plugins
+
         qq_bot.run(host=HOST, port=PORT)
         updater.start_polling(poll_interval=1.0, timeout=200)
 
-        import plugins  # load all plugins
+
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
