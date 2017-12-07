@@ -184,7 +184,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
         else:
-            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + message[0]['data']['text']
+            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
 
         if FORWARD_LIST[forward_index].get('QQ'):
             if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
@@ -216,14 +216,10 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     if message_part['data'].get('url'):
                         if message_part['data']['url'].startswith('mqqapi'):
                             lat, lon, name, addr = extract_mqqapi(message_part['data']['url'])
-                            text = message_part['data']['text']
-                            if qq_group_id:
-                                send_all_except_current(forward_index, text, qq_group_id=qq_group_id)
-                            else:
-                                send_all_except_current(forward_index, text, qq_discuss_id=qq_discuss_id)
+                            pending_text = message_part['data']['text']
                             global_vars.tg_bot.sendLocation(chat_id=FORWARD_LIST[forward_index]['TG'],
                                                             latitude=float(lat), longitude=float(lon))
-                            return ''
+
                         else:
                             pending_text = '<a href="' + message_part['data']['url'] + '">' + \
                                    message_part['data']['text'] + '</a>'
