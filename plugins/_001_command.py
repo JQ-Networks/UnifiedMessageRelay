@@ -40,7 +40,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), get_plugin_
 
 
 # decorator 'message_type', 'message_type', ..., group=number
-@global_vars.qq_bot.on_message( group=get_plugin_priority(__name__), 'group', 'discuss')
+@global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def qq_command(context):
     if isinstance(context['message'], str):  # commands should be pure text
         qq_group_id = context.get('group_id')

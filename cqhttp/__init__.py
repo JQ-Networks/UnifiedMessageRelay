@@ -42,7 +42,7 @@ class _ApiClient(object):
 
 
 def _deco_maker(post_type):
-    def deco_decorator(self, group=0, *types):
+    def deco_decorator(self, *types, group=0):
         def decorator(func):
             @wraps(func)
             def wrapper(*args, **kwargs):
