@@ -45,8 +45,9 @@ class MainProcess(Daemon):
 
         import plugins  # load all plugins
 
-        qq_bot.run(host=HOST, port=PORT)
         updater.start_polling(poll_interval=1.0, timeout=200)
+        qq_bot.run(host=HOST, port=PORT)
+
 
 
 
