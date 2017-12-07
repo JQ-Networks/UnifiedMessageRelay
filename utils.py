@@ -113,10 +113,8 @@ def get_forward_index(qq_group_id=None, qq_discuss_id=None, tg_group_id=None):  
     """
     for idx, forward in enumerate(FORWARD_LIST):
         if forward['TG'] == tg_group_id or forward['QQ'] == qq_group_id:
-            return forward['QQ'], forward['TG'], idx
-    return 0, 0, -1  # -1 is not found
-
-
+            return idx
+    return -1  # -1 is not found
 
 
 def get_qq_name(qq_number: int, forward_index: int):

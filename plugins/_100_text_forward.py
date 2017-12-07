@@ -433,7 +433,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegr
 global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), get_plugin_priority(__name__))
 
 
-@global_vars.qq_bot.on_message('group', 'discuss', get_plugin_priority(__name__))
+@global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def handle_forward(context):
     qq_group_id = context.get('group_id')
     qq_discuss_id = context.get('discuss_id')
