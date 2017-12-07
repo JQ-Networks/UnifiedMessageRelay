@@ -10,20 +10,8 @@ import telegram
 import global_vars
 import re
 from typing import Union
-from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic, cq_location_regex
-
-CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
-
-
-
-def info(*args, **kwargs):
-    print("================ INFO  ================", file=sys.stderr)
-    print(*args, **kwargs, file=sys.stderr)
-
-
-def error(*args, **kwargs):
-    print("================ ERROR ================", file=sys.stderr)
-    print(*args, **kwargs, file=sys.stderr)
+from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
+    cq_location_regex, CQ_IMAGE_ROOT, error
 
 
 class FileDownloader(threading.Thread):

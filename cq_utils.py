@@ -2,11 +2,23 @@ import re
 from PIL import Image
 from configparser import ConfigParser
 import os
-from utils import CQ_IMAGE_ROOT, error
 from urllib.request import urlretrieve
 import traceback
+import sys
+from bot_constant import CQ_ROOT
+
+CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 
 cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
+
+def error(*args, **kwargs):
+    print("================ ERROR ================", file=sys.stderr)
+    print(*args, **kwargs, file=sys.stderr)
+
+
+def info(*args, **kwargs):
+    print("================ INFO  ================", file=sys.stderr)
+    print(*args, **kwargs, file=sys.stderr)
 
 
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
