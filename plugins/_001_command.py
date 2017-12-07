@@ -20,7 +20,7 @@ def tg_command(bot, update: Update):
     if message.text.startswith('!!'):
         for command in global_vars.command_list:  # process all non-forward commands
             if command.tg_only:
-                if message.text == command.command or message.text == command.cmd:
+                if message.text[2:] == command.command or message.text[2:] == command.cmd:
                     command.handler(tg_group_id, message.from_user, message.message_id)
                     raise DispatcherHandlerStop()
 
