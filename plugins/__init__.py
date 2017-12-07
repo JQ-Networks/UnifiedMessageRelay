@@ -16,10 +16,13 @@ import os
 # automodinit.automodinit(__name__, __file__, globals())
 # del automodinit
 
+import plugins._000_start
+import plugins._000_water_meter_control
 import plugins._001_command
+import plugins._002_filter_old_message
 import plugins._005_drive_mode
 import plugins.qq_namelist
 import plugins.show_group_id
-import plugins._100_text_forward
 import plugins.for_fun
-import plugins._002_filter_old_message
+import plugins._100_text_forward
+
