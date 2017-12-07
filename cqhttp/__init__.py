@@ -41,30 +41,6 @@ class _ApiClient(object):
         raise Error(resp.status_code)
 
 
-def _deco_maker(post_type):
-    def deco_decorator(self, *types, group=0):
-        def decorator(func):
-            @wraps(func)
-            def wrapper(*args, **kwargs):
-                return func(*args, **kwargs)
-
-            if group not in self._groups:
-                self._groups.append(group)
-                self._groups.sort()
-                self._handlers[group] = defaultdict(dict)
-
-            if types:
-                for t in types:
-                    self._handlers[group][post_type][t] = wrapper
-            else:
-                self._handlers[group][post_type]['*'] = wrapper
-            return wrapper
-
-        return decorator
-
-    return deco_decorator
-
-
 class CQHttp(_ApiClient):
     def __init__(self, api_root=None, access_token=None, secret=None):
         super().__init__(api_root, access_token)
@@ -73,6 +49,29 @@ class CQHttp(_ApiClient):
         self._app = Bottle()
         self._app.post('/')(self._handle)
         self._groups = []
+
+    def _deco_maker(self, post_type):
+        def deco_decorator(*types, group=0):
+            def decorator(func):
+                @wraps(func)
+                def wrapper(*args, **kwargs):
+                    return func(*args, **kwargs)
+
+                if group not in self._groups:
+                    self._groups.append(group)
+                    self._groups.sort()
+                    self._handlers[group] = defaultdict(dict)
+
+                if types:
+                    for t in types:
+                        self._handlers[group][post_type][t] = wrapper
+                else:
+                    self._handlers[group][post_type]['*'] = wrapper
+                return wrapper
+
+            return decorator
+
+        return deco_decorator
 
     on_message = _deco_maker('message')
     on_event = _deco_maker('event')
