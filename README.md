@@ -1,9 +1,17 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/Python-3.5%2B-brightgreen.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **2.1**
+QQ和Telegram的消息互转机器人 **3.0**
 
-Pending update: Coolq 更新了消息撤回和消息 id 功能，准备更新 cqsocketsdk 和本 bot，敬请期待
+底层 API 从 cqsocketapi 迁移至 cq-http-api
+
+准备支持加群加加讨论组等功能
+
+可能会支持权限管理
+
+tg 私聊添加管理员面板
+
+----------------------------
 
 FAQ 正在构建，欢迎大家提任何issue，我会收录一些看起来比较有意义的的问题。提问参照下面 Issue 格式。
 
@@ -15,11 +23,7 @@ docker 版正在构建，使用方法：
 
 2.0 版本构建完成，从 1.0 迁移请注意修改 bot\_constant.py
 
-QQ部分基于[酷Q Socket API](https://github.com/yukixz/cqsocketapi)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
-
-源码基础为[yukixz/qqbot.py](https://github.com/yukixz/qqbot.py)
-
-Coolq 群名片功能基础为[慕晓飞/cq_python_sdk](https://gitee.com/muxiaofei/cq_python_sdk/tree/master)
+QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 功能和特性
 
