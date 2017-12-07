@@ -21,7 +21,7 @@ def tg_command(bot, update: Update):
         for command in global_vars.command_list:  # process all non-forward commands
             if command.tg_only:
                 if message.text == command.command or message.text == command.cmd:
-                    command.handler(tg_group_id, message.from_user, message.id)
+                    command.handler(tg_group_id, message.from_user, message.message_id)
                     raise DispatcherHandlerStop()
 
         forward_index = get_forward_index(tg_group_id=tg_group_id)  # TODO: reconstruct get_forward_index, add new function to return list
@@ -31,8 +31,8 @@ def tg_command(bot, update: Update):
     if message.text.startswith('!!'):
         for command in global_vars.command_list:  # process all forward commands
             if not command.tg_only and not command.qq_only:
-                if message.text == command.command or message.text == command.cmd:
-                    command.handler(forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id)
+                if message.text[2:] == command.command or message.text[2:] == command.cmd:
+                    command.handler(forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.message_id)
                     raise DispatcherHandlerStop()
 
 
@@ -45,6 +45,7 @@ def qq_command(context):
     if isinstance(context['message'], str):  # commands should be pure text
         qq_group_id = context.get('group_id')
         qq_discuss_id = context.get('discuss_id')
+        # fixme: context['message'] is a dict
         text = context['message']  # get message text
 
         if text.startswith('!!'):
