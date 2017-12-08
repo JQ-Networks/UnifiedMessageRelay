@@ -177,17 +177,27 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                 if left_start != -1:
                     message = message[left_start + 2:]
             else:
-                left_start = message[0]['data']['text'].find(': ')
-                if left_start != -1:
-                    message[0]['data']['text'] = message[0]['data']['text'][left_start + 2:]
+                if message[0]['data'].get('text'):
+                    left_start = message[0]['data']['text'].find(': ')
+                    if left_start != -1:
+                        message[0]['data']['text'] = message[0]['data']['text'][left_start + 2:]
+                elif len(message) == 2:
+                    left_start = message[1]['data']['text'].find(': ')
+                    if left_start != -1:
+                        message[1]['data']['text'] = message[1]['data']['text'][left_start + 2:]
 
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
         else:
             if message[0]['data'].get('text'):
                 message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
+            elif len(message) == 2:
+                message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
             else:
-                message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': '
+                message.append({
+                    'type': 'text',
+                    'data': {'text': sender_name + reply_to + forward_from + edit_mark + ': '}
+                })
 
         if FORWARD_LIST[forward_index].get('QQ'):
             if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
@@ -249,7 +259,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
 
                     elif pending_text:
                         message_list.append({'text': pending_text})
-                        pending_text = None
+                        pending_text = ''
                     pending_image = message_part['data']['file']
                 elif message_part['type'] == 'text':
                     pending_text += message_part['data']['text']
