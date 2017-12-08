@@ -11,7 +11,6 @@ from log_calls import log_calls
 # For private chat, another plugin will take over
 
 
-@log_calls()
 def tg_command(bot, update: Update):
     if update.edited_message:  # handle edit
         message = update.edited_message
