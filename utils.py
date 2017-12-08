@@ -11,7 +11,8 @@ import global_vars
 import re
 from typing import Union
 from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
-    cq_location_regex, CQ_IMAGE_ROOT, error
+    cq_location_regex, CQ_IMAGE_ROOT
+import logging
 
 
 class FileDownloader(threading.Thread):
@@ -25,7 +26,7 @@ class FileDownloader(threading.Thread):
         try:
             self.download()
         except:
-            error("[FileDownloader]", "Catch exception on downloading.")
+            logging.error("[FileDownloader]", "Catch exception on downloading.")
             traceback.print_exc()
 
     def download(self):
@@ -317,7 +318,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
                             global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
-                            error(message)
+                            logging.error(message)
                             traceback.print_exc()
 
                     # jpg/png pictures send as photo
@@ -338,7 +339,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')'
                             global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
-                            error(message)
+                            logging.error(message)
                             traceback.print_exc()
 
                 else:
