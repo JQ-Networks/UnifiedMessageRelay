@@ -323,16 +323,19 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     # jpg/png pictures send as photo
                     else:
                         try:
-                            if message_part.get('text'):
-                                if message_count == 1:
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
-                                        'text']
+                            if message_count == 1:
+                                if message_part.get('text'):
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0]['text']
                                 else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': '
+
+                            else:
+                                if message_part.get('text'):
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' \
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                            else:
-                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')'
+                                else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')'
                             global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
                             error(message)
