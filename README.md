@@ -1,15 +1,19 @@
 # coolq-telegram-bot 
-![](https://img.shields.io/badge/Python-3.5%2B-brightgreen.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
+![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
 QQ和Telegram的消息互转机器人 **3.0**
 
 底层 API 从 cqsocketapi 迁移至 cq-http-api
 
+由于使用了大量 Type hint, 必须使用 Python3.6+ 才能正常运行
+
+requirements.txt 已精简
+
 准备支持加群加加讨论组等功能
 
 可能会支持权限管理
 
-tg 私聊添加管理员面板
+tg 私聊添加管理员面板 - 待添加
 
 ----------------------------
 
@@ -122,7 +126,7 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 ## Bot的运行
 
-请注意，bot需要 python3.5及以上版本，如运行报错请检查此项是否满足。
+请注意，bot需要 python3.6及以上版本，如运行报错请检查此项是否满足。
 
 保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名。
 
@@ -164,7 +168,7 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 ## 提问前请检查
 
- 1. 请在提问前检查是否使用 Python 3.5+，是否安装 requirements.txt，是否正确部署cqsocketapi并在coolq中启用
+ 1. 请在提问前检查是否使用 Python 3.6+，是否安装 requirements.txt，是否正确部署cqsocketapi并在coolq中启用
  2. bot 是否与coolq主程序可以通过127.0.0.1直连，如果一个在docker内部一个在外部是连不上的，参考 [#10](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/10)
 
 ## 提问需要携带的信息
