@@ -60,6 +60,8 @@ def get_forward_from(message: telegram.Message):
     :param message: the forwarded message
     :return: combined (forwarded from xxx)
     """
+    if not message:
+        return ''
     if not message.forward_from:
         return ''
     result = get_full_user_name(message.forward_from)
