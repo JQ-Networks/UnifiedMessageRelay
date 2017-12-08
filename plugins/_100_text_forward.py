@@ -263,7 +263,7 @@ for forward in FORWARD_LIST:  # initialize
     PIC_LINK_MODE.append(forward['Pic_link'])
 
 
-@debug_decorator
+@log_calls
 def photo_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
