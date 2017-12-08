@@ -33,8 +33,8 @@ def tg_drive_mode(bot, update):
 global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), get_plugin_priority(__name__))
 
 
-@debug_decorator
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
+@debug_decorator
 def qq_drive_mode(context: dict):
     qq_group_id = context.get('group_id')
     qq_discuss_id = context.get('discuss_id')
