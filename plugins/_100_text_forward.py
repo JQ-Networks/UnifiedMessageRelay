@@ -1,6 +1,6 @@
 from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
 import global_vars
-from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, error, \
+from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
     get_qq_name, send_all_except_current, get_plugin_priority
 from command import command_listener
 from PIL import Image
@@ -434,7 +434,6 @@ global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), g
 
 
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
-@log_calls()
 def handle_forward(context):
     qq_group_id = context.get('group_id')
     qq_discuss_id = context.get('discuss_id')
