@@ -191,15 +191,15 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
 
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
-            message.encode('gb18030')
+            message = message.encode('gb18030')
         else:
             if message[0]['data'].get('text'):
                 message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
-                message[0]['data']['text'].encode('gb18030')
+                message[0]['data']['text'] = message[0]['data']['text'].encode('gb18030')
             elif len(message) == 2:
                 if message[1]['data'].get('text'):
                     message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
-                    message[1]['data']['text'].encode('gb18030')
+                    message[1]['data']['text'] = message[1]['data']['text'].encode('gb18030')
             else:
                 text = sender_name + reply_to + forward_from + edit_mark + ': '
                 text = text.encode('gb18030')
