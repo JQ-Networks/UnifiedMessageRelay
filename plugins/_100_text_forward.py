@@ -1,20 +1,19 @@
 from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
 import global_vars
 from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
-    get_qq_name, send_all_except_current, get_plugin_priority
+    send_all_except_current, get_plugin_priority
 from command import command_listener
 from PIL import Image
 from configparser import ConfigParser
 import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
-from log_calls import log_calls
 
 import traceback
 import telegram
 import json
 import os
-
+import logging
 
 """
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
@@ -210,7 +209,7 @@ def cq_download_pic(filename):
         url = parser['image']['url']
         urlretrieve(url, path)
     except:
-        error(filename)
+        logging.error(filename)
         traceback.print_exc()
 
 
