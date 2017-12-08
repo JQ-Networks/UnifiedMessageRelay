@@ -262,7 +262,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                         pending_text = ''
                     pending_image = message_part['data']['file']
                 elif message_part['type'] == 'text':
-                    pending_text += message_part['data']['text']
+                    pending_text += message_part['data']['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
                 elif message_part['type'] == 'at':
                     qq_number = int(message_part['data']['qq'])
                     if qq_number == QQ_BOT_ID:
@@ -338,9 +338,9 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     # only first message could be pure text
                     if message_count == 1:
                         full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
-                                        + message_list[0]['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+                                        + message_list[0]['text']
                     else:
                         full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
                                         + '(1/' + str(message_count) + ')' \
-                                        + message_part['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+                                        + message_part['text']
                     global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
