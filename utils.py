@@ -184,7 +184,10 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
         else:
-            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
+            if message[0]['data'].get('text'):
+                message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
+            else:
+                message[0]['data'].append({'text': sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']})
 
         if FORWARD_LIST[forward_index].get('QQ'):
             if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
