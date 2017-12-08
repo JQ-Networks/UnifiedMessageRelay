@@ -258,7 +258,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     if pending_image:
                         if pending_text:
                             message_list.append({'image': pending_image, 'text': pending_text})
-                            pending_text = None
+                            pending_text = ''
                         else:
                             message_list.append({'image': pending_image})
 
@@ -330,6 +330,9 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                 else:
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' \
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                            else:
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')'
                             global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
                             error(message)
