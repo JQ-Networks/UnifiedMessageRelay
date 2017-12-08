@@ -50,7 +50,7 @@ def qq_drive_mode(context: dict):
 
 # forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id
 
-@debug_decorator
+@log_calls
 @command_listener('drive mode on', 'dmon', description='enable drive mode')
 def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
