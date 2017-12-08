@@ -5,11 +5,13 @@ from telegram.ext import MessageHandler, Filters
 
 from command import command_listener
 from telegram import Update, User
+from debug import debug_decorator
 
 # Commands are only available in group and discuss
 # For private chat, another plugin will take over
 
 
+@debug_decorator
 def tg_command(bot, update: Update):
     if update.edited_message:  # handle edit
         message = update.edited_message
@@ -40,6 +42,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), get_plugin_
 
 
 # decorator 'message_type', 'message_type', ..., group=number
+@debug_decorator
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def qq_command(context):
     if isinstance(context['message'], str):  # commands should be pure text
@@ -69,6 +72,7 @@ def qq_command(context):
     return {'pass': True}
 
 
+@debug_decorator
 @command_listener('show commands', 'sc', qq_only=True, description='print all commands')
 def command_qq(qq_group_id: int, qq_discuss_id:int, qq_user: int):
     result = ''
@@ -80,6 +84,7 @@ def command_qq(qq_group_id: int, qq_discuss_id:int, qq_user: int):
     return {'reply': result}
 
 
+@debug_decorator
 @command_listener('show commands', 'sc', tg_only=True, description='print all commands')
 def command_tg(tg_group_id: int, tg_user: User, tg_message_id: int):
     result = ''
@@ -91,6 +96,7 @@ def command_tg(tg_group_id: int, tg_user: User, tg_message_id: int):
     global_vars.tg_bot.sendMessage(tg_group_id, result, reply_to_message_id=tg_message_id, parse_mode='HTML')
 
 
+@debug_decorator
 @command_listener('help', 'h', qq_only=True, description='print help')
 def command_qq(qq_group_id: int, qq_discuss_id:int, qq_user: int):
     result = '''I'm a relay bot between qq and tg.
@@ -99,6 +105,7 @@ Please use "!!show commands" or "!!sc" to show all commands.
     return {'reply': result}
 
 
+@debug_decorator
 @command_listener('help', 'h', tg_only=True, description='print help')
 def command_tg(tg_group_id: int, tg_user: User, tg_message_id: int):
     result = '''I'm a relay bot between qq and tg.

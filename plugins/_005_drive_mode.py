@@ -4,6 +4,7 @@ from utils import get_forward_index, send_all_except_current, get_plugin_priorit
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
 from telegram.ext.dispatcher import DispatcherHandlerStop
 from command import command_listener
+from debug import debug_decorator
 
 import telegram
 
@@ -15,6 +16,7 @@ for forward in FORWARD_LIST:
     global_vars.DRIVE_MODE.append(forward['Drive_mode'])
 
 
+@debug_decorator
 def tg_drive_mode(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -31,6 +33,7 @@ def tg_drive_mode(bot, update):
 global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), get_plugin_priority(__name__))
 
 
+@debug_decorator
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def qq_drive_mode(context: dict):
     qq_group_id = context.get('group_id')
@@ -47,6 +50,7 @@ def qq_drive_mode(context: dict):
 
 # forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id
 
+@debug_decorator
 @command_listener('drive mode on', 'dmon', description='enable drive mode')
 def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
