@@ -13,8 +13,8 @@ class debug_context():
         print('Entering Debug Decorated func')
         # Set the trace function to the trace_calls function
         # So all events are now traced
-        assert(callable(self.trace_calls))
-        sys.settrace(self.trace_calls)
+        if callable(self.trace_calls)
+            sys.settrace(self.trace_calls)
 
     def __exit__(self, *args, **kwargs):
         # Stop tracing all events
