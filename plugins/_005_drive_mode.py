@@ -4,7 +4,7 @@ from utils import get_forward_index, send_all_except_current, get_plugin_priorit
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
 from telegram.ext.dispatcher import DispatcherHandlerStop
 from command import command_listener
-from debug import debug_decorator
+from log_calls import log_calls
 
 import telegram
 
@@ -16,7 +16,7 @@ for forward in FORWARD_LIST:
     global_vars.DRIVE_MODE.append(forward['Drive_mode'])
 
 
-@debug_decorator
+@log_calls
 def tg_drive_mode(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -34,7 +34,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode), get_plugi
 
 
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
-@debug_decorator
+@log_calls
 def qq_drive_mode(context: dict):
     qq_group_id = context.get('group_id')
     qq_discuss_id = context.get('discuss_id')
