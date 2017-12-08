@@ -1,5 +1,4 @@
 import global_vars
-from functools import wraps
 
 
 class Command:
@@ -15,10 +14,6 @@ class Command:
 
 def command_listener(command, short_command='', require_admin=False, tg_only=False, qq_only=False, description=''):
     def decorator(handler):
-        @wraps(handler)
-        def wrapper(*args, **kwargs):
-            return handler(*args, **kwargs)
-
         global_vars.append_command(Command(command, short_command, wrapper, require_admin, tg_only, qq_only, description))
         global_vars.create_variable(handler.__name__, handler)  # add command to global_vars, for cross-plugin access
         return handler

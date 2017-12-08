@@ -8,13 +8,13 @@ from configparser import ConfigParser
 import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
-from telegram.error import BadRequest
+from debug import debug_decorator
 
 import traceback
 import telegram
 import json
 import os
-import re
+
 
 """
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
@@ -263,6 +263,7 @@ for forward in FORWARD_LIST:  # initialize
     PIC_LINK_MODE.append(forward['Pic_link'])
 
 
+@debug_decorator
 def photo_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -303,6 +304,7 @@ def photo_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
+@debug_decorator
 def video_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -324,6 +326,7 @@ def video_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
+@debug_decorator
 def audio_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -345,6 +348,7 @@ def audio_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
+@debug_decorator
 def document_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -366,6 +370,7 @@ def document_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
+@debug_decorator
 def sticker_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -401,6 +406,7 @@ def sticker_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
+@debug_decorator
 def text_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -433,6 +439,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegr
 global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), get_plugin_priority(__name__))
 
 
+@debug_decorator
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def handle_forward(context):
     qq_group_id = context.get('group_id')

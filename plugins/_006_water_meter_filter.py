@@ -5,8 +5,10 @@ from telegram.ext.dispatcher import DispatcherHandlerStop
 from telegram.ext import MessageHandler, Filters
 import telegram
 from utils import get_forward_index, get_plugin_priority
+from debug import debug_decorator
 
 
+@debug_decorator
 def tg_water_meter(bot, update):
     if update.message:
         message: telegram.Message = update.message
