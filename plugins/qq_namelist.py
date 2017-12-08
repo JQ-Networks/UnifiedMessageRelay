@@ -33,4 +33,4 @@ def update_namelist(forward_index: int, tg_group_id: int=None, tg_user: telegram
         return {'reply': message}
 
 
-# reload_all_qq_namelist()
+reload_all_qq_namelist()

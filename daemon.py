@@ -7,6 +7,7 @@ from telegram.ext import Updater, CommandHandler
 
 import logging
 from DaemonClass import Daemon
+import threading
 import sys
 
 from cqhttp import CQHttp
@@ -46,13 +47,17 @@ class MainProcess(Daemon):
         global_vars.dp = dp
         dp.add_error_handler(error)
 
-        import plugins  # load all plugins
-
         updater.start_polling(poll_interval=1.0, timeout=200)
-        qq_bot.run(host=HOST, port=PORT)
 
+        def start_qq_bot():
+            qq_bot.run(host=HOST, port=PORT)
 
+        threaded_server = threading.Thread(
+            target=start_qq_bot,
+            daemon=True)
+        threaded_server.start()
 
+        import plugins  # load all plugins
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
