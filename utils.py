@@ -184,9 +184,10 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     if left_start != -1:
                         message[0]['data']['text'] = message[0]['data']['text'][left_start + 2:]
                 elif len(message) == 2:
-                    left_start = message[1]['data']['text'].find(': ')
-                    if left_start != -1:
-                        message[1]['data']['text'] = message[1]['data']['text'][left_start + 2:]
+                    if message[1]['data'].get('text'):
+                        left_start = message[1]['data']['text'].find(': ')
+                        if left_start != -1:
+                            message[1]['data']['text'] = message[1]['data']['text'][left_start + 2:]
 
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
@@ -194,7 +195,8 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
             if message[0]['data'].get('text'):
                 message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
             elif len(message) == 2:
-                message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
+                if message[1]['data'].get('text'):
+                    message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
             else:
                 message.append({
                     'type': 'text',
