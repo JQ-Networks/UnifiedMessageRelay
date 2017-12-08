@@ -157,7 +157,6 @@ def send_all(forward_index, message):
     pass
 
 
-@log_calls()
 def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
                             qq_discuss_id: int = 0, qq_user: int=None, tg_group_id: int = 0,
                             tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
