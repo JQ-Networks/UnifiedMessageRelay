@@ -263,7 +263,7 @@ for forward in FORWARD_LIST:  # initialize
     PIC_LINK_MODE.append(forward['Pic_link'])
 
 
-@log_calls
+@log_calls()
 def photo_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -304,7 +304,7 @@ def photo_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls
+@log_calls()
 def video_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -326,7 +326,7 @@ def video_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls
+@log_calls()
 def audio_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -348,7 +348,7 @@ def audio_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls
+@log_calls()
 def document_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -370,7 +370,7 @@ def document_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls
+@log_calls()
 def sticker_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -406,7 +406,7 @@ def sticker_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls
+@log_calls()
 def text_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -440,7 +440,7 @@ global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), g
 
 
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
-@log_calls
+@log_calls()
 def handle_forward(context):
     qq_group_id = context.get('group_id')
     qq_discuss_id = context.get('discuss_id')

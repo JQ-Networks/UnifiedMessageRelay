@@ -8,7 +8,7 @@ import telegram
 global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
 
 
-@log_calls
+@log_calls()
 def reload_all_qq_namelist():
     for i in range(len(FORWARD_LIST)):
         global_vars.group_members[i] = global_vars.qq_bot.get_group_member_list(FORWARD_LIST[i]['QQ'])
