@@ -12,7 +12,7 @@ import re
 from typing import Union
 from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
     cq_location_regex, CQ_IMAGE_ROOT, error
-
+from log_calls import log_calls
 
 class FileDownloader(threading.Thread):
     def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
@@ -157,6 +157,7 @@ def send_all(forward_index, message):
     pass
 
 
+@log_calls()
 def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
                             qq_discuss_id: int = 0, qq_user: int=None, tg_group_id: int = 0,
                             tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
