@@ -10,7 +10,6 @@ from log_calls import log_calls
 # If you want to keep all message synced, please simply disable this plugin.
 
 
-@log_calls()
 def ignore_old_message(bot, update):  # ignore old message that are more than 60s ago
     tg_group_id = update.message.chat_id  # telegram group id
     if tg_group_id > 0:  # ignore private chat

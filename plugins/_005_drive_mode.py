@@ -16,7 +16,6 @@ for forward in FORWARD_LIST:
     global_vars.DRIVE_MODE.append(forward['Drive_mode'])
 
 
-@log_calls()
 def tg_drive_mode(bot, update):
     if update.message:
         message: telegram.Message = update.message

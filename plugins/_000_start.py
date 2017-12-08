@@ -1,10 +1,8 @@
 from telegram.ext import CommandHandler
 import global_vars
 from utils import get_plugin_priority
-from log_calls import log_calls
 
 
-@log_calls()
 def start(bot, update):
     update.message.reply_text('This is a QQ <-> Telegram Relay bot, '
                               'source code is available on [Github](https://github.com/jqqqqqqqqqq/coolq-telegram-bot)'

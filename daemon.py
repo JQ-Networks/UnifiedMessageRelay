@@ -12,18 +12,21 @@ import sys
 from cqhttp import CQHttp
 
 # region log
-logger = logging.getLogger(__name__)
-hdlr = logging.FileHandler('bot.log')
-formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.DEBUG)
+# logger = logging.getLogger(__name__)
+# hdlr = logging.FileHandler('bot.log')
+# formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+# hdlr.setFormatter(formatter)
+# logger.addHandler(hdlr)
+# logger.setLevel(logging.DEBUG)
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # endregion
 
 
 def error(bot, update, error):
-    logger.warning('Update "%s" caused error "%s"' % (update, error))
+    logging.warning('Update "%s" caused error "%s"' % (update, error))
 
 
 class MainProcess(Daemon):

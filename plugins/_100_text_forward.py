@@ -263,7 +263,6 @@ for forward in FORWARD_LIST:  # initialize
     PIC_LINK_MODE.append(forward['Pic_link'])
 
 
-@log_calls()
 def photo_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -304,7 +303,6 @@ def photo_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls()
 def video_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -326,7 +324,6 @@ def video_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls()
 def audio_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -348,7 +345,6 @@ def audio_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls()
 def document_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -370,7 +366,6 @@ def document_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls()
 def sticker_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
@@ -406,7 +401,6 @@ def sticker_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-@log_calls()
 def text_from_telegram(bot, update):
     if update.message:
         message: telegram.Message = update.message
