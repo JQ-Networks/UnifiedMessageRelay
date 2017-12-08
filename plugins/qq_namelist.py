@@ -2,13 +2,13 @@ from bot_constant import FORWARD_LIST
 import global_vars
 from utils import get_forward_index, send_all_except_current
 from command import command_listener
-from debug import debug_decorator
+from log_calls import log_calls
 import telegram
 
 global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
 
 
-@debug_decorator
+@log_calls
 def reload_all_qq_namelist():
     for i in range(len(FORWARD_LIST)):
         global_vars.group_members[i] = global_vars.qq_bot.get_group_member_list(FORWARD_LIST[i]['QQ'])
