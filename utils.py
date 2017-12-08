@@ -191,18 +191,18 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
 
         if isinstance(message, str):
             message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
-            message = message.encode('gb18030')
+            message = message.encode('utf8')
         else:
             if message[0]['data'].get('text'):
                 message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
-                message[0]['data']['text'] = message[0]['data']['text'].encode('gb18030')
+                message[0]['data']['text'] = message[0]['data']['text'].encode('utf8')
             elif len(message) == 2:
                 if message[1]['data'].get('text'):
                     message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
-                    message[1]['data']['text'] = message[1]['data']['text'].encode('gb18030')
+                    message[1]['data']['text'] = message[1]['data']['text'].encode('utf8')
             else:
                 text = sender_name + reply_to + forward_from + edit_mark + ': '
-                text = text.encode('gb18030')
+                text = text.encode('utf8')
                 message.append({
                     'type': 'text',
                     'data': {'text': text}
@@ -271,7 +271,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                         pending_text = ''
                     pending_image = message_part['data']['file']
                 elif message_part['type'] == 'text':
-                    pending_text += message_part['data']['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+                    pending_text += message_part['data']['text'].decode('gb18030').strip().replace('<', '&lt;').replace('>', '&gt;')
                 elif message_part['type'] == 'at':
                     qq_number = int(message_part['data']['qq'])
                     if qq_number == QQ_BOT_ID:
