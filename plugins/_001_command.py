@@ -25,7 +25,7 @@ def tg_command(bot, update: Update):
                     command.handler(tg_group_id, message.from_user, message.message_id)
                     raise DispatcherHandlerStop()
 
-        forward_index = get_forward_index(tg_group_id=tg_group_id)  # TODO: reconstruct get_forward_index, add new function to return list
+    forward_index = get_forward_index(tg_group_id=tg_group_id)  # TODO: reconstruct get_forward_index, add new function to return list
     if forward_index == -1:
         raise DispatcherHandlerStop()
 
