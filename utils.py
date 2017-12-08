@@ -12,7 +12,7 @@ import re
 from typing import Union
 from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
     cq_location_regex, CQ_IMAGE_ROOT, error
-from log_calls import log_calls
+
 
 class FileDownloader(threading.Thread):
     def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
@@ -315,9 +315,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                 else:
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' \
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                                global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                            else:
-                                global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic)
+                            global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
                             error(message)
                             traceback.print_exc()
@@ -332,9 +330,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                 else:
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' \
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                                global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                            else:
-                                global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic)
+                            global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
                             error(message)
                             traceback.print_exc()
