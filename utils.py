@@ -171,7 +171,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
         else:
             edit_mark = ''
 
-        if forward_from and tg_forward_from.id == global_vars.tg_bot_id:
+        if forward_from and tg_forward_from.from_user.id == global_vars.tg_bot_id:
             if isinstance(message, str):
                 left_start = message.find(': ')
                 if left_start != -1:
