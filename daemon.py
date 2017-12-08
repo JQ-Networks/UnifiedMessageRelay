@@ -30,13 +30,24 @@ def error(bot, update, error):
     logging.warning('Update "%s" caused error "%s"' % (update, error))
 
 
-class MainProcess(Daemon):
+class QQBotDaemon(object):
+    def __init__(self):
+        thread = threading.Thread(target=self.run, args=())
+        thread.daemon = True
+        thread.start()
+
     def run(self):
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
                         secret=SECRET)
 
         global_vars.qq_bot = qq_bot
+        qq_bot.run(host=HOST, port=PORT)
+
+
+class MainProcess(Daemon):
+    def run(self):
+
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
         updater = Updater(TOKEN)
@@ -49,13 +60,7 @@ class MainProcess(Daemon):
 
         updater.start_polling(poll_interval=1.0, timeout=200)
 
-        def start_qq_bot():
-            qq_bot.run(host=HOST, port=PORT)
-
-        threaded_server = threading.Thread(
-            target=start_qq_bot,
-            daemon=True)
-        threaded_server.start()
+        qq_daemon = QQBotDaemon()
 
         import plugins  # load all plugins
 
