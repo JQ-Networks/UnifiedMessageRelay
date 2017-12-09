@@ -6,6 +6,7 @@ import global_vars
 from telegram.ext import Updater, CommandHandler
 
 import logging
+from logging.handlers import RotatingFileHandler
 from DaemonClass import Daemon
 import threading
 import sys
@@ -22,7 +23,7 @@ from cqhttp import CQHttp
 
 logger = logging.getLogger("ctbMain")
 logger.setLevel(logging.DEBUG)
-rHandler = logging.handlers.RotatingFileHandler(
+rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
 rHandler.setFormatter(logging.Formatter(
     "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s"))
