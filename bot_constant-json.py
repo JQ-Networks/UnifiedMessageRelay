@@ -19,6 +19,16 @@ with open(filepath, 'r') as f1:
 
 TOKEN = settingsJSON['TOKEN']
 QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
+
+# cq-http-api server config
+API_ROOT = settingsJSON['API_ROOT']
+ACCESS_TOKEN = settingsJSON['ACCESS_TOKEN']
+SECRET = settingsJSON['SECRET']
+
+# cq-http-api client config
+HOST = settingsJSON['HOST']
+PORT = settingsJSON['PORT']
+
 FORWARD_LIST = settingsJSON['FORWARD_LIST']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']

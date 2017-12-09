@@ -15,6 +15,15 @@ def py2json():
     r = {}
     r.setdefault("TOKEN", TOKEN)
     r.setdefault('QQ_BOT_ID', QQ_BOT_ID)
+
+    # cq-http-api server config
+    r.setdefault("API_ROOT", API_ROOT)
+    r.setdefault("ACCESS_TOKEN", ACCESS_TOKEN)
+    r.setdefault("SECRET", ACCESS_TOKEN)
+    # cq-http-api client config
+    r.setdefault("HOST", ACCESS_TOKEN)
+    r.setdefault("PORT", ACCESS_TOKEN)
+
     r.setdefault('FORWARD_LIST', FORWARD_LIST)
     r.setdefault('SERVER_PIC_URL', SERVER_PIC_URL)
     r.setdefault('CQ_ROOT', CQ_ROOT)
@@ -38,6 +47,5 @@ if __name__ == '__main__':
     else:
         print(__doc__)
         exit(1)
-    with open('bot_constant.json','x') as fo:
+    with open('bot_constant.json', 'w') as fo:
         fo.write(py2json())
-
