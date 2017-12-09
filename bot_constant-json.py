@@ -9,6 +9,9 @@
 
 import os
 import json
+import logging
+
+logger=logging.getLogger("ctbMain.jsonConstantSupport")
 
 filepath = os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json')
 with open(filepath, 'r') as f1:
@@ -20,5 +23,6 @@ FORWARD_LIST = settingsJSON['FORWARD_LIST']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
 CQ_PORT = settingsJSON['CQ_PORT']
-JQ_MODE = settingsJSON['JQ_MODE']  # if use Coolq Pro, set as True, otherwise False
-print('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')
+# if use Coolq Pro, set as True, otherwise False
+JQ_MODE = settingsJSON['JQ_MODE']
+logger.info('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')

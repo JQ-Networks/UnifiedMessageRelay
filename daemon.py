@@ -20,14 +20,18 @@ from cqhttp import CQHttp
 # logger.addHandler(hdlr)
 # logger.setLevel(logging.DEBUG)
 
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
+logger = logging.getLogger("ctbMain")
+logger.setLevel(logging.DEBUG)
+rHandler = logging.handlers.RotatingFileHandler(
+    'bot.log', maxBytes=1048576, backupCount=3)
+rHandler.setFormatter(logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s"))
+logger.addHandler(rHandler)
 # endregion
 
 
 def error(bot, update, error):
-    logging.warning('Update "%s" caused error "%s"' % (update, error))
+    logger.warning('Update "%s" caused error "%s"' % (update, error))
 
 
 class MainProcess(Daemon):
@@ -73,9 +77,10 @@ def main():
         elif 'restart' == sys.argv[1]:
             daemon.restart()
         elif 'run' == sys.argv[1]:
+            logger.addHandler(logging.StreamHandler())
             daemon.run()
         else:
-            print('error processing command')
+            logger.error('error processing command')
             print("usage: %s start|stop|restart|run" % sys.argv[0])
             sys.exit(2)
         sys.exit(0)
