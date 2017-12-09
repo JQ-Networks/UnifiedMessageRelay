@@ -9,7 +9,8 @@ i=input("键入[y]继续，[n]退出>")
 if i.upper()=='Y':
     os.chdir('..')
     os.system('git reset --hard && git pull')
-    os.rename('bot_constant-json.py','bot_constant')
+    os.remove('bot_constant.py')
+    os.rename('bot_constant-json.py','bot_constant.py')
 else:
     print("什么都没有发生...")
     exit()
