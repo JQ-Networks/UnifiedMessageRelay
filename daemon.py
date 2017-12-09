@@ -78,7 +78,9 @@ def main():
         elif 'restart' == sys.argv[1]:
             daemon.restart()
         elif 'run' == sys.argv[1]:
+            logger.setLevel(logging.DEBUG)
             logger.addHandler(logging.StreamHandler())
+            logger.info('Now running in debug mode...')
             daemon.run()
         else:
             logger.error('error processing command')
