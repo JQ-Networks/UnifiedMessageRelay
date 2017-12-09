@@ -1,7 +1,7 @@
 #!/use/bin/env python3
 
 import os
-import sys
+#import sys
 import threading
 import traceback
 import requests
@@ -14,6 +14,7 @@ from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_p
     cq_location_regex, CQ_IMAGE_ROOT
 import logging
 
+logger = logging.getLogger("ctbMain.utils")
 
 class FileDownloader(threading.Thread):
     def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
@@ -26,7 +27,7 @@ class FileDownloader(threading.Thread):
         try:
             self.download()
         except:
-            logging.error("[FileDownloader]", "Catch exception on downloading.")
+            logger.error("[FileDownloader]Catch exception on downloading.")
             traceback.print_exc()
 
     def download(self):
@@ -318,7 +319,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
                             global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
-                            logging.error(message)
+                            logger.error(message)
                             traceback.print_exc()
 
                     # jpg/png pictures send as photo
@@ -339,7 +340,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                                                + '(' + str(idx + 1) + '/' + str(message_count) + ')'
                             global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
-                            logging.error(message)
+                            logger.error(message)
                             traceback.print_exc()
 
                 else:

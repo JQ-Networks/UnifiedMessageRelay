@@ -18,6 +18,9 @@ import logging
 """
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
 """
+
+logger = logging.getLogger("ctbMain.text_forward")
+
 # region utils
 
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
@@ -209,7 +212,7 @@ def cq_download_pic(filename):
         url = parser['image']['url']
         urlretrieve(url, path)
     except:
-        logging.error(filename)
+        logger.error(filename)
         traceback.print_exc()
 
 

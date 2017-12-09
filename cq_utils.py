@@ -11,6 +11,7 @@ CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 
 cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
 
+logger = logging.getLogger("ctbMain.cq_utils")
 
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     0: u'\U0001F62E',
@@ -201,5 +202,5 @@ def cq_download_pic(filename):
         url = parser['image']['url']
         urlretrieve(url, path)
     except:
-        logging.error(filename)
+        logger.error(filename)
         traceback.print_exc()
