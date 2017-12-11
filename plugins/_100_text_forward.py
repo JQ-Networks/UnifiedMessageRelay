@@ -189,7 +189,7 @@ def cq_get_pic_url(filename):
     :param filename:
     :return: image url
     """
-    cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
+    cqimg = os.path.join(CQ_IMAGE_ROOT, filename + '.cqimg')
     parser = ConfigParser()
     parser.read(cqimg)
     url = parser['image']['url']
@@ -269,7 +269,8 @@ for forward in FORWARD_LIST:  # initialize
 def photo_from_telegram(bot, update):
     if update.message:
         tg_group_id = update.message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+        qq_group_id, _, forward_index = get_forward_index(
+            tg_group_id=int(tg_group_id))
 
         file_id = update.message.photo[-1].file_id
         pic_url = tg_get_pic_url(file_id, 'jpg')
@@ -283,7 +284,8 @@ def photo_from_telegram(bot, update):
         cq_send(update, text, qq_group_id)
     elif update.edited_message:
         tg_group_id = update.edited_message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+        qq_group_id, _, forward_index = get_forward_index(
+            tg_group_id=int(tg_group_id))
 
         file_id = update.edited_message.photo[-1].file_id
         pic_url = tg_get_pic_url(file_id, 'jpg')
@@ -325,13 +327,14 @@ def sticker_from_telegram(bot, update):
     qq_group_id, _, forward_index = get_forward_index(
         tg_group_id=int(tg_group_id))
     file_id = update.message.sticker.file_id
-    if JQ_MODE: # If use CQPro, send sticker as photo.
+    if JQ_MODE:  # If use CQPro, send sticker as photo.
         text = '[CQ:image,file=' + file_id + '.png]'
-    elif PIC_LINK_MODE[forward_index]: # If not turn on JQ_MODE but enable Pic_link, send sticker with link.
+    # If not turn on JQ_MODE but enable Pic_link, send sticker with link.
+    elif PIC_LINK_MODE[forward_index]:
         pic_url = tg_get_pic_url(file_id, 'png')
         text = '[ ' + update.message.sticker.emoji + \
             ' sticker, 请点击查看' + pic_url + ' ]'
-    else: # Seem user set JQ_MODE and Pic_Link both False, only send emoji.
+    else:  # Seem user set JQ_MODE and Pic_Link both False, only send emoji.
         text = '[' + update.message.sticker.emoji + ' sticker]'
     cq_send(update, text, qq_group_id)
 
@@ -339,7 +342,8 @@ def sticker_from_telegram(bot, update):
 def text_from_telegram(bot, update):
     if update.message:
         tg_group_id = update.message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+        qq_group_id, _, forward_index = get_forward_index(
+            tg_group_id=int(tg_group_id))
 
         text = update.message.text
         if text.startswith('//'):  # feature, comment will no be send to qq
@@ -348,7 +352,8 @@ def text_from_telegram(bot, update):
             cq_send(update, text, qq_group_id)
     elif update.edited_message:
         tg_group_id = update.edited_message.chat_id  # telegram group id
-        qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+        qq_group_id, _, forward_index = get_forward_index(
+            tg_group_id=int(tg_group_id))
 
         text = update.edited_message.text
         if text.startswith('//'):  # feature, comment will no be send to qq
@@ -357,12 +362,18 @@ def text_from_telegram(bot, update):
             cq_send(update, text, qq_group_id, edited=True)
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), 100)  # priority 100
-global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram, edited_updates=True), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegram), 100)
-global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), 100)
+global_vars.dp.add_handler(MessageHandler(
+    Filters.text | Filters.command, text_from_telegram, edited_updates=True), 100)  # priority 100
+global_vars.dp.add_handler(MessageHandler(
+    Filters.sticker, sticker_from_telegram), 100)
+global_vars.dp.add_handler(MessageHandler(
+    Filters.audio, audio_from_telegram), 100)
+global_vars.dp.add_handler(MessageHandler(
+    Filters.photo, photo_from_telegram, edited_updates=True), 100)
+global_vars.dp.add_handler(MessageHandler(
+    Filters.document, document_from_telegram), 100)
+global_vars.dp.add_handler(MessageHandler(
+    Filters.video, video_from_telegram), 100)
 
 
 @global_vars.qq_bot.listener((RcvdGroupMessage, ), 100)  # priority 100
@@ -379,10 +390,13 @@ def new(message):
     # replace special characters
     text = decode_cq_escape(text)
 
-    text = cq_emoji_regex.sub(lambda x: chr(int(x.group(1))), text)  # replace [CQ:emoji,id=*]
-    text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
+    text = cq_emoji_regex.sub(lambda x: chr(
+        int(x.group(1))), text)  # replace [CQ:emoji,id=*]
+    text = cq_face_regex.sub(lambda x: qq_emoji_list[int(x.group(1))] if int(
+        x.group(1)) in qq_emoji_list else '\u2753', text)  # replace [CQ:face,id=*]
     text = cq_bface_regex.sub('\u2753', text)  # replace bface to '?'
-    text = cq_sface_regex.sub(lambda x: qq_sface_list[int(x.group(1)) & 255] if int(x.group(1)) > 100000 and int(x.group(1)) & 255 in qq_sface_list else '\u2753', text)  # replace [CQ:sface,id=*], https://cqp.cc/t/26206
+    text = cq_sface_regex.sub(lambda x: qq_sface_list[int(x.group(1)) & 255] if int(x.group(1)) > 100000 and int(
+        x.group(1)) & 255 in qq_sface_list else '\u2753', text)  # replace [CQ:sface,id=*], https://cqp.cc/t/26206
 
     def replace_name(qq_number):  # replace each qq number with preset id
         qq_number = qq_number.group(1)
@@ -404,13 +418,18 @@ def new(message):
     image_num = message_parts_count - 1
     if image_num == 0:
         # send plain text message with bold group member name
-        full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
-        global_vars.tg_bot.sendMessage(tg_group_id, full_msg_bold, parse_mode='HTML')
+        full_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + \
+            '</b>: ' + text.strip().replace('<', '&lt;').replace('>', '&gt;')
+        global_vars.tg_bot.sendMessage(
+            tg_group_id, full_msg_bold, parse_mode='HTML')
     else:
         if message_parts[0]:
             part_msg_bold = '<b>' + get_qq_name(int(message.qq), forward_index) + '</b>: ' +\
-                        '(1/' + str(message_parts_count) + ')' + message_parts[0].strip().replace('<', '&lt;').replace('>', '&gt;')
-            global_vars.tg_bot.sendMessage(tg_group_id, part_msg_bold, parse_mode='HTML')
+                '(1/' + str(message_parts_count) + ')' + \
+                message_parts[0].strip().replace(
+                    '<', '&lt;').replace('>', '&gt;')
+            global_vars.tg_bot.sendMessage(
+                tg_group_id, part_msg_bold, parse_mode='HTML')
             part_index = 1
         else:
             message_parts.pop(0)
@@ -419,9 +438,11 @@ def new(message):
         for matches in CQImage.PATTERN.finditer(message.text):
             # replace QQ number to group member name, get full message text
             if message_parts_count == 1:
-                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + message_parts[part_index].strip()
+                part_msg = get_qq_name(
+                    int(message.qq), forward_index) + ': ' + message_parts[part_index].strip()
             else:
-                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(part_index+1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
+                part_msg = get_qq_name(int(message.qq), forward_index) + ': ' + '(' + str(
+                    part_index + 1) + '/' + str(message_parts_count) + ')' + message_parts[part_index].strip()
             part_index += 1
             decode_cq_escape(part_msg)
             filename = matches.group(1)
@@ -436,7 +457,8 @@ def new(message):
             # gif pictures send as document
             if filename.lower().endswith('gif'):
                 try:
-                    global_vars.tg_bot.sendDocument(tg_group_id, pic, caption=part_msg)
+                    global_vars.tg_bot.sendDocument(
+                        tg_group_id, pic, caption=part_msg)
                 except BadRequest:
                     # when error occurs, download picture and send link instead
                     error(message)
@@ -444,13 +466,15 @@ def new(message):
                     if pic_send_mode == 0:
                         cq_download_pic(filename)
                     pic = get_short_url(SERVER_PIC_URL + filename)
-                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
+                    global_vars.tg_bot.sendMessage(
+                        tg_group_id, pic + '\n' + part_msg)
 
             # jpg/png pictures send as photo
             else:
                 try:
                     # the first image in message attach full message text
-                    global_vars.tg_bot.sendPhoto(tg_group_id, pic, caption=part_msg)
+                    global_vars.tg_bot.sendPhoto(
+                        tg_group_id, pic, caption=part_msg)
                 except BadRequest:
                     # when error occurs, download picture and send link instead
                     error(message)
@@ -459,7 +483,8 @@ def new(message):
                         cq_download_pic(filename)
                     my_url = get_short_url(SERVER_PIC_URL + filename)
                     pic = my_url
-                    global_vars.tg_bot.sendMessage(tg_group_id, pic + '\n' + part_msg)
+                    global_vars.tg_bot.sendMessage(
+                        tg_group_id, pic + '\n' + part_msg)
     return True
 
 
