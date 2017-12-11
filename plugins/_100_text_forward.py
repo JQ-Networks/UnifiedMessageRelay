@@ -298,37 +298,40 @@ def photo_from_telegram(bot, update):
 
 def video_from_telegram(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    qq_group_id, _, forward_index = get_forward_index(
+        tg_group_id=int(tg_group_id))
     text = '[视频]'
     cq_send(update, text, qq_group_id)
 
 
 def audio_from_telegram(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    qq_group_id, _, forward_index = get_forward_index(
+        tg_group_id=int(tg_group_id))
     text = '[音频]'
     cq_send(update, text, qq_group_id)
 
 
 def document_from_telegram(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+    qq_group_id, _, forward_index = get_forward_index(
+        tg_group_id=int(tg_group_id))
     text = '[文件]'
     cq_send(update, text, qq_group_id)
 
 
 def sticker_from_telegram(bot, update):
     tg_group_id = update.message.chat_id  # telegram group id
-    qq_group_id, _, forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-
-    if PIC_LINK_MODE[forward_index]:
-        file_id = update.message.sticker.file_id
+    qq_group_id, _, forward_index = get_forward_index(
+        tg_group_id=int(tg_group_id))
+    file_id = update.message.sticker.file_id
+    if JQ_MODE: # If use CQPro, send sticker as photo.
+        text = '[CQ:image,file=' + file_id + '.png]'
+    elif PIC_LINK_MODE[forward_index]: # If not turn on JQ_MODE but enable Pic_link, send sticker with link.
         pic_url = tg_get_pic_url(file_id, 'png')
-        if JQ_MODE:
-            text = '[CQ:image,file=' + file_id + '.png]'
-        else:
-            text = '[ ' + update.message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'
-    else:
+        text = '[ ' + update.message.sticker.emoji + \
+            ' sticker, 请点击查看' + pic_url + ' ]'
+    else: # Seem user set JQ_MODE and Pic_Link both False, only send emoji.
         text = '[' + update.message.sticker.emoji + ' sticker]'
     cq_send(update, text, qq_group_id)
 
@@ -471,7 +474,7 @@ def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
 
 
 @command_listener('[pic link off]', description='disable pic link mode, only available when JQ_MODE=False')
-def drive_mode_on(forward_index, tg_group_id, tg_user, qq_group_id, qq):
+def drive_mode_off(forward_index, tg_group_id, tg_user, qq_group_id, qq):
     if JQ_MODE:
         return
     PIC_LINK_MODE[forward_index] = False
