@@ -54,7 +54,7 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *酷Q官方镜像*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *基于wine-coolq的第三方镜像，内置了酷Q HTTP API*
-- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。 **需要手动 `build` **。*
+- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。 **需要手动 `build` ***。
 
 ### 直接部署Wine 酷Q
 如果不使用Docker，Wine 酷Q的安装可以参照酷Q论坛的教程。
