@@ -21,7 +21,7 @@ from cqhttp import CQHttp
 # logger.addHandler(hdlr)
 # logger.setLevel(logging.DEBUG)
 
-logger = logging.getLogger("ctbMain")
+logger = logging.getLogger("CTBMain")
 logger.setLevel(logging.DEBUG)
 rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)

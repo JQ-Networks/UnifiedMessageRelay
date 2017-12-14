@@ -13,7 +13,8 @@ from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_p
     cq_location_regex, CQ_IMAGE_ROOT
 import logging
 
-logger = logging.getLogger("ctbMain.utils")
+logger = logging.getLogger("CTBMain.utils")
+
 
 class FileDownloader(threading.Thread):
     def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
@@ -309,13 +310,21 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                     # gif pictures send as document
                     if filename.lower().endswith('gif'):
                         try:
-                            if message_part.get('text'):
-                                if message_count == 1:
+                            if message_count == 1:
+                                if message_part.get('text'):
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
                                         'text']
                                 else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': '
+
+                            else:
+                                if message_part.get('text'):
                                     full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part[
+                                                   'text']
+                                else:
+                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')'
                             global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
                         except telegram.error.TelegramError:
                             logger.error(message)

@@ -19,7 +19,7 @@ import logging
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
 """
 
-logger = logging.getLogger("ctbMain.text_forward")
+logger = logging.getLogger("CTBMain.text_forward")
 
 # region utils
 
