@@ -1,11 +1,17 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **3.0**
+QQ和Telegram的消息互转机器人 **3.0** Initial release
+
+QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
+
+## 3.0 更新
 
 底层 API 从 cqsocketapi 迁移至 cq-http-api
 
-由于使用了大量 Type hint, 必须使用 Python3.6+ 才能正常运行
+2.x升级需要安装 [CQ-HTTP-API]（https://github.com/richardchien/coolq-http-api) 插件，可以卸载之前的 cqsocketapi。
+
+由于使用了 Type Hint, 必须使用 Python3.6+ 才能正常运行，请升级 Python 或者使用 [Docker](https://github.com/Z4HD/coolq-telegram-bot-docker)
 
 requirements.txt 已精简
 
@@ -17,17 +23,12 @@ tg 私聊添加管理员面板 - 待添加
 
 ----------------------------
 
-FAQ 正在构建，欢迎大家提任何issue，我会收录一些看起来比较有意义的的问题。提问参照下面 Issue 格式。
-
-docker 版正在构建，使用方法：
+## docker 版
 
 1. Star 本 Repo
 2. Star [这个](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
 3. 参考 coolq-telegram-bot-docker 的 [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md) 完成构建。
 
-**从 2.x 迁移请注意修改 bot\_constant.py**
-
-QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 功能和特性
 
@@ -37,15 +38,14 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 + QQ群的图片可以转发Telegram群，Telegram群的图片将会以链接的形式转发到QQ群
 + Telegram群的Sticker会转换成对应的emoji转发给QQ群，QQ群的常用QQ表情会以emoji的形式转发到Telegram群 
 + 支持开启Telegram群的Sticker导出模式，开启该模式后，在QQ可以通过链接保存Sticker。
-+ ~~QQ群可以通过指令向Telegram群发送Sticker~~ via #13
-+ 支持临时关闭Telegram群到QQ群的转发
++ 支持命令，使用 !!show commands 或者 !!sc 查看
 
 ### 如果您使用的是酷Q Pro
 
 + 支持QQ群和Telegram群的文字消息互转
 + QQ群的图片可以转发Telegram群，Telegram群的图片和sticker可以转发到QQ群，QQ群的QQ表情会以emoji的形式转发到Telegram群
-+ ~~QQ群可以通过指令向Telegram群发送Sticker~~ via #13
-+ 支持临时关闭Telegram群到QQ群的转发
++ 支持临时关闭转发
++ 支持命令，使用 !!show commands 或者 !!sc 查看
 
 ## 环境的搭建
 
@@ -56,6 +56,8 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *基于wine-coolq的第三方镜像，内置了酷Q HTTP API*
 - [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。 **需要手动 `build` ***。
 
+使用 Docker 部署后续请参考 Docker 版教程，本教程可以直接跳到 **参数和配置**
+
 ### 直接部署Wine 酷Q
 如果不使用Docker，Wine 酷Q的安装可以参照酷Q论坛的教程。
 > [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
@@ -63,9 +65,9 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 ### 安装酷Q HTTP API
 > HTTP API安装方法见[CoolQ HTTP API 插件文档](https://richardchien.github.io/coolq-http-api/3.3/#/)
 
-### 开启图片静态资源访问
+### 开启图片静态资源访问 (Coolq Air Only)
 
-由于酷Q Air不支持往QQ群发送图片，所以Telegram群的图片将会以链接的形式发送到QQ群。此时需要将图片提供给外部访问。酷Q Pro也小概率会出现图片无法从QQ群转发到Telegram群的问题，所以也建议开启图片静态资源访问。这里以nginx为例。
+由于酷Q Air不支持往QQ群发送图片，所以Telegram群的图片将会以链接的形式发送到QQ群。此时需要将图片提供给外部访问。
 
 Ubuntu下安装nginx只需要用
 
@@ -90,8 +92,6 @@ server {
 ## 参数和配置
 
 ### bot_constant.py
-
->提示：从 2.0 迁移请注意修改 bot\_constant.py
 
 请在bot使用之前，将`bot_constant-sample.py`重命名为`bot_constant.py`
 
@@ -118,12 +118,6 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
 `tools/bot_constant-py2json.py`提供了将`bot_constant.py`转换为`bot_constant.json`的工具
 
-### qq_emoji_list.py
-
-qq_emoji_list：定义了QQ表情ID和emoji的对应。
-
-这个列表实现了QQ表情和emoji的对应，可以根据需要进行修改。列表中没有定义的QQ表情发送到Telegram群中会显示为问号。
-
 ## Bot的运行
 
 请注意，bot需要 python3.6及以上版本，如运行报错请检查此项是否满足。
@@ -134,33 +128,31 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 ## 查看命令开关
 
-发送 [show commands] 可以查看当前注册的所有命令，会只在发送的客户端显示
+发送 !!show commands 或者 !!sc 可以查看当前注册的所有命令，会只在发送的客户端显示
 
 ## 查看 Telegram 群 ID
 
-在 Telegram 中发送 [show group id] 可以查看 Telegram 群号
+在 Telegram 中发送 !!show group id 或者 !!id 可以查看 Telegram 群号
 
 ## 更新 QQ 群名片列表
 
-发送 [reload namelist] 可以更新当前转发的 QQ 群名片缓存
+发送 !!update namelist 或者 !!un 可以更新当前转发的 QQ 群名片缓存
 
 注意： Coolq 的群名片更新可能很不及时，所以此功能主要用于新加入成员之后的首次更新
 
-## Sticker导出模式 
+## 图片链接模式 （Coolq Air Only）
 
-\*此功能仅针对酷Q Air有效\(JQ\_MODE=False\)
+开启：在QQ群或Telegram群中发送 !!pic link on 或者 !!plon
 
-开启：在QQ群或Telegram群中发送 [sticker link on]
+关闭：在QQ群或Telegram群中发送 !!pic link off 或者 !!ploff
 
-关闭：在QQ群或Telegram群中发送 [sticker link off]
-
-开启后，Sticker转发到QQ群的时候，会显示图片链接。
+开启后，图片和Sticker转发到QQ群的时候，会显示图片链接。
 
 ## 开车模式
 
-开启：在QQ群或Telegram群中发送 [drive mode on]
+开启：在QQ群或Telegram群中发送 !!drive mode on 或 !!dmon
 
-关闭：在QQ群或Telegram群中发送 [drive mode off]
+关闭：在QQ群或Telegram群中发送 !!drive mode off 或 !!dmoff
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
 
@@ -175,6 +167,8 @@ qq_emoji_list：定义了QQ表情ID和emoji的对应。
 
 1. 症状描述
 2. python3 daemon.py run 的执行输出
+3. 是否使用 docker
+4. 使用的开发分支
 
 
 
