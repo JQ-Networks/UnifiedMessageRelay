@@ -5,7 +5,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 
 def start(bot, update):

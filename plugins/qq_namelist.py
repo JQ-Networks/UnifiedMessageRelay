@@ -7,7 +7,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
 

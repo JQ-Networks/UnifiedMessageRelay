@@ -7,7 +7,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 
 @command_listener('dice', 'dice', tg_only=True, description='throw a dice')

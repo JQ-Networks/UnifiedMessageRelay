@@ -9,7 +9,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 # Commands are only available in group and discuss
 # For private chat, another plugin will take over

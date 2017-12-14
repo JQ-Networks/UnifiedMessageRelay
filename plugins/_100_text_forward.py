@@ -17,7 +17,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 """
 CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE required

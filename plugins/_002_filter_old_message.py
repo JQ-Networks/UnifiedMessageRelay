@@ -7,7 +7,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 # Telegram messages will expire in 60 seconds if bot isn't running
 # So other chat session won't be spammed when bot stops and then starts

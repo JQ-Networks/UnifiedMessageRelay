@@ -7,7 +7,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 
 global_vars.create_variable('filter_list', {'keywords': [], 'channels': []})

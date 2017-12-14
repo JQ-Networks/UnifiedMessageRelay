@@ -5,7 +5,7 @@ import logging
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
-logger.debug(__name__ + "loading")
+logger.debug(__name__ + " loading")
 
 
 @command_listener('show group id', 'id', tg_only=True, description='show current telegram group id')
