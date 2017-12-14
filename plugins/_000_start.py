@@ -1,6 +1,11 @@
 from telegram.ext import CommandHandler
 import global_vars
 from utils import get_plugin_priority
+import logging
+
+
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
 
 
 def start(bot, update):

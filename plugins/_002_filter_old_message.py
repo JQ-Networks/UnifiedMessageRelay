@@ -3,7 +3,11 @@ from utils import get_plugin_priority
 from telegram.ext import MessageHandler, Filters
 from telegram.ext.dispatcher import DispatcherHandlerStop
 import datetime
-from log_calls import log_calls
+import logging
+
+
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
 
 # Telegram messages will expire in 60 seconds if bot isn't running
 # So other chat session won't be spammed when bot stops and then starts

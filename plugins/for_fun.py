@@ -3,6 +3,11 @@ import global_vars
 from utils import get_full_user_name, get_forward_index, send_all_except_current
 from telegram.ext.dispatcher import DispatcherHandlerStop
 import telegram
+import logging
+
+
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
 
 
 @command_listener('dice', 'dice', tg_only=True, description='throw a dice')

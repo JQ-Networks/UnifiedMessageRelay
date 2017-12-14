@@ -4,9 +4,12 @@ from utils import get_forward_index, send_all_except_current, get_plugin_priorit
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
 from telegram.ext.dispatcher import DispatcherHandlerStop
 from command import command_listener
-
 import telegram
+import logging
 
+
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
 
 global_vars.create_variable('DRIVE_MODE', [])
 

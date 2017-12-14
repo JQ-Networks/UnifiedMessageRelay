@@ -6,7 +6,9 @@ from utils import get_plugin_priority
 import logging
 
 
-logger = logging.getLogger("CTBPlugin.water_meter_control")
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
+
 
 global_vars.create_variable('filter_list', {'keywords': [], 'channels': []})
 
@@ -90,3 +92,4 @@ conv_handler = ConversationHandler(
 
 global_vars.dp.add_handler(conv_handler, group=0)
 global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=get_plugin_priority(__name__))
+logger.debug(__name__ + "loaded")

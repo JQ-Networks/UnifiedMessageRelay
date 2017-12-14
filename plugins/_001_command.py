@@ -7,10 +7,12 @@ from command import command_listener
 import telegram
 import logging
 
+
+logger = logging.getLogger("CTBPlugin." + __name__)
+logger.debug(__name__ + "loading")
+
 # Commands are only available in group and discuss
 # For private chat, another plugin will take over
-
-logger = logging.getLogger("CTBMain.text_forward")
 
 
 def tg_command(bot: telegram.Bot, update: telegram.Update):
