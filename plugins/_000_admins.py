@@ -4,94 +4,84 @@ import json
 from pathlib import Path
 from utils import get_plugin_priority
 import logging
-
-# TODO admin controls
+import telegram
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
 
-global_vars.create_variable('filter_list', {'keywords': [], 'channels': []})
+global_vars.create_variable('admin_list', {'QQ': [], 'TG': []})
 
 
 def load_data():
-    logger.debug("Begin loading water meter config")
+    logger.debug("Begin loading admin list")
     json_file = Path('./plugins/conf/' + __name__ + '.json')
     if json_file.is_file():
-        global_vars.filter_list = json.load(open('./plugins/conf/' + __name__ + '.json', 'r'))
-        logger.debug("Water meter config loaded")
+        global_vars.admin_list = json.load(open('./plugins/conf/' + __name__ + '.json', 'r'))
+        logger.debug("Admin list loaded")
 
 
 def save_data():
-    json.dump(global_vars.filter_list, open('./plugins/conf/' + __name__ + '.json', 'w'),
+    json.dump(global_vars.admin_list, open('./plugins/conf/' + __name__ + '.json', 'w'),
               ensure_ascii=False, indent=4)
 
 
 load_data()
 
 
-def add_keyword(bot, update, args):
+def start(bot: telegram.Bot, update: telegram.Update):
+    update.message.reply_text('This is a QQ <-> Telegram Relay bot, '
+                              'source code is available on [Github](https://github.com/jqqqqqqqqqq/coolq-telegram-bot)'
+                              , parse_mode='Markdown')
+
     if update.message.chat_id < 0:  # block group message
         return
-    if len(args) == 0:
-        update.message.reply_text('Usage: /add_keyword keyword1 keyword2 ...')
+
+    if len(global_vars.admin_list['TG']) == 0:  # no admin
+        global_vars.admin_list['TG'].append(update.message.from_user.id)
+        save_data()
+        update.message.reply_text("You've been promoted to admin")
+
+
+def add_admin(bot: telegram.Bot, update: telegram.Update, args: list):
+    if update.message.chat_id < 0:  # block group message
         return
-    for keyword in args:
-        logger.debug('keyword: ' + keyword)
-        if keyword in global_vars.filter_list['keywords']:
-            update.message.reply_text('Keyword: "' + keyword + '" already in list')
-            continue
-        global_vars.filter_list['keywords'].append(keyword)
-    update.message.reply_text('Done.')
+
+    if len(global_vars.admin_list['TG']) == 0:  # no admin
+        return
+
+    # only bot maintainer can access, temporary solution
+    if update.message.from_user.id != global_vars.admin_list['TG'][0]:
+        return
+
+    if len(args) != 2:
+        update.message.reply_text('Usage: /add_admin [qq|tg] [qq_id|tg_id]')
+        return
+
+    try:
+        qq_or_tg_id = int(args[1])
+    except ValueError as e:
+        update.message.reply_text(e)
+        return
+
+    if args[0] == 'qq':
+        if qq_or_tg_id in global_vars.admin_list['QQ']:
+            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.id)
+        else:
+            global_vars.admin_list['QQ'].append(qq_or_tg_id)
+            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.id)
+    elif args[0] == 'tg':
+        if qq_or_tg_id in global_vars.admin_list['TG']:
+            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.id)
+        else:
+            global_vars.admin_list['TG'].append(qq_or_tg_id)
+            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.id)
+    else:
+        update.message.reply_text('Usage: /add_admin [qq|tg] [qq_id|tg_id]')
+        return
+
     save_data()
 
-CHANNEL = range(1)
+global_vars.dp.add_handler(CommandHandler('start', start), group=get_plugin_priority(__name__))
 
-
-def begin_add_channel(bot, update):
-    if update.message.chat_id < 0:
-        return
-    update.message.reply_text('Please forward me message from channels:')
-    return CHANNEL
-
-
-def add_channel(bot, update):
-    if update.message.forward_from_chat:
-        if update.message.forward_from_chat.type == 'channel':
-            print(update.message.forward_from_chat.type)
-            print(update.message.forward_from_chat.id)
-            if update.message.forward_from_chat.id not in global_vars.filter_list['channels']:
-                global_vars.filter_list['channels'].append(update.message.forward_from_chat.id)
-                save_data()
-                update.message.reply_text('Okay, please send me another, or use /cancel to stop')
-            else:
-                update.message.reply_text('Already in list. Send me another or use /cancel to stop')
-            return CHANNEL
-    else:
-        if update.message.text == '/cancel':
-            update.message.reply_text('Done.')
-            return ConversationHandler.END
-        else:
-            update.message.reply_text('Message type error. Please forward me a message from channel, or use /cancel to stop')
-            return CHANNEL
-
-
-def cancel_add_channel(bot, update):
-    update.message.reply_text('Done.')
-    return ConversationHandler.END
-
-
-conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('begin_add_channel', begin_add_channel)],
-
-        states={
-            CHANNEL: [MessageHandler(Filters.all, add_channel)]
-        },
-
-        fallbacks=[CommandHandler('cancel', cancel_add_channel)]
-    )
-
-
-global_vars.dp.add_handler(conv_handler, group=0)
-global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=get_plugin_priority(__name__))
 logger.debug(__name__ + "loaded")
