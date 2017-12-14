@@ -19,7 +19,7 @@ import logging
 request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
 """
 
-logger = logging.getLogger("CTBMain.text_forward")
+logger = logging.getLogger("CTBPlugin.text_forward")
 
 # region utils
 
@@ -383,6 +383,7 @@ def sticker_from_telegram(bot, update):
 
     file_id = update.message.sticker.file_id
     if JQ_MODE:
+        pic_url = tg_get_pic_url(file_id, 'png')
         reply_entity.append({
             'type': 'image',
             'data': {'file': file_id + '.png'}

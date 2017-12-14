@@ -11,11 +11,11 @@ import telegram
 global_vars.create_variable('DRIVE_MODE', [])
 
 
-for forward in FORWARD_LIST:
+for forward in FORWARD_LIST:  # initialize drive mode list
     global_vars.DRIVE_MODE.append(forward['Drive_mode'])
 
 
-def tg_drive_mode(bot, update):
+def tg_drive_mode(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
     else:
@@ -38,7 +38,7 @@ def qq_drive_mode(context: dict):
 
     forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
 
-    if global_vars.DRIVE_MODE[forward_index]:
+    if global_vars.DRIVE_MODE[forward_index]:  # normal block
         return ''
     return {'pass': True}
 

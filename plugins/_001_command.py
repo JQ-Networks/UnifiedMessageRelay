@@ -21,8 +21,6 @@ def tg_command(bot: telegram.Bot, update: telegram.Update):
 
     tg_group_id = message.chat_id  # telegram group id
 
-    if not message.text:  # commands can only be text
-        return
     if not message.text.startswith('!!'):  # no command indicator
         return
 
