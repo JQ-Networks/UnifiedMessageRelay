@@ -23,9 +23,9 @@ docker 版正在构建，使用方法：
 
 1. Star 本 Repo
 2. Star [这个](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
-3. 参考 coolq-telegram-bot-docker 的 [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md) 完成构建
+3. 参考 coolq-telegram-bot-docker 的 [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md) 完成构建。
 
-2.0 版本构建完成，从 1.0 迁移请注意修改 bot\_constant.py
+**从 2.x 迁移请注意修改 bot\_constant.py**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
@@ -37,31 +37,31 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 + QQ群的图片可以转发Telegram群，Telegram群的图片将会以链接的形式转发到QQ群
 + Telegram群的Sticker会转换成对应的emoji转发给QQ群，QQ群的常用QQ表情会以emoji的形式转发到Telegram群 
 + 支持开启Telegram群的Sticker导出模式，开启该模式后，在QQ可以通过链接保存Sticker。
-+ QQ群可以通过指令向Telegram群发送Sticker
++ ~~QQ群可以通过指令向Telegram群发送Sticker~~ via #13
 + 支持临时关闭Telegram群到QQ群的转发
 
 ### 如果您使用的是酷Q Pro
 
 + 支持QQ群和Telegram群的文字消息互转
 + QQ群的图片可以转发Telegram群，Telegram群的图片和sticker可以转发到QQ群，QQ群的QQ表情会以emoji的形式转发到Telegram群
-+ QQ群可以通过指令向Telegram群发送Sticker
++ ~~QQ群可以通过指令向Telegram群发送Sticker~~ via #13
 + 支持临时关闭Telegram群到QQ群的转发
 
 ## 环境的搭建
 
-### Wine 酷Q
+### 使用Docker部署
+推荐使用Docker镜像部署酷Q
 
-推荐使用Docker镜像，可以参考[coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)，因为酷Q Socket API用到了一个数据监听端口，默认为127.0.0.1:11235端口，为方便起见，**建议在容器内部运行本bot**，具体方法点击[这里](https://askubuntu.com/questions/505506/how-to-get-bash-or-ssh-into-a-running-container-in-background-mode)。
+- [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *酷Q官方镜像*
+- [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *基于wine-coolq的第三方镜像，内置了酷Q HTTP API*
+- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。 **需要手动 `build` ***。
 
-如果不使用Docker，Wine 酷Q的安装可以参照[【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
+### 直接部署Wine 酷Q
+如果不使用Docker，Wine 酷Q的安装可以参照酷Q论坛的教程。
+> [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
 
-### 安装酷Q Socket API
-
-1. 由于酷Q Socket API的发布页发布的版本较旧，请使用本仓库提供编译的最新版的Socket API，[点击这里](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/releases)下载org.dazzyd.cqsocketapi.cpk文件。
-2. 将org.dazzyd.cqsocketapi.cpk文件放置到coolq/app下 
-3. 修改coolq/conf/CQP.cfg文件，在[App]项目中加入一行：org.dazzyd.cqsocketapi.status=1 
-4. 通过远程连接进入远程桌面，重启酷Q。在酷Q的插件管理界面中可以看到Socket API已启用。 
-5. 原来的repo协议已经不再更新，新的协议见[这里](./doc/protocol.md)
+### 安装酷Q HTTP API
+> HTTP API安装方法见[CoolQ HTTP API 插件文档](https://richardchien.github.io/coolq-http-api/3.3/#/)
 
 ### 开启图片静态资源访问
 
@@ -91,7 +91,7 @@ server {
 
 ### bot_constant.py
 
-提示：从 1.0 迁移请注意修改 bot\_constant.py
+>提示：从 2.0 迁移请注意修改 bot\_constant.py
 
 请在bot使用之前，将`bot_constant-sample.py`重命名为`bot_constant.py`
 
