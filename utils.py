@@ -66,7 +66,7 @@ def get_forward_from(message: telegram.Message):
         return ''
     if not message.forward_from:
         return ''
-    result = get_full_user_name(message.forward_from)
+
     if message.forward_from.id == global_vars.tg_bot_id:
         if message.caption:
             message_text = message.caption
@@ -75,11 +75,12 @@ def get_forward_from(message: telegram.Message):
         else:
             message_text = ''
         right_end = message_text.find(':')
-        if right_end != -1:
+        if right_end != -1:  # from qq
             result = message_text[:right_end]
-        # msg_parts = message_text.split(':')
-        # if len(msg_parts) >= 2:
-        #     result = msg_parts[0]
+        else:  # self generated command text, etc.
+            result = ''
+    else:
+        result = get_full_user_name(message.forward_from)
     return '(↩' + result + ')'
 
 
@@ -151,14 +152,198 @@ def extract_mqqapi(link):
     return locations[0], locations[1], locations[2], locations[3]
 
 
-def send_all(forward_index, message):
-    """
-    currently not used
-    forward message to all other sessions
-    :param message:
-    :return:
-    """
-    pass
+def send_from_tg_to_qq(forward_index: int, message: Union[list, str],
+                       tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
+                       tg_reply_to: telegram.Message=None, edited: bool=False, auto_escape: bool=True):
+    sender_name = ''
+    forward_from = ''
+    reply_to = ''
+    if tg_user:  # if message is not from a command
+        sender_name = get_full_user_name(tg_user)
+        forward_from = get_forward_from(tg_forward_from)
+        reply_to = get_reply_to(tg_reply_to)
+
+    if edited:  # if edited, add edit mark
+        edit_mark = ' ✎ '
+    else:
+        edit_mark = ''
+
+    if isinstance(message, str):
+        message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
+    else:
+        if message[0]['data'].get('text'):
+            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data'][
+                'text']
+        elif len(message) == 2:
+            if message[1]['data'].get('text'):
+                message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + \
+                                             message[1]['data']['text']
+        else:
+            text = sender_name + reply_to + forward_from + edit_mark + ': '
+            message.append({
+                'type': 'text',
+                'data': {'text': text}
+            })
+
+    if FORWARD_LIST[forward_index].get('QQ'):
+        if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
+            global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message,
+                                              auto_escape=auto_escape)
+        else:
+            for group in FORWARD_LIST[forward_index]['QQ']:
+                global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
+
+    if FORWARD_LIST[forward_index].get('DISCUSS'):
+        if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):
+            global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message,
+                                                auto_escape=auto_escape)
+        else:
+            for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
+                global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
+
+
+def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
+                            qq_discuss_id: int = 0, qq_user: int=None):
+    pending_text = ''
+    pending_image = ''
+
+    message_list = list()
+    if isinstance(message, str):  # message from qq will never be str, due to settings of cq http api
+        pass  # this if is only used for warning removal
+    else:
+        for message_part in message:
+            if message_part['type'] == 'share':
+                pending_text = '分享了<a href="' + message_part['data']['url'] + '">' + message_part['data'][
+                    'title'] + '</a>'
+            elif message_part['type'] == 'rich':
+                if message_part['data'].get('url'):
+                    if message_part['data']['url'].startswith('mqqapi'):
+                        lat, lon, name, addr = extract_mqqapi(message_part['data']['url'])
+                        pending_text = message_part['data']['text']
+                        global_vars.tg_bot.sendLocation(chat_id=FORWARD_LIST[forward_index]['TG'],
+                                                        latitude=float(lat), longitude=float(lon))
+
+                    else:
+                        pending_text = '<a href="' + message_part['data']['url'] + '">' + \
+                                       message_part['data']['text'] + '</a>'
+                else:
+                    pending_text = message_part['data']['text']
+            elif message_part['type'] == 'dice':
+                pending_text = '掷出了 <b>' + message_part['data']['type'] + '</b>'
+            elif message_part['type'] == 'rps':
+                pending_text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[message_part['data']['type']] + '</b>'
+            elif message_part['type'] == 'shake':  # not available in group and discuss
+                pending_text = '发送了一个抖动'
+            elif message_part['type'] == 'music':
+                pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + message_part['data'][
+                    'id'] + '_num.html"> qq 音乐</a>'
+            elif message_part['type'] == 'record':
+                pending_text = '说了句话，懒得转了'
+            elif message_part['type'] == 'image':
+                if pending_image:
+                    if pending_text:
+                        message_list.append({'image': pending_image, 'text': pending_text})
+                        pending_text = ''
+                    else:
+                        message_list.append({'image': pending_image})
+
+                elif pending_text:
+                    message_list.append({'text': pending_text})
+                    pending_text = ''
+                pending_image = message_part['data']['file']
+            elif message_part['type'] == 'text':
+                pending_text += message_part['data']['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+            elif message_part['type'] == 'at':
+                qq_number = int(message_part['data']['qq'])
+                if qq_number == QQ_BOT_ID:
+                    pending_text += ' @bot '
+                else:
+                    pending_text = '@' + get_qq_name(qq_number, forward_index)
+            elif message_part['type'] == 'face':
+                qq_face = int(message_part['data']['id'])
+                if qq_face in qq_emoji_list:
+                    pending_text += qq_emoji_list[qq_face]
+                else:
+                    pending_text += '\u2753'  # ❓
+            elif message_part['type'] == 'bface':
+                pending_text += '\u2753'
+            elif message_part['type'] == 'sface':
+                qq_face = int(message_part['data']['id']) & 255
+                if qq_face in qq_sface_list:
+                    pending_text += qq_sface_list[qq_face]
+                else:
+                    pending_text += '\u2753'  # ❓
+
+        if pending_text:
+            if pending_image:
+                message_list.append({'image': pending_image, 'text': pending_text})
+            else:
+                message_list.append({'text': pending_text})
+        elif pending_image:
+            message_list.append({'image': pending_image})
+
+        message_count = len(message_list)
+
+        for idx, message_part in enumerate(message_list):
+            if message_part.get('image'):
+                filename = message_part['image']
+                url = cq_get_pic_url(filename)
+                cq_download_pic(filename)
+                pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
+                # gif pictures send as document
+                if filename.lower().endswith('gif'):
+                    try:
+                        if message_count == 1:
+                            if message_part.get('text'):
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
+                                    'text']
+                            else:
+                                full_msg = get_qq_name(qq_user, forward_index) + ': '
+
+                        else:
+                            if message_part.get('text'):
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part[
+                                               'text']
+                            else:
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')'
+                        global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                    except telegram.error.TelegramError:
+                        logger.error(message)
+                        traceback.print_exc()
+
+                # jpg/png pictures send as photo
+                else:
+                    try:
+                        if message_count == 1:
+                            if message_part.get('text'):
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0]['text']
+                            else:
+                                full_msg = get_qq_name(qq_user, forward_index) + ': '
+
+                        else:
+                            if message_part.get('text'):
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
+                            else:
+                                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                                           + '(' + str(idx + 1) + '/' + str(message_count) + ')'
+                        global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
+                    except telegram.error.TelegramError:
+                        logger.error(message)
+                        traceback.print_exc()
+
+            else:
+                # only first message could be pure text
+                if message_count == 1:
+                    full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
+                                    + message_list[0]['text']
+                else:
+                    full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
+                                    + '(1/' + str(message_count) + ')' \
+                                    + message_part['text']
+                global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
 
 
 def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
@@ -166,198 +351,7 @@ def send_all_except_current(forward_index: int, message: Union[list, str], qq_gr
                             tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
                             tg_reply_to: telegram.Message=None, edited: bool=False, auto_escape: bool=True):
     if tg_group_id:
-        sender_name = get_full_user_name(tg_user)
-        forward_from = get_forward_from(tg_forward_from)
-        reply_to = get_reply_to(tg_reply_to)
-
-        if edited:
-            edit_mark = ' ✎ '
-        else:
-            edit_mark = ''
-
-        if forward_from and tg_forward_from.from_user.id == global_vars.tg_bot_id:
-            if isinstance(message, str):
-                left_start = message.find(': ')
-                if left_start != -1:
-                    message = message[left_start + 2:]
-            else:
-                if message[0]['data'].get('text'):
-                    left_start = message[0]['data']['text'].find(': ')
-                    if left_start != -1:
-                        message[0]['data']['text'] = message[0]['data']['text'][left_start + 2:]
-                elif len(message) == 2:
-                    if message[1]['data'].get('text'):
-                        left_start = message[1]['data']['text'].find(': ')
-                        if left_start != -1:
-                            message[1]['data']['text'] = message[1]['data']['text'][left_start + 2:]
-
-        if isinstance(message, str):
-            message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
-        else:
-            if message[0]['data'].get('text'):
-                message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data']['text']
-            elif len(message) == 2:
-                if message[1]['data'].get('text'):
-                    message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[1]['data']['text']
-            else:
-                text = sender_name + reply_to + forward_from + edit_mark + ': '
-                message.append({
-                    'type': 'text',
-                    'data': {'text': text}
-                })
-
-        if FORWARD_LIST[forward_index].get('QQ'):
-            if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
-                global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message, auto_escape=auto_escape)
-            else:
-                for group in FORWARD_LIST[forward_index]['QQ']:
-                    global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
-
-        if FORWARD_LIST[forward_index].get('DISCUSS'):
-            if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):
-                global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message, auto_escape=auto_escape)
-            else:
-                for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
-                    global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
+        send_from_tg_to_qq(forward_index, message, tg_user, tg_forward_from, tg_reply_to, edited, auto_escape)
 
     else:
-
-        pending_text = ''
-        pending_image = ''
-
-        message_list = list()
-        if isinstance(message, str):  # message from qq will never be str, due to settings of cq http api
-            pass  # this if is only used for warning removal
-        else:
-            for message_part in message:
-                if message_part['type'] == 'share':
-                    pending_text = '分享了<a href="' + message_part['data']['url'] + '">' + message_part['data']['title'] + '</a>'
-                elif message_part['type'] == 'rich':
-                    if message_part['data'].get('url'):
-                        if message_part['data']['url'].startswith('mqqapi'):
-                            lat, lon, name, addr = extract_mqqapi(message_part['data']['url'])
-                            pending_text = message_part['data']['text']
-                            global_vars.tg_bot.sendLocation(chat_id=FORWARD_LIST[forward_index]['TG'],
-                                                            latitude=float(lat), longitude=float(lon))
-
-                        else:
-                            pending_text = '<a href="' + message_part['data']['url'] + '">' + \
-                                   message_part['data']['text'] + '</a>'
-                    else:
-                        pending_text = message_part['data']['text']
-                elif message_part['type'] == 'dice':
-                    pending_text = '掷出了 <b>' + message_part['data']['type'] + '</b>'
-                elif message_part['type'] == 'rps':
-                    pending_text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[message_part['data']['type']] + '</b>'
-                elif message_part['type'] == 'shake':  # not available in group and discuss
-                    pending_text = '发送了一个抖动'
-                elif message_part['type'] == 'music':
-                    pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + message_part['data'][
-                        'id'] + '_num.html"> qq 音乐</a>'
-                elif message_part['type'] == 'record':
-                    pending_text = '说了句话，懒得转了'
-                elif message_part['type'] == 'image':
-                    if pending_image:
-                        if pending_text:
-                            message_list.append({'image': pending_image, 'text': pending_text})
-                            pending_text = ''
-                        else:
-                            message_list.append({'image': pending_image})
-
-                    elif pending_text:
-                        message_list.append({'text': pending_text})
-                        pending_text = ''
-                    pending_image = message_part['data']['file']
-                elif message_part['type'] == 'text':
-                    pending_text += message_part['data']['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
-                elif message_part['type'] == 'at':
-                    qq_number = int(message_part['data']['qq'])
-                    if qq_number == QQ_BOT_ID:
-                        pending_text += ' @bot '
-                    else:
-                        pending_text = '@' + get_qq_name(qq_number, forward_index)
-                elif message_part['type'] == 'face':
-                    qq_face = int(message_part['data']['id'])
-                    if qq_face in qq_emoji_list:
-                        pending_text += qq_emoji_list[qq_face]
-                    else:
-                        pending_text += '\u2753'  # ❓
-                elif message_part['type'] == 'bface':
-                    pending_text += '\u2753'
-                elif message_part['type'] == 'sface':
-                    qq_face = int(message_part['data']['id']) & 255
-                    if qq_face in qq_sface_list:
-                        pending_text += qq_sface_list[qq_face]
-                    else:
-                        pending_text += '\u2753'  # ❓
-
-            if pending_text:
-                if pending_image:
-                    message_list.append({'image': pending_image, 'text': pending_text})
-                else:
-                    message_list.append({'text': pending_text})
-            elif pending_image:
-                message_list.append({'image': pending_image})
-
-            message_count = len(message_list)
-
-            for idx, message_part in enumerate(message_list):
-                if message_part.get('image'):
-                    filename = message_part['image']
-                    url = cq_get_pic_url(filename)
-                    cq_download_pic(filename)
-                    pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
-                    # gif pictures send as document
-                    if filename.lower().endswith('gif'):
-                        try:
-                            if message_count == 1:
-                                if message_part.get('text'):
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0][
-                                        'text']
-                                else:
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': '
-
-                            else:
-                                if message_part.get('text'):
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part[
-                                                   'text']
-                                else:
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')'
-                            global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                        except telegram.error.TelegramError:
-                            logger.error(message)
-                            traceback.print_exc()
-
-                    # jpg/png pictures send as photo
-                    else:
-                        try:
-                            if message_count == 1:
-                                if message_part.get('text'):
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_list[0]['text']
-                                else:
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': '
-
-                            else:
-                                if message_part.get('text'):
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')' + message_part['text']
-                                else:
-                                    full_msg = get_qq_name(qq_user, forward_index) + ': ' \
-                                               + '(' + str(idx + 1) + '/' + str(message_count) + ')'
-                            global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'], pic, caption=full_msg)
-                        except telegram.error.TelegramError:
-                            logger.error(message)
-                            traceback.print_exc()
-
-                else:
-                    # only first message could be pure text
-                    if message_count == 1:
-                        full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
-                                        + message_list[0]['text']
-                    else:
-                        full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
-                                        + '(1/' + str(message_count) + ')' \
-                                        + message_part['text']
-                    global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
+        send_from_qq_to_tg(forward_index, message, qq_group_id, qq_discuss_id, qq_user)
