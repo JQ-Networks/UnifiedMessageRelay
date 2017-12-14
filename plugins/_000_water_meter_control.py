@@ -3,15 +3,20 @@ import global_vars
 import json
 from pathlib import Path
 from utils import get_plugin_priority
+import logging
 
+
+logger = logging.getLogger("CTBPlugin.water_meter_control")
 
 global_vars.create_variable('filter_list', {'keywords': [], 'channels': []})
 
 
 def load_data():
+    logger.debug("Begin loading water meter config")
     json_file = Path('./plugins/conf/' + __name__ + '.json')
     if json_file.is_file():
         global_vars.filter_list = json.load(open('./plugins/conf/' + __name__ + '.json', 'r'))
+        logger.debug("Water meter config loaded")
 
 
 def save_data():
