@@ -211,6 +211,7 @@ def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_i
     if isinstance(message, str):  # message from qq will never be str, due to settings of cq http api
         pass  # this if is only used for warning removal
     else:
+        logger.debug(message)
         for message_part in message:
             if message_part['type'] == 'share':
                 pending_text = '分享了<a href="' + message_part['data']['url'] + '">' + message_part['data'][

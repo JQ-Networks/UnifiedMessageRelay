@@ -16,7 +16,7 @@ import os
 import logging
 
 """
-request set CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE
+CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE required
 """
 
 logger = logging.getLogger("CTBPlugin.text_forward")
@@ -162,7 +162,7 @@ qq_sface_list = {
 }
 
 
-def create_jpg_image(path, name):
+def create_jpg_image(path: str, name: str):
     """
     convert Telegram webp image to jpg image
     :param path: save path
@@ -172,7 +172,7 @@ def create_jpg_image(path, name):
     im.save(os.path.join(path, name + ".jpg"), "JPEG")
 
 
-def create_png_image(path, name):
+def create_png_image(path: str, name: str):
     """
     convert Telegram webp image to png image
     :param path: save path
@@ -182,7 +182,7 @@ def create_png_image(path, name):
     im.save(os.path.join(path, name + ".png"), "PNG")
 
 
-def cq_get_pic_url(filename):
+def cq_get_pic_url(filename: str):
     """
     get real image url from cqimg file
     :param filename:
@@ -195,7 +195,7 @@ def cq_get_pic_url(filename):
     return url
 
 
-def cq_download_pic(filename):
+def cq_download_pic(filename: str):
     """
     download image by cqimg file
     :param filename: cqimg file name
@@ -216,7 +216,7 @@ def cq_download_pic(filename):
         traceback.print_exc()
 
 
-def get_short_url(long_url):
+def get_short_url(long_url: str):
     """
     generate short url using Sina Weibo api
     :param long_url: the original url
@@ -305,7 +305,7 @@ def photo_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-def video_from_telegram(bot, update):
+def video_from_telegram(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
         edited = False
@@ -326,7 +326,7 @@ def video_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-def audio_from_telegram(bot, update):
+def audio_from_telegram(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
         edited = False
@@ -347,7 +347,7 @@ def audio_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-def document_from_telegram(bot, update):
+def document_from_telegram(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
         edited = False
@@ -368,7 +368,7 @@ def document_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-def sticker_from_telegram(bot, update):
+def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
         edited = False
@@ -403,7 +403,7 @@ def sticker_from_telegram(bot, update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-def text_from_telegram(bot, update):
+def text_from_telegram(bot: telegram.Bot, update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
         edited = False
