@@ -5,10 +5,13 @@ from telegram.ext import MessageHandler, Filters
 
 from command import command_listener
 from telegram import Update, User
+import traceback
+import logging
 
 # Commands are only available in group and discuss
 # For private chat, another plugin will take over
 
+logger = logging.getLogger("CTBMain.text_forward")
 
 def tg_command(bot, update: Update):
     if update.edited_message:  # handle edit
@@ -42,32 +45,35 @@ global_vars.dp.add_handler(MessageHandler(Filters.text, tg_command), get_plugin_
 # decorator 'message_type', 'message_type', ..., group=number
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
 def qq_command(context):
-    if isinstance(context['message'], str):  # commands should be pure text
-        qq_group_id = context.get('group_id')
-        qq_discuss_id = context.get('discuss_id')
-        # fixme: context['message'] is a dict
-        text = context['message']  # get message text
+    try:
+        if isinstance(context['message'], str):  # commands should be pure text
+            qq_group_id = context.get('group_id')
+            qq_discuss_id = context.get('discuss_id')
+            # fixme: context['message'] is a dict
+            text = context['message']  # get message text
 
-        if text.startswith('!!'):
-            text = text[2:]
-            for command in global_vars.command_list:  # process all non-forward commands
-                if command.qq_only:
-                    if text == command.command or text == command.cmd:
-                        return command.handler(qq_group_id, qq_discuss_id, int(context['user_id']))
+            if text.startswith('!!'):
+                text = text[2:]
+                for command in global_vars.command_list:  # process all non-forward commands
+                    if command.qq_only:
+                        if text == command.command or text == command.cmd:
+                            return command.handler(qq_group_id, qq_discuss_id, int(context['user_id']))
 
-        forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)  # TODO: reconstruct get_forward_index to return list of forwards
-        if forward_index == -1:
-            return ''
+            forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
+            if forward_index == -1:
+                return ''
 
-        if text.startswith('!!'):
-            text = text[2:]
-            for command in global_vars.command_list:  # process all forward commands
-                if not command.tg_only and not command.qq_only:
-                    if text == command.command or text == command.cmd:
-                        return command.handler(forward_index, qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id, qq_user=int(context['user_id']))
+            if text.startswith('!!'):
+                text = text[2:]
+                for command in global_vars.command_list:  # process all forward commands
+                    if not command.tg_only and not command.qq_only:
+                        if text == command.command or text == command.cmd:
+                            return command.handler(forward_index, qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id, qq_user=int(context['user_id']))
 
-    return {'pass': True}
-
+        return {'pass': True}
+    except:
+        logger.error("unhandled exception in qq's command")
+        traceback.print_exc()
 
 @command_listener('show commands', 'sc', qq_only=True, description='print all commands')
 def command_qq(qq_group_id: int, qq_discuss_id:int, qq_user: int):

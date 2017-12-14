@@ -203,7 +203,7 @@ def send_from_tg_to_qq(forward_index: int, message: Union[list, str],
 
 
 def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
-                            qq_discuss_id: int = 0, qq_user: int=None):
+                       qq_discuss_id: int = 0, qq_user: int=None):
     pending_text = ''
     pending_image = ''
 
@@ -337,8 +337,11 @@ def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_i
             else:
                 # only first message could be pure text
                 if message_count == 1:
-                    full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
-                                    + message_list[0]['text']
+                    if qq_user:
+                        full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
+                                        + message_list[0]['text']
+                    else:
+                        full_msg_bold = message_list[0]['text']
                 else:
                     full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' \
                                     + '(1/' + str(message_count) + ')' \
