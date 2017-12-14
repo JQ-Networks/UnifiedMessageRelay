@@ -56,7 +56,7 @@ def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.U
 
     if tg_group_id:
         send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id, text=message, reply_to_message_id=tg_message_id)
     elif qq_group_id:
         send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
         return {'reply': message}
@@ -74,7 +74,7 @@ def drive_mode_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.
 
     if tg_group_id:
         send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id, text=message, reply_to_message_id=tg_message_id)
     elif qq_group_id:
         send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
         return {'reply': message}

@@ -381,19 +381,18 @@ def sticker_from_telegram(bot, update):
 
     reply_entity = list()
 
-    if PIC_LINK_MODE[forward_index]:
-        file_id = update.message.sticker.file_id
+    file_id = update.message.sticker.file_id
+    if JQ_MODE:
+        reply_entity.append({
+            'type': 'image',
+            'data': {'file': file_id + '.png'}
+        })
+    elif PIC_LINK_MODE[forward_index]:
         pic_url = tg_get_pic_url(file_id, 'png')
-        if JQ_MODE:
-            reply_entity.append({
-                'type': 'image',
-                'data': {'file': file_id + '.png'}
-            })
-        else:
-            reply_entity.append({
-                'type': 'text',
-                'data': {'text': '[ ' + message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'}
-            })
+        reply_entity.append({
+            'type': 'text',
+            'data': {'text': '[ ' + message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'}
+        })
     else:
         reply_entity.append({
             'type': 'text',
@@ -458,7 +457,7 @@ def pic_link_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.Use
 
     if tg_group_id:
         send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id, text=message, reply_to_message_id=tg_message_id)
     elif qq_group_id:
         send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
         return {'reply': message}
@@ -477,7 +476,7 @@ def pic_link_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.Us
 
     if tg_group_id:
         send_all_except_current(forward_index, message, tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(text=message, reply_to_message_id=tg_message_id)
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id, text=message, reply_to_message_id=tg_message_id)
     elif qq_group_id:
         send_all_except_current(forward_index, message, qq_group_id=qq_group_id)
         return {'reply': message}
