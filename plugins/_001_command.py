@@ -56,10 +56,12 @@ def qq_command(context):
     text = context['message'][0]['data']['text']  # get message text
 
     if text.startswith('!!'):
+        logger.debug('command indicator met')
         text = text[2:]
         for command in global_vars.command_list:  # process all non-forward commands
             if command.qq_only:
                 if text == command.command or text == command.cmd:
+                    logger.debug('command: ' + command.command + ' , qq_only')
                     return command.handler(qq_group_id, qq_discuss_id, int(context['user_id']))
 
     forward_index = get_forward_index(qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id)
@@ -71,6 +73,7 @@ def qq_command(context):
         for command in global_vars.command_list:  # process all forward commands
             if not command.tg_only and not command.qq_only:
                 if text == command.command or text == command.cmd:
+                    logger.debug('command: ' + command.command)
                     return command.handler(forward_index, qq_group_id=qq_group_id, qq_discuss_id=qq_discuss_id, qq_user=int(context['user_id']))
 
     return {'pass': True}
