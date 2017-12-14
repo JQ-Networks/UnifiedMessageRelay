@@ -14,13 +14,8 @@ import sys
 from cqhttp import CQHttp
 
 # region log
-# logger = logging.getLogger(__name__)
-# hdlr = logging.FileHandler('bot.log')
-# formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
-# hdlr.setFormatter(formatter)
-# logger.addHandler(hdlr)
-# logger.setLevel(logging.DEBUG)
 
+# log main thread
 logger = logging.getLogger("CTBMain")
 logger.setLevel(logging.DEBUG)
 rHandler = RotatingFileHandler(
@@ -28,6 +23,12 @@ rHandler = RotatingFileHandler(
 rHandler.setFormatter(logging.Formatter(
     "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s"))
 logger.addHandler(rHandler)
+
+# log plugins
+logger_plugins = logging.getLogger("CTBPlugins")
+logger_plugins.setLevel(logging.DEBUG)
+logger.addHandler(rHandler)
+
 # endregion
 
 
@@ -79,7 +80,9 @@ def main():
             daemon.restart()
         elif 'run' == sys.argv[1]:
             logger.setLevel(logging.DEBUG)
+            logger_plugins.setLevel(logging.DEBUG)
             logger.addHandler(logging.StreamHandler())
+            logger_plugins.addHandler(logging.StreamHandler())
             logger.info('Now running in debug mode...')
             daemon.run()
         else:
