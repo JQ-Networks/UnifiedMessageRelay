@@ -56,7 +56,7 @@ def qq_command(context):
     text = context['message'][0]['data']['text']  # get message text
 
     if text.startswith('!!'):
-        logger.debug('command indicator met')
+        logger.debug('command indicator met: ' + text)
         text = text[2:]
         for command in global_vars.command_list:  # process all non-forward commands
             if command.qq_only:
