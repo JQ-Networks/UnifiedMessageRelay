@@ -30,16 +30,17 @@ load_data()
 
 
 def add_keyword(bot, update, args):
-    if update.message.chat_id < 0:
+    if update.message.chat_id < 0:  # block group message
         return
     if len(args) == 0:
         update.message.reply_text('Usage: /add_keyword keyword1 keyword2 ...')
         return
     for keyword in args:
+        logger.debug('keyword: ' + keyword)
         if keyword in global_vars.filter_list['keywords']:
             update.message.reply_text('Keyword: "' + keyword + '" already in list')
             continue
-            global_vars.filter_list['keywords'].append(keyword)
+        global_vars.filter_list['keywords'].append(keyword)
     update.message.reply_text('Done.')
     save_data()
 
