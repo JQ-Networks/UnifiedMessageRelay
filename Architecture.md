@@ -2,7 +2,7 @@
 
 ## Fundamental Logic
 
-[View On ProcessOn](https://www.processon.com/view/link/59aac37de4b086ea0bfb1f2)
+[View On ProcessOn](https://www.processon.com/view/link/59aac37de4b086ea0bfb1f2b)
 
 ## Group Command Logic
 
