@@ -9,7 +9,11 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 
 底层 API 从 cqsocketapi 迁移至 cq-http-api
 
+新增作者吱口令红包，群里发送 !!ali 或者 !!alipay 即可查看
+
 2.x升级需要安装 [CQ-HTTP-API]（https://github.com/richardchien/coolq-http-api) 插件，可以卸载之前的 cqsocketapi。
+
+插件配置见下面安装部分
 
 由于使用了 Type Hint, 必须使用 Python3.6+ 才能正常运行，请升级 Python 或者使用 [Docker](https://github.com/Z4HD/coolq-telegram-bot-docker)
 
@@ -65,6 +69,28 @@ tg 私聊添加管理员面板 - 待添加
 ### 安装酷Q HTTP API
 > HTTP API安装方法见[CoolQ HTTP API 插件文档](https://richardchien.github.io/coolq-http-api/3.3/#/)
 
+- 典型配置方案 (`app/io.github.richardchien.coolqhttpapi/config.cfg`)
+```
+[general]
+host=0.0.0.0
+port=5700
+use_http=yes
+ws_host=0.0.0.0
+ws_port=5700
+use_ws=no
+post_url=http://127.0.0.1:8080
+access_token=very
+secret=long
+post_message_format=array
+serve_data_files=no
+update_source=https://raw.githubusercontent.com/richardchien/coolq-http-api-release/master/
+update_channel=stable
+auto_check_update=no
+auto_perform_update=no
+thread_pool_size=4
+server_thread_pool_size=1
+```
+
 ### 开启图片静态资源访问 (Coolq Air Only)
 
 由于酷Q Air不支持往QQ群发送图片，所以Telegram群的图片将会以链接的形式发送到QQ群。此时需要将图片提供给外部访问。
@@ -102,8 +128,14 @@ server {
 `FORWARD_LIST`   | 一个list，可以定义多个转发关系，list中的每一个dict [QQ群的群号, Telegram群的群I，开车模式默认值, 图片链接模式默认值]都代表一个转发关系。仅支持QQ群和Telegram群一一对应的关系。
 `SERVER_PIC_URL` | 图片访问的url前缀
 `CQ_ROOT_DIR`    | 酷Q的根目录路径
-`CQ_PORT`        | 酷Q Socket API 数据监听端口
-`JQ_MODE`        | 交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
+`JQ_MODE`        | 交钱模式。如果使用酷Q Pro，请设置为True，如果使用酷Q Air，请设置为False。
+`API_ROOT`       | 'http://127.0.0.1:5700/' cq-http-api 的 api 地址，可根据实际情况修改
+`ACCESS_TOKEN`   | 'access_token'   cq-http-api 的 access_token，作用参见 cq-http-api 的文档
+`SECRET`         | 'secret '  cq-http-api 的 secret，作用参见 cq-http-api 的文档
+`HOST`           | '127.0.0.1' cq-http-api 上报地址
+`PORT`           | 8080 cq-http-api 上报端口
+`DEBUG_MODE`     | 调试信息记录，推荐开启，会输出到 bot.log。由于使用了日志滚动模式，不会占用很多的空间，请放心开启。
+
 
 ### bot_constant.json
 键值对的对应关系与bot_constant.py相同。
@@ -124,11 +156,21 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名。
 
-目前已经实现了 daemon 模式，请使用 `python3 daemon.py start` 以后台运行
+目前已经实现了 daemon 模式，请使用 `python3.6 daemon.py start` 以后台运行
+
+如果需要查看启动日志，请先关闭正在运行的 daemon： `python3.6 daemon.py stop`，
+
+然后前台运行： `python3.6 daemon.py run`，前台运行将自动临时开启 debug 模式
+
+如需后台运行，请 `Ctrl C` 并重新 `python3.6 daemon.py start`
 
 ## 查看命令开关
 
 发送 !!show commands 或者 !!sc 可以查看当前注册的所有命令，会只在发送的客户端显示
+
+## 查看作者的吱口令红包
+
+发送 !!alipay 或者 !!ali，不需要花你一分钱即可 donate 作者
 
 ## 查看 Telegram 群 ID
 
