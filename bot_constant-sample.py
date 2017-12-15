@@ -1,31 +1,28 @@
 # -*- coding: utf-8 -*-
-TOKEN = 'your telegram bot token'
-QQ_BOT_ID = 1234567890
+
+DEBUG_MODE = True
 
 # cq-http-api server config
-API_ROOT = 'http://127.0.0.1:5700/'
-ACCESS_TOKEN = 'your_token'
-SECRET = 'your_secret'
+API_ROOT = 'http://127.0.0.1:5700/'  # should be the same as cq-http-api api address
+ACCESS_TOKEN = 'access_token'  # should be the same as cq-http-api config
+SECRET = 'secret '  # should be the same as cq-http-api config
 
-# cq-http-api client config
+# cq-http-api client config, should be the same as cq-http-api post config
 HOST = '127.0.0.1'
 PORT = 8080
 
+TOKEN = 'telegram_bot_token'
+QQ_BOT_ID = 'qq_number'
 FORWARD_LIST = [
-    {
-        'QQ': 12345678,
-        'TG': -23456789,
-        'Drive_mode': False,
-        'Pic_link': True
-    },
-    {
-        'QQ': 87654321,
-        'TG': -76543218,
-        'Drive_mode': False,
-        'Pic_link': True
-    },
+    {'DISCUSS': 2314324234325346543,
+     'TG': -2323143534534645,
+     'Drive_mode': False,
+     'Pic_link': True},
+    {'QQ': 12345678,
+     'TG': -123456789,
+     'Drive_mode': False,
+     'Pic_link': True}
 ]
-SERVER_PIC_URL = 'http://example.com:8080/image/'
-CQ_ROOT = '/home/coolq/coolq_pro/'
-CQ_PORT = 11235
-JQ_MODE = True  # if use Coolq Pro, set as True, otherwise False
+SERVER_PIC_URL = 'http://expample.com/image/'
+CQ_ROOT = '/home/user/coolq/'
+JQ_MODE = True  # If you are using CoolQ AIr, change to False

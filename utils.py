@@ -162,6 +162,11 @@ def send_from_tg_to_qq(forward_index: int, message: Union[list, str],
         sender_name = get_full_user_name(tg_user)
         forward_from = get_forward_from(tg_forward_from)
         reply_to = get_reply_to(tg_reply_to)
+    else:  # message is from a command  ## todo complete this logic
+        message = [{
+                'type': 'text',
+                'data': {'text': message}
+            }]
 
     if edited:  # if edited, add edit mark
         edit_mark = ' ✎ '
@@ -209,7 +214,8 @@ def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_i
 
     message_list = list()
     if isinstance(message, str):  # message from qq will never be str, due to settings of cq http api
-        pass  # this if is only used for warning removal
+        # this str entrance is intended for commands, so no sender names
+        global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], message, parse_mode='HTML')
     else:
         logger.debug(message)
         for message_part in message:
