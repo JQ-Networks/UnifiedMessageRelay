@@ -3,7 +3,7 @@
     "QQ_BOT_ID": 1111111111,
     "FORWARD_LIST": [
         {
-            "QQ": 12345678,
+            "DISCUSS": 12345678,
             "TG": -23456789,
             "Drive_mode": false,
             "Pic_link": true
@@ -15,8 +15,13 @@
             "Pic_link": true
         }
     ],
-    "SERVER_PIC_URL": "http://example.com:8080/image/",
-    "CQ_ROOT": "/home/coolq/coolq_pro/",
-    "CQ_PORT": 11235,
-    "JQ_MODE": true
+    "SERVER_PIC_URL": "http://example.com/image/",
+    "CQ_ROOT": "/home/coolq/coolq/",
+    "JQ_MODE": true,
+    "DEBUG_MODE": true,
+    "API_ROOT": "http://127.0.0.1:5700/",
+    "ACCESS_TOKEN": "ACCESS_TOKEN",
+    "SECRET": "SECRET",
+    "HOST": "127.0.0.1",
+    "PORT": "8080"
 }
