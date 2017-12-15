@@ -1,10 +1,10 @@
 import plugins._000_water_meter_control
-import plugins._001_command
-import plugins._002_filter_old_message
-import plugins._005_drive_mode
-import plugins._006_water_meter_filter
+import plugins._1001_command
+import plugins._1002_filter_old_message
+import plugins._1005_drive_mode
+import plugins._1006_water_meter_filter
 import plugins.qq_namelist
 import plugins.show_group_id
 import plugins.for_fun
-import plugins._100_text_forward
-
+import plugins._1100_text_forward
+import plugins.alipay_redpack
