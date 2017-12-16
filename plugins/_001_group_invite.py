@@ -38,11 +38,12 @@ def event_group_request(context):
     sub_type = context.get('sub_type')
     user_id = context.get('user_id')
     user_name = global_vars.qq_bot.get_stranger_info(user_id=user_id)
+    qq_message = context.get('message')[0]['data']['text']
 
     if sub_type == 'add':  # others want to join this group
-        message = user_name + " 想申请加入 " + group_name + '\n 验证消息：' + context.get('message')
+        message = user_name + " 想申请加入 " + group_name + '\n 验证消息：' + qq_message
     else:
-        message = user_name + " 邀请 Bot 加入 " + group_name + '\n 验证消息：' + context.get('message')
+        message = user_name + " 邀请 Bot 加入 " + group_name + '\n 验证消息：' + qq_message
 
     accept_token = context.get('flag')
 
