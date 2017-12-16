@@ -10,7 +10,7 @@ class Command:
     def __init__(self,
                  command: str,
                  short_command: str,
-                 handler: function,
+                 handler: callable,
                  require_admin: bool,
                  tg_only: bool,
                  qq_only: bool,
