@@ -93,4 +93,4 @@ conv_handler = ConversationHandler(
 
 global_vars.dp.add_handler(conv_handler, group=0)
 global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=get_plugin_priority(__name__))
-logger.debug(__name__ + "loaded")
+logger.debug(__name__ + " loaded")

@@ -85,4 +85,4 @@ def add_admin(bot: telegram.Bot, update: telegram.Update, args: list):
 global_vars.dp.add_handler(CommandHandler('start', start), group=get_plugin_priority(__name__))
 global_vars.dp.add_handler(CommandHandler('add_admin', add_admin, pass_args=True), group=get_plugin_priority(__name__))
 
-logger.debug(__name__ + "loaded")
+logger.debug(__name__ + " loaded")
