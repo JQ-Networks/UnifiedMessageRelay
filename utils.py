@@ -152,57 +152,52 @@ def extract_mqqapi(link):
     return locations[0], locations[1], locations[2], locations[3]
 
 
-def send_from_tg_to_qq(forward_index: int, message: Union[list, str],
+def text_reply(text):
+    """
+    simplify pure text reply
+    :param text:  text reply
+    :return: general message list
+    """
+    return [{
+        'type': 'text',
+        'data': {'text': text}
+    }]
+
+
+def send_from_tg_to_qq(forward_index: int, message: list,
                        tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
                        tg_reply_to: telegram.Message=None, edited: bool=False, auto_escape: bool=True):
-    sender_name = ''
-    forward_from = ''
-    reply_to = ''
-    if tg_user:  # if message is not from a command
-        sender_name = get_full_user_name(tg_user)
-        forward_from = get_forward_from(tg_forward_from)
-        reply_to = get_reply_to(tg_reply_to)
-    else:  # message is from a command  ## todo complete this logic
-        message = [{
-                'type': 'text',
-                'data': {'text': message}
-            }]
+
+    sender_name = get_full_user_name(tg_user)
+    forward_from = get_forward_from(tg_forward_from)
+    reply_to = get_reply_to(tg_reply_to)
 
     if edited:  # if edited, add edit mark
         edit_mark = ' ✎ '
     else:
         edit_mark = ''
 
-    if isinstance(message, str):
-        message = sender_name + reply_to + forward_from + edit_mark + ': ' + message
-    else:
-        if message[0]['data'].get('text'):
-            message[0]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + message[0]['data'][
-                'text']
-        elif len(message) == 2:
-            if message[1]['data'].get('text'):
-                message[1]['data']['text'] = sender_name + reply_to + forward_from + edit_mark + ': ' + \
-                                             message[1]['data']['text']
-        else:
-            text = sender_name + reply_to + forward_from + edit_mark + ': '
-            message.append({
-                'type': 'text',
-                'data': {'text': text}
-            })
+    message_attribute = sender_name + reply_to + forward_from + edit_mark + ': '
+
+    if message_attribute:  # insert extra info at beginning
+        message.insert(0, {
+            'type': 'text',
+            'data': {'text': message_attribute}
+        })
 
     if FORWARD_LIST[forward_index].get('QQ'):
-        if isinstance(FORWARD_LIST[forward_index]['QQ'], int):
+        if isinstance(FORWARD_LIST[forward_index]['QQ'], int):  # single QQ group
             global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message,
                                               auto_escape=auto_escape)
-        else:
+        else:  # multiple QQ group as a list
             for group in FORWARD_LIST[forward_index]['QQ']:
                 global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
 
     if FORWARD_LIST[forward_index].get('DISCUSS'):
-        if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):
+        if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):  # single QQ discuss
             global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message,
                                                 auto_escape=auto_escape)
-        else:
+        else:  # multiple QQ discuss as a list
             for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
                 global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
 
