@@ -189,41 +189,38 @@ def send_from_tg_to_qq(forward_index: int,
     :return: qq message id (not implemented)
     """
     logger.debug("tg -> qq: " + str(message))
-    try:
-        sender_name = get_full_user_name(tg_user)
-        forward_from = get_forward_from(tg_forward_from)
-        reply_to = get_reply_to(tg_reply_to)
+    sender_name = get_full_user_name(tg_user)
+    forward_from = get_forward_from(tg_forward_from)
+    reply_to = get_reply_to(tg_reply_to)
 
-        if edited:  # if edited, add edit mark
-            edit_mark = ' ✎ '
-        else:
-            edit_mark = ''
+    if edited:  # if edited, add edit mark
+        edit_mark = ' ✎ '
+    else:
+        edit_mark = ''
 
-        message_attribute = sender_name + reply_to + forward_from + edit_mark + ': '
+    message_attribute = sender_name + reply_to + forward_from + edit_mark + ': '
 
-        if message_attribute:  # insert extra info at beginning
-            message.insert(0, {
-                'type': 'text',
-                'data': {'text': message_attribute}
-            })
+    if message_attribute:  # insert extra info at beginning
+        message.insert(0, {
+            'type': 'text',
+            'data': {'text': message_attribute}
+        })
 
-        if FORWARD_LIST[forward_index].get('QQ'):
-            if isinstance(FORWARD_LIST[forward_index]['QQ'], int):  # single QQ group
-                global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message,
-                                                  auto_escape=auto_escape)
-            else:  # multiple QQ group as a list
-                for group in FORWARD_LIST[forward_index]['QQ']:
-                    global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
+    if FORWARD_LIST[forward_index].get('QQ'):
+        if isinstance(FORWARD_LIST[forward_index]['QQ'], int):  # single QQ group
+            global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'], message=message,
+                                              auto_escape=auto_escape)
+        else:  # multiple QQ group as a list
+            for group in FORWARD_LIST[forward_index]['QQ']:
+                global_vars.qq_bot.send_group_msg(group_id=group, message=message, auto_escape=auto_escape)
 
-        if FORWARD_LIST[forward_index].get('DISCUSS'):
-            if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):  # single QQ discuss
-                global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message,
-                                                    auto_escape=auto_escape)
-            else:  # multiple QQ discuss as a list
-                for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
-                    global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
-    except Exception as e:
-        logger.debug(e)
+    if FORWARD_LIST[forward_index].get('DISCUSS'):
+        if isinstance(FORWARD_LIST[forward_index]['DISCUSS'], int):  # single QQ discuss
+            global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'], message=message,
+                                                auto_escape=auto_escape)
+        else:  # multiple QQ discuss as a list
+            for discuss in FORWARD_LIST[forward_index]['DISCUSS']:
+                global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
 
 
 def divide_qq_message(forward_index: int,
@@ -372,10 +369,9 @@ def send_from_qq_to_tg(forward_index: int,
     :param qq_user:  which user sent this message
     :return: telegram.Message list (not implemented)
     """
-    logger.debug(message)
+    logger.debug('qq -> tg: ' + str(message))
 
     message_list = divide_qq_message(forward_index, message)
-    logger.debug(message_list)
     message_count = len(message_list)
 
     for idx, message_part in enumerate(message_list):
