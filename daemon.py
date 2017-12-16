@@ -89,6 +89,7 @@ def main():
             logger_plugins.setLevel(logging.DEBUG)
             logger.addHandler(logging.StreamHandler())
             logger_plugins.addHandler(logging.StreamHandler())
+            logger_telegram.addHandler(logging.StreamHandler())
             logger.info('Now running in debug mode...')
             daemon.run()
         else:
