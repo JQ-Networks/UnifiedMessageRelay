@@ -116,6 +116,12 @@ def group_request_callback(bot: telegram.Bot, update: telegram.Update):
                 'message_id': message_id,
                 'text': query.message.text + '\n' + user_name + 'accepted'
             }
-            bot.editMessageText(**edited_message)
+            logger.debug(edited_message)
+            logger.debug(str(query.message.chat_id) + ' ' + str(query.message.message_id))
+
+            bot.edit_message_text(text=query.message.text + '\n' + user_name + 'accepted',
+                                  chat_id=query.message.chat_id,
+                                  message_id=query.message.message_id
+            )
 
 global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback), get_plugin_priority(__name__))
