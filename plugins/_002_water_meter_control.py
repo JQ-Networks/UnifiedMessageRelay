@@ -35,9 +35,6 @@ load_data()
 def add_keyword(bot: telegram.Bot,
                 update: telegram.Update,
                 args: list):
-    if update.message.chat_id < 0:  # block group message
-        return
-
     if update.message.chat_id not in global_vars.admin_list['TG']:
         return
 
@@ -56,10 +53,8 @@ def add_keyword(bot: telegram.Bot,
 CHANNEL = range(1)
 
 
-def begin_add_channel(bot: telegram.Bot, update: telegram.Update):
-    if update.message.chat_id < 0:
-        return
-
+def begin_add_channel(bot: telegram.Bot,
+                      update: telegram.Update):
     if update.message.chat_id not in global_vars.admin_list['TG']:
         return
 
@@ -67,7 +62,8 @@ def begin_add_channel(bot: telegram.Bot, update: telegram.Update):
     return CHANNEL
 
 
-def add_channel(bot: telegram.Bot, update: telegram.Update):
+def add_channel(bot: telegram.Bot,
+                update: telegram.Update):
     if update.message.forward_from_chat:
         if update.message.forward_from_chat.type != 'channel':  # it seems forward_from_chat can only be channels
             update.message.reply_text(
@@ -94,22 +90,26 @@ def cancel_add_channel(bot: telegram.Bot, update: telegram.Update):
     update.message.reply_text('Done.')
     return ConversationHandler.END
 
-
 conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('begin_add_channel', begin_add_channel)],
+        entry_points=[CommandHandler(command='begin_add_channel',
+                                     callback=begin_add_channel,
+                                     filters=Filters.private)],
 
         states={
-            CHANNEL: [MessageHandler(Filters.all, add_channel)]
+            CHANNEL: [MessageHandler(Filters.all & Filters.private, add_channel)]
         },
 
-        fallbacks=[CommandHandler('cancel', cancel_add_channel)]
+        fallbacks=[CommandHandler(command='cancel',
+                                  callback=cancel_add_channel,
+                                  filters=Filters.private)]
     )
 
 
 global_vars.dp.add_handler(conv_handler,
                            group=get_plugin_priority(__name__))
-global_vars.dp.add_handler(CommandHandler('add_keyword',
-                                          add_keyword,
+global_vars.dp.add_handler(CommandHandler(command='add_keyword',
+                                          callback=add_keyword,
+                                          filters=Filters.private,
                                           pass_args=True),
                            group=get_plugin_priority(__name__))
 logger.debug(__name__ + " loaded")

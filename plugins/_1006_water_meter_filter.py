@@ -50,5 +50,6 @@ def tg_water_meter(bot: telegram.Bot,
                 raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, tg_water_meter),
+global_vars.dp.add_handler(MessageHandler(Filters.all & Filters.group,
+                                          tg_water_meter),
                            get_plugin_priority(__name__))

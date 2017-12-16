@@ -121,5 +121,5 @@ def group_request_callback(bot: telegram.Bot,
 
     del global_vars.group_requests[token]
 
-global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback),
+global_vars.dp.add_handler(CallbackQueryHandler(callback=group_request_callback),
                            get_plugin_priority(__name__))

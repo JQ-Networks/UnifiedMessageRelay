@@ -34,10 +34,6 @@ def start(bot: telegram.Bot,
     update.message.reply_text('This is a QQ <-> Telegram Relay bot, '
                               'source code is available on [Github](https://github.com/jqqqqqqqqqq/coolq-telegram-bot)'
                               , parse_mode='Markdown')
-
-    if update.message.chat_id < 0:  # block group message
-        return
-
     if len(global_vars.admin_list['TG']) == 0:  # no admin
         global_vars.admin_list['TG'].append(update.message.from_user.id)
         save_data()
@@ -47,9 +43,6 @@ def start(bot: telegram.Bot,
 def add_admin(bot: telegram.Bot,
               update: telegram.Update,
               args: list):
-    if update.message.chat_id < 0:  # block group message
-        return
-
     if len(global_vars.admin_list['TG']) == 0:  # no admin
         return
 
@@ -85,9 +78,14 @@ def add_admin(bot: telegram.Bot,
 
     save_data()
 
-global_vars.dp.add_handler(CommandHandler('start', start),
+global_vars.dp.add_handler(CommandHandler(command='start',
+                                          callback=start,
+                                          filters=Filters.private),
                            group=get_plugin_priority(__name__))
-global_vars.dp.add_handler(CommandHandler('add_admin', add_admin, pass_args=True),
+global_vars.dp.add_handler(CommandHandler(command='add_admin',
+                                          callback=add_admin,
+                                          filters=Filters.private,
+                                          pass_args=True),
                            group=get_plugin_priority(__name__))
 
 logger.debug(__name__ + " loaded")

@@ -17,13 +17,11 @@ logger.debug(__name__ + " loading")
 
 def ignore_old_message(bot: telegram.Bot,
                        update: telegram.Update):  # ignore old message that are more than 60s ago
-    tg_group_id = update.message.chat_id  # telegram group id
-    if tg_group_id > 0:  # ignore private chat
-        raise DispatcherHandlerStop()
 
     if (datetime.datetime.now() - update.message.date).total_seconds() > 60:
         raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, ignore_old_message),
+global_vars.dp.add_handler(MessageHandler(Filters.all & Filters.group,
+                                          ignore_old_message),
                            get_plugin_priority(__name__))

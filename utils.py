@@ -109,7 +109,9 @@ def get_reply_to(reply_to_message: telegram.Message):
     return '(→' + reply_to + ')'
 
 
-def get_forward_index(qq_group_id=None, qq_discuss_id=None, tg_group_id=None):  # TODO: reconstruction
+def get_forward_index(qq_group_id=None,
+                      qq_discuss_id=None,
+                      tg_group_id=None):
     """
     Get forward index from FORWARD_LIST
     :param qq_group_id: optional, the qq group id, either this or tg_group_id must be valid
@@ -122,7 +124,8 @@ def get_forward_index(qq_group_id=None, qq_discuss_id=None, tg_group_id=None):  
     return -1  # -1 is not found
 
 
-def get_qq_name(qq_number: int, forward_index: int):
+def get_qq_name(qq_number: int,
+                forward_index: int):
     """
     convert qq number into group card or nickname(if don't have a group card)
     :param qq_number: qq number
@@ -149,7 +152,10 @@ def get_plugin_priority(name):
 
 def extract_mqqapi(link):
     locations = cq_location_regex.findall(link)  # [('lat', 'lon', 'name', 'addr')]
-    return locations[0], locations[1], locations[2], locations[3]
+    return locations[0],\
+           locations[1],\
+           locations[2],\
+           locations[3]
 
 
 def text_reply(text):
@@ -164,9 +170,24 @@ def text_reply(text):
     }]
 
 
-def send_from_tg_to_qq(forward_index: int, message: list,
-                       tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
-                       tg_reply_to: telegram.Message=None, edited: bool=False, auto_escape: bool=True):
+def send_from_tg_to_qq(forward_index: int,
+                       message: list,
+                       tg_user: telegram.User=None,
+                       tg_forward_from: telegram.Message=None,
+                       tg_reply_to: telegram.Message=None,
+                       edited: bool=False,
+                       auto_escape: bool=True):
+    """
+    send message from telegram to qq
+    :param forward_index: forward group index
+    :param message: message in cq-http-api like format
+    :param tg_user: telegram user who send this message
+    :param tg_forward_from: who the message is forwarded from
+    :param tg_reply_to:  who the message is replied to
+    :param edited: the status of edition
+    :param auto_escape: if contain coolq code, pass False
+    :return: qq message id (not implemented)
+    """
 
     sender_name = get_full_user_name(tg_user)
     forward_from = get_forward_from(tg_forward_from)
@@ -202,8 +223,20 @@ def send_from_tg_to_qq(forward_index: int, message: list,
                 global_vars.qq_bot.send_discuss_msg(discuss_id=discuss, message=message, auto_escape=auto_escape)
 
 
-def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
-                       qq_discuss_id: int = 0, qq_user: int=None):
+def send_from_qq_to_tg(forward_index: int,
+                       message: list,
+                       qq_group_id: int = 0,
+                       qq_discuss_id: int = 0,
+                       qq_user: int=None):
+    """
+    send message from qq to telegram
+    :param forward_index: forward group index
+    :param message: message in cq-http-api like format
+    :param qq_group_id: which group this message came from, can be None if qq_discuss_id is not None
+    :param qq_discuss_id: which discuss this message came from, can be None if qq_group_id is not None
+    :param qq_user:  which user sent this message
+    :return: telegram.Message list (not implemented)
+    """
     pending_text = ''
     pending_image = ''
 
@@ -351,10 +384,32 @@ def send_from_qq_to_tg(forward_index: int, message: Union[list, str], qq_group_i
                 global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'], full_msg_bold, parse_mode='HTML')
 
 
-def send_all_except_current(forward_index: int, message: Union[list, str], qq_group_id: int = 0,
-                            qq_discuss_id: int = 0, qq_user: int=None, tg_group_id: int = 0,
-                            tg_user: telegram.User=None, tg_forward_from: telegram.Message=None,
-                            tg_reply_to: telegram.Message=None, edited: bool=False, auto_escape: bool=True):
+def send_all_except_current(forward_index: int,
+                            message: list,
+                            qq_group_id: int = 0,
+                            qq_discuss_id: int = 0,
+                            qq_user: int=None,
+                            tg_group_id: int = 0,
+                            tg_user: telegram.User=None,
+                            tg_forward_from: telegram.Message=None,
+                            tg_reply_to: telegram.Message=None,
+                            edited: bool=False,
+                            auto_escape: bool=True):
+    """
+    send message from telegram to qq or send message from qq to telegram
+    :param forward_index: forward group index
+    :param message: message in cq-http-api like format
+    :param qq_group_id: which group this message came from, can be None if qq_discuss_id is not None
+    :param qq_discuss_id: which discuss this message came from, can be None if qq_group_id is not None
+    :param qq_user:  which user sent this message
+    :param tg_user: telegram user who send this message
+    :param tg_group_id: telegram group id
+    :param tg_forward_from: who the message is forwarded from
+    :param tg_reply_to:  who the message is replied to
+    :param edited: the status of edition
+    :param auto_escape: if contain coolq code, pass False
+    :return: (not implemented)
+    """
     if tg_group_id:
         send_from_tg_to_qq(forward_index, message, tg_user, tg_forward_from, tg_reply_to, edited, auto_escape)
 
