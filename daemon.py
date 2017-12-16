@@ -29,6 +29,11 @@ logger_plugins = logging.getLogger("CTBPlugin")
 logger_plugins.setLevel(logging.DEBUG)
 logger.addHandler(rHandler)
 
+# log telegram
+
+logger_telegram = logging.getLogger()
+logger.setLevel(logging.DEBUG)
+
 # endregion
 
 
