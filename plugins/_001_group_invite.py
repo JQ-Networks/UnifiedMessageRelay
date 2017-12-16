@@ -85,7 +85,7 @@ def event_group_request(context):
 def group_request_callback(bot: telegram.Bot, update: telegram.Update):
     query: telegram.CallbackQuery = update.callback_query
     user: telegram.User = query.from_user
-    chat_id = query.message.message_id
+    chat_id = user.id
     token = query.data
 
     user_name = get_full_user_name(user)
@@ -116,12 +116,8 @@ def group_request_callback(bot: telegram.Bot, update: telegram.Update):
                 'message_id': message_id,
                 'text': query.message.text + '\n' + user_name + 'accepted'
             }
-            logger.debug(edited_message)
-            logger.debug(str(query.message.chat_id) + ' ' + str(query.message.message_id))
+            bot.edit_message_text(**edited_message)
 
-            bot.edit_message_text(text=query.message.text + '\n' + user_name + 'accepted',
-                                  chat_id=query.message.chat_id,
-                                  message_id=query.message.message_id
-            )
+    del global_vars.group_requests[token]
 
 global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback), get_plugin_priority(__name__))
