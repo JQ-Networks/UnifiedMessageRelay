@@ -27,7 +27,7 @@ class Command:
         """
 
         self.command = command
-        self.cmd = short_command
+        self.short_command = short_command
         self.handler = handler  # handler: function(forward_index, tg_group_id, qq_group_id)
         self.require_admin = require_admin
         self.tg_only = tg_only  # if True, handler becomes function(tg_group_id)
