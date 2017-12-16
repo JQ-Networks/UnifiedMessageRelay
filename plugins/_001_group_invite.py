@@ -47,12 +47,14 @@ def event_group_request(context):
     """
 
     user_name = global_vars.qq_bot.get_stranger_info(user_id=user_id)['nickname']
-    qq_message = context.get('message')[0]['data']['text']
+    qq_message = context.get('message')
+    if qq_message:
+        qq_message = '\n 验证消息：' + qq_message[0]['data']['text']
 
     if sub_type == 'add':  # others want to join this group
         message = user_name + " 想申请加入 " + group_name + '\n 验证消息：' + qq_message
     else:
-        message = user_name + " 邀请 Bot 加入 " + group_name + '\n 验证消息：' + qq_message
+        message = user_name + " 邀请 Bot 加入 " + group_name + qq_message
 
     accept_token = context.get('flag')
 
