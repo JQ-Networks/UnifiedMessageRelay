@@ -82,7 +82,8 @@ def event_group_request(context):
     return ''
 
 
-def group_request_callback(bot: telegram.Bot, update: telegram.Update):
+def group_request_callback(bot: telegram.Bot,
+                           update: telegram.Update):
     query: telegram.CallbackQuery = update.callback_query
     user: telegram.User = query.from_user
     chat_id = user.id
@@ -120,4 +121,5 @@ def group_request_callback(bot: telegram.Bot, update: telegram.Update):
 
     del global_vars.group_requests[token]
 
-global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback), get_plugin_priority(__name__))
+global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback),
+                           get_plugin_priority(__name__))

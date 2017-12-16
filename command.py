@@ -7,9 +7,27 @@ logger = logging.getLogger("CTBMain." + __name__)
 
 
 class Command:
-    def __init__(self, command, cmd, handler, require_admin, tg_only, qq_only, description):
+    def __init__(self,
+                 command: str,
+                 short_command: str,
+                 handler: function,
+                 require_admin: bool,
+                 tg_only: bool,
+                 qq_only: bool,
+                 description: str):
+        """
+        Command class, used to store commands
+        :param command: full command
+        :param short_command: abbreviation of the command
+        :param handler: function of command handler
+        :param require_admin: if the command is admin only (not implemented)
+        :param tg_only: if the command is only available on telegram side
+        :param qq_only: if the command is only available on QQ side
+        :param description: description of the command, will show in !!show commands
+        """
+
         self.command = command
-        self.cmd = cmd
+        self.cmd = short_command
         self.handler = handler  # handler: function(forward_index, tg_group_id, qq_group_id)
         self.require_admin = require_admin
         self.tg_only = tg_only  # if True, handler becomes function(tg_group_id)
@@ -17,7 +35,22 @@ class Command:
         self.description = description
 
 
-def command_listener(command, short_command='', require_admin=False, tg_only=False, qq_only=False, description=''):
+def command_listener(command: str,
+                     short_command: str='',
+                     require_admin: bool=False,
+                     tg_only: bool=False,
+                     qq_only: bool=False,
+                     description: str=''):
+    """
+    Command decorator, used to register commands
+    :param command: full command
+    :param short_command: abbreviation of the command
+    :param require_admin: if the command is admin only (not implemented)
+    :param tg_only: if the command is only available on telegram side
+    :param qq_only: if the command is only available on QQ side
+    :param description: description of the command, will show in !!show commands
+    """
+
     def decorator(handler):
         logger.debug('Registering new command: ' + command + '(' + handler.__name__ + ')')
 

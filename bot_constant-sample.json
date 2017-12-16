@@ -1,5 +1,6 @@
 {
     "TOKEN": "your telegram bot token",
+    "BAIDU_API": "asdasdasd"
     "QQ_BOT_ID": 1111111111,
     "FORWARD_LIST": [
         {

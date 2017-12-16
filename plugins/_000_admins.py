@@ -29,7 +29,8 @@ def save_data():
 load_data()
 
 
-def start(bot: telegram.Bot, update: telegram.Update):
+def start(bot: telegram.Bot,
+          update: telegram.Update):
     update.message.reply_text('This is a QQ <-> Telegram Relay bot, '
                               'source code is available on [Github](https://github.com/jqqqqqqqqqq/coolq-telegram-bot)'
                               , parse_mode='Markdown')
@@ -43,7 +44,9 @@ def start(bot: telegram.Bot, update: telegram.Update):
         update.message.reply_text("You've been promoted to admin")
 
 
-def add_admin(bot: telegram.Bot, update: telegram.Update, args: list):
+def add_admin(bot: telegram.Bot,
+              update: telegram.Update,
+              args: list):
     if update.message.chat_id < 0:  # block group message
         return
 
@@ -82,7 +85,9 @@ def add_admin(bot: telegram.Bot, update: telegram.Update, args: list):
 
     save_data()
 
-global_vars.dp.add_handler(CommandHandler('start', start), group=get_plugin_priority(__name__))
-global_vars.dp.add_handler(CommandHandler('add_admin', add_admin, pass_args=True), group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(CommandHandler('start', start),
+                           group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(CommandHandler('add_admin', add_admin, pass_args=True),
+                           group=get_plugin_priority(__name__))
 
 logger.debug(__name__ + " loaded")

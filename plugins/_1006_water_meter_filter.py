@@ -10,7 +10,8 @@ logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
 
-def tg_water_meter(bot: telegram.Bot, update: telegram.Update):
+def tg_water_meter(bot: telegram.Bot,
+                   update: telegram.Update):
     if update.message:
         message: telegram.Message = update.message
     else:
@@ -24,7 +25,9 @@ def tg_water_meter(bot: telegram.Bot, update: telegram.Update):
             logger.debug("message is forward from channel")
             if update.message.forward_from_chat.id in global_vars.filter_list['channels']:
                 logger.debug("message is blocked")
-                global_vars.drive_mode_on(forward_index, tg_user=message.from_user, tg_group_id=tg_group_id,
+                global_vars.drive_mode_on(forward_index,
+                                          tg_user=message.from_user,
+                                          tg_group_id=tg_group_id,
                                           tg_message_id=message.message_id)
                 raise DispatcherHandlerStop()
 
@@ -32,15 +35,20 @@ def tg_water_meter(bot: telegram.Bot, update: telegram.Update):
         if message.caption:
             if keyword in message.caption:
                 logger.debug("message is blocked")
-                global_vars.drive_mode_on(forward_index, tg_user=message.from_user, tg_group_id=tg_group_id,
+                global_vars.drive_mode_on(forward_index,
+                                          tg_user=message.from_user,
+                                          tg_group_id=tg_group_id,
                                           tg_message_id=message.message_id)
                 raise DispatcherHandlerStop()
         elif message.text:
             if keyword in message.text:
                 logger.debug("message is blocked")
-                global_vars.drive_mode_on(forward_index, tg_user=message.from_user, tg_group_id=tg_group_id,
+                global_vars.drive_mode_on(forward_index,
+                                          tg_user=message.from_user,
+                                          tg_group_id=tg_group_id,
                                           tg_message_id=message.message_id)
                 raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, tg_water_meter), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.all, tg_water_meter),
+                           get_plugin_priority(__name__))

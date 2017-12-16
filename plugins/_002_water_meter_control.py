@@ -23,14 +23,18 @@ def load_data():
 
 
 def save_data():
-    json.dump(global_vars.filter_list, open('./plugins/conf/' + __name__ + '.json', 'w'),
-              ensure_ascii=False, indent=4)
+    json.dump(global_vars.filter_list,
+              open('./plugins/conf/' + __name__ + '.json', 'w'),
+              ensure_ascii=False,
+              indent=4)
 
 
 load_data()
 
 
-def add_keyword(bot, update, args):
+def add_keyword(bot: telegram.Bot,
+                update: telegram.Update,
+                args: list):
     if update.message.chat_id < 0:  # block group message
         return
 
@@ -102,7 +106,8 @@ conv_handler = ConversationHandler(
     )
 
 
-global_vars.dp.add_handler(conv_handler, group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(conv_handler,
+                           group=get_plugin_priority(__name__))
 global_vars.dp.add_handler(CommandHandler('add_keyword',
                                           add_keyword,
                                           pass_args=True),

@@ -19,6 +19,7 @@ with open(filepath, 'r') as f1:
 
 TOKEN = settingsJSON['TOKEN']
 QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
+BAIDU_API = settingsJSON['BAIDU_API']
 
 # cq-http-api server config
 API_ROOT = settingsJSON['API_ROOT']

@@ -15,7 +15,8 @@ logger.debug(__name__ + " loading")
 # If you want to keep all message synced, please simply disable this plugin.
 
 
-def ignore_old_message(bot: telegram.Bot, update: telegram.Update):  # ignore old message that are more than 60s ago
+def ignore_old_message(bot: telegram.Bot,
+                       update: telegram.Update):  # ignore old message that are more than 60s ago
     tg_group_id = update.message.chat_id  # telegram group id
     if tg_group_id > 0:  # ignore private chat
         raise DispatcherHandlerStop()
@@ -24,4 +25,5 @@ def ignore_old_message(bot: telegram.Bot, update: telegram.Update):  # ignore ol
         raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, ignore_old_message), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.all, ignore_old_message),
+                           get_plugin_priority(__name__))
