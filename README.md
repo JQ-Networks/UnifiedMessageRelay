@@ -1,7 +1,7 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **3.0** Initial release
+QQ和Telegram的消息互转机器人 **3.0**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
@@ -12,6 +12,14 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 新增作者吱口令红包，群里发送 !!ali 或者 !!alipay 即可查看
 
 2.x升级需要安装 [CQ-HTTP-API]（https://github.com/richardchien/coolq-http-api) 插件，可以卸载之前的 cqsocketapi。
+
+除此之外需要修改一些配置
+
+新增 Telegram 到 qq 发送地图坐标，需要设置百度地图 API，方法自行搜索
+
+`Drive_mode` 修改为 `DRIVE_MODE`
+
+`Pic_link` 修改为 `IMAGE_LINK`
 
 插件配置见下面安装部分
 
@@ -197,6 +205,10 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 关闭：在QQ群或Telegram群中发送 !!drive mode off 或 !!dmoff
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
+
+# 管理功能 （正在构建，不推荐使用）
+
+目前有不完备的 QQ 加群和邀请进群功能，可以私聊 Bot自行探索，使用方法请看源代码，plugins 文件夹中三位数开头的文件
 
 # Issue 格式
 
