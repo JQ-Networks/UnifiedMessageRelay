@@ -1,23 +1,20 @@
 from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
 import global_vars
-import json
-from pathlib import Path
-from utils import get_plugin_priority
+from utils import get_plugin_priority, get_full_user_name
 import logging
 import telegram
-from telegram import InlineKeyboardButton
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+# rely on _000_admins
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
-global_vars.create_variable('group_invites', [])  # pending other group invites
-global_vars.create_variable('group_requests', [])  # pending new group member admissions
-
-# TODO group invites
+global_vars.create_variable('group_requests', [])  # pending admissions
 
 
 @global_vars.qq_bot.on_request('group', group=get_plugin_priority(__name__))
-def handle_group_tequest(context):
+def event_group_request(context):
     """
     handle qq group add/invite requests with reply markup
     :param context:
@@ -30,11 +27,80 @@ def handle_group_tequest(context):
     flag	        string	-	            请求 flag，在调用处理请求的 API 时需要传入
     :return:
     """
-    if context.get('sub_type') == 'add':  # others want to join this group
-        global_vars.group_requests.append(context)
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id, text=message, reply_to_message_id=tg_message_id)
+    group_id = context.get('group_id')
+    group_list = global_vars.qq_bot.get_group_list()
+    group_name = str(group_id)
+    for group in group_list:  # find group name
+        if group['group_id'] == group_id:
+            group_name = group['group_name']
+            break
+
+    sub_type = context.get('sub_type')
+    user_id = context.get('user_id')
+    user_name = global_vars.qq_bot.get_stranger_info(user_id=user_id)
+
+    if sub_type == 'add':  # others want to join this group
+        message = user_name + " 想申请加入 " + group_name + '\n 验证消息：' + context.get('message')
     else:
-        pass
+        message = user_name + " 邀请 Bot 加入 " + group_name + '\n 验证消息：' + context.get('message')
+
+    accept_token = context.get('flag')
+
+    decline_token = '!!' + accept_token
+    reply_markup = InlineKeyboardMarkup([[
+        InlineKeyboardButton("Accept", callback_data=accept_token),
+        InlineKeyboardButton("Decline", callback_data=decline_token),
+    ]])
+
+    message_id_list = list()
+    for admin in global_vars.admin_list['TG']:
+        message: telegram.Message = global_vars.tg_bot.sendMessage(chat_id=admin,
+                                                                   text=message,
+                                                                   reply_markup=reply_markup)
+        message_id_list.append(message.message_id)
+
+    saved_token = {
+        'type': sub_type,
+        'message_id_list': message_id_list
+    }
+
+    global_vars.group_requests[accept_token] = saved_token
 
     return ''
 
+
+def group_request_callback(bot: telegram.Bot, update: telegram.Update):
+    query: telegram.CallbackQuery = update.callback_query
+    user: telegram.User = query.from_user
+    chat_id = query.message.message_id
+    token = query.data
+
+    user_name = get_full_user_name(user)
+
+    if token.startswith('!!'):  # decline
+        token = token[2:]
+        if token not in global_vars.group_requests:
+            return
+        global_vars.qq_bot.set_group_add_request(flag=token,
+                                                 type=global_vars.group_requests[token]['type'],
+                                                 approve=False)
+        for message_id in global_vars.group_requests[token]['message_id_list']:
+            edited_message = {
+                'chat_id': chat_id,
+                'message_id': message_id,
+                'text': query.message.text + '\n' + user_name + 'declined'
+            }
+            bot.editMessageText(**edited_message)
+    else:
+        if token not in global_vars.group_requests:
+            return
+        global_vars.qq_bot.set_group_add_request(flag=token,
+                                                 type=global_vars.group_requests[token]['type'],
+                                                 approve=True)
+        for message_id in global_vars.group_requests[token]['message_id_list']:
+            edited_message = {
+                'chat_id': chat_id,
+                'message_id': message_id,
+                'text': query.message.text + '\n' + user_name + 'accepted'
+            }
+            bot.editMessageText(**edited_message)
