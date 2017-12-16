@@ -27,6 +27,7 @@ def event_group_request(context):
     flag	        string	-	            请求 flag，在调用处理请求的 API 时需要传入
     :return:
     """
+    logger.debug(context)
     group_id = context.get('group_id')
     group_list = global_vars.qq_bot.get_group_list()
     group_name = str(group_id)
@@ -37,7 +38,15 @@ def event_group_request(context):
 
     sub_type = context.get('sub_type')
     user_id = context.get('user_id')
-    user_name = global_vars.qq_bot.get_stranger_info(user_id=user_id)
+
+    """
+    user_id	number	QQ 号
+    nickname	string	昵称
+    sex	string	性别，male 或 female 或 unknown
+    age	number	年龄
+    """
+
+    user_name = global_vars.qq_bot.get_stranger_info(user_id=user_id)['nickname']
     qq_message = context.get('message')[0]['data']['text']
 
     if sub_type == 'add':  # others want to join this group
