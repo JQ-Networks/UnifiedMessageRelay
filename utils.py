@@ -239,11 +239,11 @@ def divide_qq_message(forward_index: int,
     _pending_image = ''
 
     def _share(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '分享了<a href="' + data['url'] + '">' + data['title'] + '</a>'
 
     def _rich(data):
-        global _pending_text
+        nonlocal _pending_text
         if data.get('url'):
             if data['url'].startswith('mqqapi'):
                 lat, lon, name, addr = extract_mqqapi(data['url'])
@@ -257,28 +257,28 @@ def divide_qq_message(forward_index: int,
             _pending_text = data['text']
 
     def _dice(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '掷出了 <b>' + data['type'] + '</b>'
 
     def _rps(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[data['type']] + '</b>'
 
     def _shake(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '发送了一个抖动'
 
     def _music(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + data['id'] + '_num.html"> qq 音乐</a>'
 
     def _record(data):  # not implemented
-        global _pending_text
+        nonlocal _pending_text
         _pending_text = '说了句话，请到电报查看'
 
     def _image(data):
-        global _pending_text
-        global _pending_image
+        nonlocal _pending_text
+        nonlocal _pending_image
         if _pending_image:
             if _pending_text:
                 message_list.append({'image': _pending_image, 'text': _pending_text})
@@ -292,11 +292,11 @@ def divide_qq_message(forward_index: int,
         _pending_image = data['file']
 
     def _text(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text += data['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
 
     def _at(data):
-        global _pending_text
+        nonlocal _pending_text
         _qq_number = int(data['qq'])
         if _qq_number == QQ_BOT_ID:
             _pending_text += ' @bot '
@@ -304,7 +304,7 @@ def divide_qq_message(forward_index: int,
             _pending_text = '@' + get_qq_name(_qq_number, forward_index)
 
     def _face(data):
-        global _pending_text
+        nonlocal _pending_text
         _qq_face = int(data['id'])
         if _qq_face in qq_emoji_list:
             _pending_text += qq_emoji_list[_qq_face]
@@ -312,11 +312,11 @@ def divide_qq_message(forward_index: int,
             _pending_text += '\u2753'  # ❓
 
     def _bface(data):
-        global _pending_text
+        nonlocal _pending_text
         _pending_text += '\u2753'  # ❓
 
     def _sface(data):
-        global _pending_text
+        nonlocal _pending_text
         qq_face = int(data['id']) & 255
         if qq_face in qq_sface_list:
             _pending_text += qq_sface_list[qq_face]
