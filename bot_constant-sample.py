@@ -16,12 +16,12 @@ QQ_BOT_ID = 'qq_number'
 FORWARD_LIST = [
     {'DISCUSS': 2314324234325346543,
      'TG': -2323143534534645,
-     'Drive_mode': False,
-     'Pic_link': True},
+     'DRIVE_MODE': False,
+     'IMAGE_LINK': True},
     {'QQ': 12345678,
      'TG': -123456789,
-     'Drive_mode': False,
-     'Pic_link': True}
+     'DRIVE_MODE': False,
+     'IMAGE_LINK': True}
 ]
 SERVER_PIC_URL = 'http://expample.com/image/'
 CQ_ROOT = '/home/user/coolq/'

@@ -1,4 +1,4 @@
-from bot_constant import FORWARD_LIST, JQ_MODE, QQ_BOT_ID
+from bot_constant import FORWARD_LIST, JQ_MODE, BAIDU_API
 import global_vars
 from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
     send_all_except_current, get_plugin_priority
@@ -8,6 +8,7 @@ from configparser import ConfigParser
 import requests
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
+import requests
 
 import traceback
 import telegram
@@ -261,10 +262,10 @@ def tg_get_pic_url(file_id: str, pic_type: str):
 
 # endregion
 
-PIC_LINK_MODE = []  # pic_link_mode per group
+IMAGE_LINK_MODE = []  # pic_link_mode per group
 
 for forward in FORWARD_LIST:  # initialize
-    PIC_LINK_MODE.append(forward['Pic_link'])
+    IMAGE_LINK_MODE.append(forward['IMAGE_LINK'])
 
 
 def photo_from_telegram(bot, update):
@@ -329,12 +330,7 @@ def video_from_telegram(bot: telegram.Bot, update: telegram.Update):
 
 
 def audio_from_telegram(bot: telegram.Bot, update: telegram.Update):
-    if update.message:
-        message: telegram.Message = update.message
-        edited = False
-    else:
-        message: telegram.Message = update.edited_message
-        edited = True
+    message: telegram.Message = update.message
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
@@ -346,7 +342,7 @@ def audio_from_telegram(bot: telegram.Bot, update: telegram.Update):
         'data': {'text': '[ 音频 ]'}
     })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message)
 
 
 def document_from_telegram(bot: telegram.Bot, update: telegram.Update):
@@ -371,12 +367,8 @@ def document_from_telegram(bot: telegram.Bot, update: telegram.Update):
 
 
 def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
-    if update.message:
-        message: telegram.Message = update.message
-        edited = False
-    else:
-        message: telegram.Message = update.edited_message
-        edited = True
+
+    message: telegram.Message = update.message
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
@@ -385,12 +377,12 @@ def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
 
     file_id = update.message.sticker.file_id
     if JQ_MODE:
-        pic_url = tg_get_pic_url(file_id, 'png')
+        tg_get_pic_url(file_id, 'png')
         reply_entity.append({
             'type': 'image',
             'data': {'file': file_id + '.png'}
         })
-    elif PIC_LINK_MODE[forward_index]:
+    elif IMAGE_LINK_MODE[forward_index]:
         pic_url = tg_get_pic_url(file_id, 'png')
         reply_entity.append({
             'type': 'text',
@@ -402,7 +394,44 @@ def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
             'data': {'text': '[ ' + message.sticker.emoji + ' sticker ]'}
         })
     send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
-                            tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message)
+
+
+def get_location_from_baidu(latitude, longtitude):
+    params = (
+        ('callback', 'renderReverse'),
+        ('location', str(latitude) + ',' + str(longtitude)),
+        ('output', 'json'),
+        ('pois', '1'),
+        ('ak', BAIDU_API),
+    )
+
+    result = requests.get('http://api.map.baidu.com/geocoder/v2/', params=params)
+    result = result.text.replace('renderReverse&&renderReverse(', '')[:-1]
+
+    result_json = json.loads(result)
+    if result_json['status'] == 0:
+        return result_json['result']['formatted_address']
+    else:
+        return 'Baidu API returned an error code: ' + str(result_json['status'])
+
+
+def location_from_telegram(bot: telegram.Bot, update: telegram.Update):
+    message: telegram.Message = update.message
+
+    tg_group_id = message.chat_id  # telegram group id
+    forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    latitude = message.location.latitude
+    longtitude = message.location.longtitude
+    reply_entity = list()
+
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': '分享了一个位置：' + get_location_from_baidu(latitude, longtitude)}
+    })
+    send_all_except_current(forward_index, message=reply_entity, tg_group_id=tg_group_id, tg_user=message.from_user,
+                            tg_forward_from=message, tg_reply_to=message.reply_to_message)
 
 
 def text_from_telegram(bot: telegram.Bot, update: telegram.Update):
@@ -429,12 +458,30 @@ def text_from_telegram(bot: telegram.Bot, update: telegram.Update):
                             tg_forward_from=message, tg_reply_to=message.reply_to_message, edited=edited)
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.text | Filters.command, text_from_telegram, edited_updates=True), get_plugin_priority(__name__))
-global_vars.dp.add_handler(MessageHandler(Filters.sticker, sticker_from_telegram), get_plugin_priority(__name__))
-global_vars.dp.add_handler(MessageHandler(Filters.audio, audio_from_telegram), get_plugin_priority(__name__))
-global_vars.dp.add_handler(MessageHandler(Filters.photo, photo_from_telegram, edited_updates=True), get_plugin_priority(__name__))
-global_vars.dp.add_handler(MessageHandler(Filters.document, document_from_telegram), get_plugin_priority(__name__))
-global_vars.dp.add_handler(MessageHandler(Filters.video, video_from_telegram), get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & (Filters.text | Filters.command),
+                                          text_from_telegram,
+                                          edited_updates=True),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.sticker,
+                                          sticker_from_telegram),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.audio,
+                                          audio_from_telegram),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.photo,
+                                          photo_from_telegram,
+                                          edited_updates=True),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.document,
+                                          document_from_telegram,
+                                          edited_updates=True),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.video,
+                                          video_from_telegram),
+                           get_plugin_priority(__name__))
+global_vars.dp.add_handler(MessageHandler(Filters.group & Filters.location,
+                                          location_from_telegram),
+                           get_plugin_priority(__name__))
 
 
 @global_vars.qq_bot.on_message('group', 'discuss', group=get_plugin_priority(__name__))
@@ -450,12 +497,12 @@ def handle_forward(context):
     return ''
 
 
-@command_listener('pic link on', 'plon', description='enable pic link mode, only available when JQ_MODE=False')
+@command_listener('image link on', 'lnkon', description='enable pic link mode, only available when JQ_MODE=False')
 def pic_link_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     if JQ_MODE:
         return
-    PIC_LINK_MODE[forward_index] = True
+    IMAGE_LINK_MODE[forward_index] = True
     message = 'QQ 图片链接模式已启动'
 
     if tg_group_id:
@@ -469,12 +516,12 @@ def pic_link_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.Use
         return {'reply': message}
 
 
-@command_listener('pic link off', 'ploff', description='disable pic link mode, only available when JQ_MODE=False')
+@command_listener('image link off', 'lnkoff', description='disable pic link mode, only available when JQ_MODE=False')
 def pic_link_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     if JQ_MODE:
         return
-    PIC_LINK_MODE[forward_index] = False
+    IMAGE_LINK_MODE[forward_index] = False
     message = 'QQ 图片链接模式已关闭'
 
     if tg_group_id:

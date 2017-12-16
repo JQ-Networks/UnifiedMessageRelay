@@ -5,14 +5,14 @@
         {
             "DISCUSS": 12345678,
             "TG": -23456789,
-            "Drive_mode": false,
-            "Pic_link": true
+            "DRIVE_MODE": false,
+            "IMAGE_LINK": true
         },
         {
             "QQ": 87654321,
             "TG": -76543218,
-            "Drive_mode": false,
-            "Pic_link": true
+            "DRIVE_MODE": false,
+            "IMAGE_LINK": true
         }
     ],
     "SERVER_PIC_URL": "http://example.com/image/",

@@ -15,7 +15,7 @@ global_vars.create_variable('DRIVE_MODE', [])
 
 
 for forward in FORWARD_LIST:  # initialize drive mode list
-    global_vars.DRIVE_MODE.append(forward['Drive_mode'])
+    global_vars.DRIVE_MODE.append(forward['DRIVE_MODE'])
 
 
 def tg_drive_mode(bot: telegram.Bot, update: telegram.Update):
@@ -50,7 +50,7 @@ def qq_drive_mode(context: dict):
 
 # forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id
 
-@command_listener('drive mode on', 'dmon', description='enable drive mode')
+@command_listener('drive mode on', 'drive', description='enable drive mode')
 def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                   tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     global_vars.DRIVE_MODE[forward_index] = True
@@ -68,7 +68,7 @@ def drive_mode_on(forward_index: int, tg_group_id: int=None, tg_user: telegram.U
         return {'reply': message}
 
 
-@command_listener('drive mode off', 'dmoff', description='disable drive mode')
+@command_listener('drive mode off', 'park', description='disable drive mode')
 def drive_mode_off(forward_index: int, tg_group_id: int=None, tg_user: telegram.User=None,
                    tg_message_id: int=None, qq_group_id: int=None, qq_discuss_id: int=None, qq_user: int=None):
     global_vars.DRIVE_MODE[forward_index] = False

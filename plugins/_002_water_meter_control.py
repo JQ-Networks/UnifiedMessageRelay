@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from utils import get_plugin_priority
 import logging
+import telegram
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
@@ -32,6 +33,10 @@ load_data()
 def add_keyword(bot, update, args):
     if update.message.chat_id < 0:  # block group message
         return
+
+    if update.message.chat_id not in global_vars.admin_list['TG']:
+        return
+
     if len(args) == 0:
         update.message.reply_text('Usage: /add_keyword keyword1 keyword2 ...')
         return
@@ -47,35 +52,41 @@ def add_keyword(bot, update, args):
 CHANNEL = range(1)
 
 
-def begin_add_channel(bot, update):
+def begin_add_channel(bot: telegram.Bot, update: telegram.Update):
     if update.message.chat_id < 0:
         return
+
+    if update.message.chat_id not in global_vars.admin_list['TG']:
+        return
+
     update.message.reply_text('Please forward me message from channels:')
     return CHANNEL
 
 
-def add_channel(bot, update):
+def add_channel(bot: telegram.Bot, update: telegram.Update):
     if update.message.forward_from_chat:
-        if update.message.forward_from_chat.type == 'channel':
-            print(update.message.forward_from_chat.type)
-            print(update.message.forward_from_chat.id)
-            if update.message.forward_from_chat.id not in global_vars.filter_list['channels']:
-                global_vars.filter_list['channels'].append(update.message.forward_from_chat.id)
-                save_data()
-                update.message.reply_text('Okay, please send me another, or use /cancel to stop')
-            else:
-                update.message.reply_text('Already in list. Send me another or use /cancel to stop')
-            return CHANNEL
+        if update.message.forward_from_chat.type != 'channel':  # it seems forward_from_chat can only be channels
+            update.message.reply_text(
+                'Message type error. Please forward me a message from channel, or use /cancel to stop')
+            return
+        if update.message.forward_from_chat.id not in global_vars.filter_list['channels']:
+            global_vars.filter_list['channels'].append(update.message.forward_from_chat.id)
+            save_data()
+            update.message.reply_text('Okay, please send me another, or use /cancel to stop')
+        else:
+            update.message.reply_text('Already in list. Send me another or use /cancel to stop')
+        return CHANNEL
     else:
         if update.message.text == '/cancel':
             update.message.reply_text('Done.')
             return ConversationHandler.END
         else:
-            update.message.reply_text('Message type error. Please forward me a message from channel, or use /cancel to stop')
+            update.message.reply_text(
+                'Message type error. Please forward me a message from channel, or use /cancel to stop')
             return CHANNEL
 
 
-def cancel_add_channel(bot, update):
+def cancel_add_channel(bot: telegram.Bot, update: telegram.Update):
     update.message.reply_text('Done.')
     return ConversationHandler.END
 
@@ -91,6 +102,9 @@ conv_handler = ConversationHandler(
     )
 
 
-global_vars.dp.add_handler(conv_handler, group=0)
-global_vars.dp.add_handler(CommandHandler('add_keyword', add_keyword, pass_args=True), group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(conv_handler, group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(CommandHandler('add_keyword',
+                                          add_keyword,
+                                          pass_args=True),
+                           group=get_plugin_priority(__name__))
 logger.debug(__name__ + " loaded")
