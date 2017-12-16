@@ -10,7 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
-global_vars.create_variable('group_requests', [])  # pending admissions
+global_vars.create_variable('group_requests', {})  # pending admissions
 
 
 @global_vars.qq_bot.on_request('group', group=get_plugin_priority(__name__))
