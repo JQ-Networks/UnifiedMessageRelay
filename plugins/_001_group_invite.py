@@ -4,6 +4,7 @@ from utils import get_plugin_priority, get_full_user_name
 import logging
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackQueryHandler
 
 # rely on _000_admins
 
@@ -116,3 +117,5 @@ def group_request_callback(bot: telegram.Bot, update: telegram.Update):
                 'text': query.message.text + '\n' + user_name + 'accepted'
             }
             bot.editMessageText(**edited_message)
+
+global_vars.dp.add_handler(CallbackQueryHandler(group_request_callback), get_plugin_priority(__name__))
