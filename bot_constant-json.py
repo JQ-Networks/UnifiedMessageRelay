@@ -16,8 +16,8 @@ logger = logging.getLogger("ctbMain.jsonConstantSupport")
 filepath = os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json')
 with open(filepath, 'r') as f1:
     settingsJSON = json.loads(f1.read())
-    
-DEBUG_MODE=settingsJSON['DEBUG_MODE']
+
+DEBUG_MODE = settingsJSON['DEBUG_MODE']
 
 BAIDU_API = settingsJSON['BAIDU_API']
 
