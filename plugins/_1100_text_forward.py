@@ -537,9 +537,6 @@ def handle_forward(context):
     forward_index = get_forward_index(qq_group_id=qq_group_id,
                                       qq_discuss_id=qq_discuss_id)
 
-    # save message to database, for more accurate forwarding
-    global_vars.mdb.append_message(str(context.get('message_id')), context)
-
     tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
                                             qq_group_id=qq_group_id,
                                             qq_discuss_id=qq_discuss_id,
