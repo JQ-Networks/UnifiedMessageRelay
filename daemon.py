@@ -20,9 +20,9 @@ logger = logging.getLogger("CTBMain")
 logger.setLevel(logging.DEBUG)
 rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
-standerFormatter = logging.Formatter(
+standardFormatter = logging.Formatter(
     "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s")
-rHandler.setFormatter(standerFormatter)
+rHandler.setFormatter(standardFormatter)
 logger.addHandler(rHandler)
 
 # log plugins
@@ -89,7 +89,7 @@ def main():
             logger.setLevel(logging.DEBUG)
             logger_plugins.setLevel(logging.DEBUG)
             sH=logging.StreamHandler()
-            sH.setFormatter(standerFormatter)
+            sH.setFormatter(standardFormatter)
             logger.addHandler(sH)
             logger_plugins.addHandler(sH)
             logger_telegram.addHandler(sH)
