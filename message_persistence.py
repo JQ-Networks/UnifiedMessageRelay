@@ -26,6 +26,7 @@ class MessageDB:
         self.db[str(forward_index)][str(tg_message_id)] = [int(time.mktime(datetime.datetime.now().timetuple())),
                                                            qq_message_id,
                                                            qq_number]
+        self.db.sync()
 
     def retrieve_message(self, tg_message_id: int,
                          forward_index: int):
@@ -40,6 +41,7 @@ class MessageDB:
                 timestamp = datetime.datetime.utcfromtimestamp(value[0])
                 if datetime.datetime.now() - timestamp > datetime.timedelta(weeks=2):
                     del self.db[outer_key][key]
+        self.db.sync()
 
     def __del__(self):
         self.db.close()
