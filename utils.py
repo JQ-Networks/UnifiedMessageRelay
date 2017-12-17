@@ -84,19 +84,19 @@ def get_forward_from(message: telegram.Message):
     return '(↩' + result + ')'
 
 
-def get_reply_to(reply_to_message: telegram.Message):
+def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
     """
     Combine replied user's first name and last name and format into (reply to from xxx)
     :param reply_to_message: the replied message
+    :param forward_index: forward index
     :return: combined (reply to from xxx)
     """
     if not reply_to_message or not reply_to_message.from_user:
         return ''
     reply_to = get_full_user_name(reply_to_message.from_user)
     if reply_to_message.from_user.id == global_vars.tg_bot_id:
-        tg_group_id = reply_to_message.chat_id
         tg_message_id = reply_to_message.message_id
-        saved_message = global_vars.mdb.retrieve_message(tg_group_id, tg_message_id)
+        saved_message = global_vars.mdb.retrieve_message(forward_index, tg_message_id)
         if not saved_message:
             return ''
         qq_number = saved_message[1]
@@ -191,7 +191,7 @@ def send_from_tg_to_qq(forward_index: int,
     logger.debug("tg -> qq: " + str(message))
     sender_name = get_full_user_name(tg_user)
     forward_from = get_forward_from(tg_forward_from)
-    reply_to = get_reply_to(tg_reply_to)
+    reply_to = get_reply_to(tg_reply_to, forward_index)
 
     if edited:  # if edited, add edit mark
         edit_mark = ' ✎ '
