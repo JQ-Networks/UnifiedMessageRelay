@@ -1,28 +1,28 @@
 {
-    "TOKEN": "your telegram bot token",
-    "BAIDU_API": "asdasdasd"
-    "QQ_BOT_ID": 1111111111,
+    "DEBUG_MODE": true,
+    "BAIDU_API": "asdasdaasd",
+    "API_ROOT": "http://127.0.0.1:5700/",
+    "ACCESS_TOKEN": "access_token",
+    "SECRET": "secret ",
+    "HOST": "127.0.0.1",
+    "PORT": 8080,
+    "TOKEN": "telegram_bot_token",
+    "QQ_BOT_ID": "qq_number",
     "FORWARD_LIST": [
         {
-            "DISCUSS": 12345678,
-            "TG": -23456789,
+            "DISCUSS": 2314324234325346543,
+            "TG": -2323143534534645,
             "DRIVE_MODE": false,
             "IMAGE_LINK": true
         },
         {
-            "QQ": 87654321,
-            "TG": -76543218,
+            "QQ": 12345678,
+            "TG": -123456789,
             "DRIVE_MODE": false,
             "IMAGE_LINK": true
         }
     ],
-    "SERVER_PIC_URL": "http://example.com/image/",
-    "CQ_ROOT": "/home/coolq/coolq/",
-    "JQ_MODE": true,
-    "DEBUG_MODE": true,
-    "API_ROOT": "http://127.0.0.1:5700/",
-    "ACCESS_TOKEN": "ACCESS_TOKEN",
-    "SECRET": "SECRET",
-    "HOST": "127.0.0.1",
-    "PORT": "8080"
+    "SERVER_PIC_URL": "http://expample.com/image/",
+    "CQ_ROOT": "/home/user/coolq/",
+    "JQ_MODE": true
 }
