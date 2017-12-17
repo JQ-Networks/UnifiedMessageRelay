@@ -66,7 +66,7 @@ tg 私聊添加管理员面板 - 待添加
 
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *酷Q官方镜像*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *基于wine-coolq的第三方镜像，内置了酷Q HTTP API*
-- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。 **需要手动 `build` ***。
+- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。* <b>需要手动 `build` </b>。
 
 使用 Docker 部署后续请参考 Docker 版教程，本教程可以直接跳到 **参数和配置**
 
