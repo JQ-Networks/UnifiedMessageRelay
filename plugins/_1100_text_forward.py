@@ -544,7 +544,9 @@ def handle_forward(context):
 
     # save message to database, using telegram message id as index
     for msg_id in tg_message_id_list:
-        global_vars.job_queue.put(global_vars.mdb.append_message(context.get('message_id'), msg_id, forward_index, context.get('user_id')))
+        def callback(bot, job):
+            global_vars.mdb.append_message(context.get('message_id'), msg_id, forward_index, context.get('user_id'))
+        global_vars.job_queue.run_once(callback)
 
     return ''
 
