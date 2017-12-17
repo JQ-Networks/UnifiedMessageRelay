@@ -55,7 +55,7 @@ class MainProcess(Daemon):
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
         updater = Updater(TOKEN)
-        job_queue = updater.job_queue
+        global_vars.create_variable('job_queue', updater.job_queue)
         global_vars.tg_bot = updater.bot
         # Get the dispatcher to register handlers
         dp = updater.dispatcher
