@@ -53,7 +53,7 @@ class MainProcess(Daemon):
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
                         secret=SECRET)
-        global_vars.create_variable('callback_queue', queue.Queue())
+        # global_vars.create_variable('callback_queue', queue.Queue())
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
@@ -75,9 +75,9 @@ class MainProcess(Daemon):
 
         import plugins  # load all plugins
 
-        while True:
-            utils.from_main_thread_blocking()
-            time.sleep(1)
+        # while True:
+        #     utils.from_main_thread_blocking()
+        #     time.sleep(1)
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
