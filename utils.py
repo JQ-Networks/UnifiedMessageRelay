@@ -102,7 +102,6 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
         qq_number = saved_message[1]
         if not qq_number:  # message is bot command (tg side)
             return ''
-        forward_index = saved_message[0]
         reply_to = get_qq_name(qq_number, forward_index)
     return '(→' + reply_to + ')'
 
