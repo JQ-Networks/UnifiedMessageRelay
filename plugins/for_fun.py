@@ -1,6 +1,5 @@
 from command import command_listener
-import global_vars
-from utils import get_full_user_name, get_forward_index, send_all_except_current
+from utils import get_forward_index, send_from_tg_to_qq
 from telegram.ext.dispatcher import DispatcherHandlerStop
 import telegram
 import logging
@@ -26,10 +25,10 @@ def dice(tg_group_id: int,
         'data': {'type': '1'},
         'type': 'dice'})
 
-    send_all_except_current(forward_index,
-                            reply_entity,
-                            tg_group_id=tg_group_id,
-                            tg_user=tg_user)
+    send_from_tg_to_qq(forward_index,
+                       reply_entity,
+                       tg_group_id=tg_group_id,
+                       tg_user=tg_user)
 
 
 @command_listener('rps', 'rps', tg_only=True, description='rock paper stone')
@@ -48,8 +47,8 @@ def rps(tg_group_id: int,
         'data': {'type': '1'},
         'type': 'rps'})
 
-    send_all_except_current(forward_index,
-                            reply_entity,
-                            tg_group_id=tg_group_id,
-                            tg_user=tg_user)
+    send_from_tg_to_qq(forward_index,
+                       reply_entity,
+                       tg_group_id=tg_group_id,
+                       tg_user=tg_user)
 

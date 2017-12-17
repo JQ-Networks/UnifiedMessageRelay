@@ -1,7 +1,7 @@
 from bot_constant import FORWARD_LIST
 import global_vars
-from utils import get_forward_index, send_all_except_current, get_plugin_priority, text_reply
-from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
+from utils import get_forward_index, send_both_side, get_plugin_priority
+from telegram.ext import MessageHandler, Filters
 from telegram.ext.dispatcher import DispatcherHandlerStop
 from command import command_listener
 import telegram
@@ -65,23 +65,12 @@ def drive_mode_on(forward_index: int,
 
     message = 'Status changed: 451'
 
-    if tg_group_id:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text=message,
-                                       reply_to_message_id=tg_message_id)
-    elif qq_group_id:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                qq_group_id=qq_group_id)
-        return {'reply': message}
-    else:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                qq_discuss_id=qq_discuss_id)
-        return {'reply': message}
+    return send_both_side(forward_index,
+                          message,
+                          qq_group_id,
+                          qq_discuss_id,
+                          tg_group_id,
+                          tg_message_id)
 
 
 @command_listener('drive mode off', 'park', description='disable drive mode')
@@ -96,20 +85,9 @@ def drive_mode_off(forward_index: int,
 
     message = 'Status changed: 200'
 
-    if tg_group_id:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                tg_group_id=tg_group_id)
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text=message,
-                                       reply_to_message_id=tg_message_id)
-    elif qq_group_id:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                qq_group_id=qq_group_id)
-        return {'reply': message}
-    else:
-        send_all_except_current(forward_index,
-                                text_reply(message),
-                                qq_discuss_id=qq_discuss_id)
-        return {'reply': message}
+    return send_both_side(forward_index,
+                          message,
+                          qq_group_id,
+                          qq_discuss_id,
+                          tg_group_id,
+                          tg_message_id)

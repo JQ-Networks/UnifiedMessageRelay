@@ -59,9 +59,17 @@ def command_listener(command: str,
             logger.debug(command + '(' + handler.__name__ + ')' + ' called')
             return handler(*args, **kwargs)
 
-        global_vars.append_command(Command(command, short_command, return_wrapper, require_admin, tg_only, qq_only, description))
+        global_vars.append_command(Command(command,
+                                           short_command,
+                                           return_wrapper,
+                                           require_admin,
+                                           tg_only,
+                                           qq_only,
+                                           description))
 
-        global_vars.create_variable(handler.__name__, return_wrapper)  # add command to global_vars, for cross-plugin access
+        # add command to global_vars, for cross-plugin access
+        global_vars.create_variable(handler.__name__,
+                                    return_wrapper)
         logger.debug(command + '(' + handler.__name__ + ') added to global_vars')
         return return_wrapper
     return decorator
