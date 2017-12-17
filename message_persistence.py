@@ -11,7 +11,10 @@ class MessageDB:
             if str(idx) not in self.db:
                 self.db[str(idx)] = dict()
 
-    def append_message(self, qq_message_id: int, tg_message_id, forward_index: int, qq_number: int):
+    def append_message(self, qq_message_id: int,
+                       tg_message_id: int,
+                       forward_index: int,
+                       qq_number: int):
         """
         append qq message list to database
         :param qq_message_id: QQ message id
@@ -24,7 +27,8 @@ class MessageDB:
                                                            qq_message_id,
                                                            qq_number]
 
-    def retrieve_message(self, tg_message_id: int, forward_index: int):
+    def retrieve_message(self, tg_message_id: int,
+                         forward_index: int):
         if str(tg_message_id) in self.db[str(forward_index)]:
             return self.db[str(forward_index)][str(tg_message_id)][1:]
         else:
