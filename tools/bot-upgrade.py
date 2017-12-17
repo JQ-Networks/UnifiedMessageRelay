@@ -7,7 +7,8 @@ print("""
 i=input("键入[y]继续，[n]退出>")
 
 if i.upper()=='Y':
-    os.chdir('..')
+    if not os.path.exists('bot_constant.py'):
+        os.chdir('..')
     os.system('git reset --hard && git pull')
     os.remove('bot_constant.py')
     os.rename('bot_constant-json.py','bot_constant.py')
