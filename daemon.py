@@ -14,6 +14,8 @@ from message_persistence import MessageDB
 
 from cqhttp import CQHttp
 
+import queue
+
 # region log
 
 # log main thread
@@ -50,7 +52,7 @@ class MainProcess(Daemon):
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
                         secret=SECRET)
-
+        global_vars.create_variable('callback_queue', queue.Queue())
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
