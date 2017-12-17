@@ -541,11 +541,11 @@ def handle_forward(context):
                                             qq_group_id=qq_group_id,
                                             qq_discuss_id=qq_discuss_id,
                                             qq_user=context['user_id'])
-
+    logger.debug('tg_msg_id:' + str(tg_message_id_list))
     # save message to database, using telegram message id as index
     for msg_id in tg_message_id_list:
         global_vars.mdb.append_message(context.get('message_id'), msg_id, forward_index, context.get('user_id'))
-
+    logger.debug(str(global_vars.mdb.db))
     return ''
 
 
