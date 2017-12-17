@@ -96,7 +96,7 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
     reply_to = get_full_user_name(reply_to_message.from_user)
     if reply_to_message.from_user.id == global_vars.tg_bot_id:
         tg_message_id = reply_to_message.message_id
-        saved_message = global_vars.mdb.retrieve_message(forward_index, tg_message_id)
+        saved_message = global_vars.mdb.retrieve_message(tg_message_id, forward_index)
         if not saved_message:
             return ''
         qq_number = saved_message[1]
