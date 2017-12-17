@@ -20,8 +20,9 @@ logger = logging.getLogger("CTBMain")
 logger.setLevel(logging.DEBUG)
 rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
-rHandler.setFormatter(logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s"))
+standerFormatter = logging.Formatter(
+    "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s")
+rHandler.setFormatter(standerFormatter)
 logger.addHandler(rHandler)
 
 # log plugins
@@ -87,9 +88,11 @@ def main():
         elif 'run' == sys.argv[1]:
             logger.setLevel(logging.DEBUG)
             logger_plugins.setLevel(logging.DEBUG)
-            logger.addHandler(logging.StreamHandler())
-            logger_plugins.addHandler(logging.StreamHandler())
-            logger_telegram.addHandler(logging.StreamHandler())
+            sH=logging.StreamHandler()
+            sH.setFormatter(standerFormatter)
+            logger.addHandler(sH)
+            logger_plugins.addHandler(sH)
+            logger_telegram.addHandler(sH)
             logger.info('Now running in debug mode...')
             daemon.run()
         else:
