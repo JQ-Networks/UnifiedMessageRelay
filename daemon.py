@@ -47,7 +47,7 @@ def error(bot, update, error):
 class MainProcess(Daemon):
     def run(self):
         global_vars.create_variable('mdb', MessageDB('message'))
-        for key, value in global_vars.mdb.items():
+        for key, value in global_vars.mdb.db.items():
             logger.debug(key, value)
 
         qq_bot = CQHttp(api_root=API_ROOT,
