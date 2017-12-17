@@ -11,10 +11,11 @@ from DaemonClass import Daemon
 import threading
 import sys
 from message_persistence import MessageDB
-
+import time
 from cqhttp import CQHttp
 
 import queue
+import utils
 
 # region log
 
@@ -73,6 +74,10 @@ class MainProcess(Daemon):
         threaded_server.start()
 
         import plugins  # load all plugins
+
+        while True:
+            utils.from_main_thread_blocking()
+            time.sleep(1)
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
