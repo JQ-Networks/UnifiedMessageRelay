@@ -1,12 +1,25 @@
-import shelve
+from shelve import DbfilenameShelf
 import datetime
 import time
 from bot_constant import FORWARD_LIST
 
+class AutoSyncShelf(DbfilenameShelf):
+    # default to newer pickle protocol and writeback=True
+    def __init__(self, filename, protocol=2, writeback=True):
+        DbfilenameShelf.__init__(self, filename, protocol=protocol, writeback=writeback)
+
+    def __setitem__(self, key, value):
+        DbfilenameShelf.__setitem__(self, key, value)
+        self.sync()
+
+    def __delitem__(self, key):
+        DbfilenameShelf.__delitem__(self, key)
+        self.sync()
+
 
 class MessageDB:
     def __init__(self, db_name: str):
-        self.db = shelve.open(db_name, writeback=True)
+        self.db = AutoSyncShelf(db_name, writeback=True)
         for idx, forward in enumerate(FORWARD_LIST):
             if str(idx) not in self.db:
                 self.db[str(idx)] = dict()
