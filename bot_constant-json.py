@@ -16,9 +16,9 @@ logger = logging.getLogger("ctbMain.jsonConstantSupport")
 filepath = os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json')
 with open(filepath, 'r') as f1:
     settingsJSON = json.loads(f1.read())
+    
+DEBUG_MODE=settingsJSON['DEBUG_MODE']
 
-TOKEN = settingsJSON['TOKEN']
-QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
 BAIDU_API = settingsJSON['BAIDU_API']
 
 # cq-http-api server config
@@ -30,6 +30,8 @@ SECRET = settingsJSON['SECRET']
 HOST = settingsJSON['HOST']
 PORT = settingsJSON['PORT']
 
+TOKEN = settingsJSON['TOKEN']
+QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
 FORWARD_LIST = settingsJSON['FORWARD_LIST']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
