@@ -26,7 +26,7 @@ class _ApiClient(object):
             )
 
     def __call__(self, *args, **kwargs):
-        headers = {}
+        headers = {"Content-Type": "application/json; charset=gb18030"}
         if self._access_token:
             headers['Authorization'] = 'Token ' + self._access_token
         resp = requests.post(
