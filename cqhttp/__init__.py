@@ -27,6 +27,8 @@ class _ApiClient(object):
 
     def __call__(self, *args, **kwargs):
         headers = {"Content-Type": "application/json; charset=gb18030"}
+        for key, value in kwargs.items():
+            kwargs[key] = kwargs[key].encode('gb18030')
         if self._access_token:
             headers['Authorization'] = 'Token ' + self._access_token
         resp = requests.post(
