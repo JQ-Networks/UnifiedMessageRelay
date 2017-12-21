@@ -229,12 +229,12 @@ def send_from_tg_to_qq(forward_index: int,
     if FORWARD_LIST[forward_index].get('QQ'):
         return global_vars.qq_bot.send_group_msg(group_id=FORWARD_LIST[forward_index]['QQ'],
                                                  message=message,
-                                                 auto_escape=auto_escape)
+                                                 auto_escape=auto_escape)['message_id']
 
     if FORWARD_LIST[forward_index].get('DISCUSS'):
         return global_vars.qq_bot.send_discuss_msg(discuss_id=FORWARD_LIST[forward_index]['DISCUSS'],
                                                    message=message,
-                                                   auto_escape=auto_escape)
+                                                   auto_escape=auto_escape)['message_id']
 
 
 def divide_qq_message(forward_index: int,
