@@ -32,7 +32,7 @@ def tg_drive_mode(bot: telegram.Bot,
         raise DispatcherHandlerStop()
 
 
-global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode),
+global_vars.dp.add_handler(MessageHandler(Filters.all, tg_drive_mode, edited_updates=True),
                            get_plugin_priority(__name__))
 
 
