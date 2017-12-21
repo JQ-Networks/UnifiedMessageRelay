@@ -36,7 +36,7 @@ logger.addHandler(rHandler)
 
 # log telegram
 
-logger_telegram = logging.getLogger()
+logger_telegram = logging.getLogger('telegram')
 logger_telegram.setLevel(logging.DEBUG)
 logger_telegram.addHandler(rHandler)
 
