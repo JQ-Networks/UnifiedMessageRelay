@@ -220,7 +220,7 @@ def send_from_tg_to_qq(forward_index: int,
 
     message_attribute = sender_name + reply_to + forward_from + edit_mark + ': '
 
-    if message_attribute:  # insert extra info at beginning
+    if sender_name:  # insert extra info at beginning
         message.insert(0, {
             'type': 'text',
             'data': {'text': message_attribute}
