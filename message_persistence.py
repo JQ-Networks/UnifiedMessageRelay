@@ -6,7 +6,7 @@ from bot_constant import FORWARD_LIST
 
 class MessageDB:
     def __init__(self, db_name: str):
-        self.conn = sqlite3.connect(db_name)
+        self.conn = sqlite3.connect(db_name, check_same_thread=False)
         cursor = self.conn.cursor()
         for idx, forward in enumerate(FORWARD_LIST):
             table_name = '_' + str(idx)
