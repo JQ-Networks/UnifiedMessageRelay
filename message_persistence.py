@@ -35,8 +35,9 @@ class MessageDB:
         cursor = self.conn.cursor()
         table_name = '_' + str(forward_index)
         timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
-        cursor.execute(f"insert into {table_name} (tg_message_id, qq_message_id, qq_number, timestamp)"
-                       f"values ({tg_message_id}, {qq_message_id}, {qq_number}, {timestamp})")
+        cursor.execute(f"insert into '{table_name}' (tg_message_id, qq_message_id, qq_number, timestamp)"
+                       f"values (?, ?, ?, ?)",
+                       (tg_message_id, qq_message_id, qq_number, timestamp))
         self.conn.commit()
         cursor.close()
 
@@ -44,7 +45,7 @@ class MessageDB:
                          forward_index: int):
         cursor = self.conn.cursor()
         table_name = '_' + str(forward_index)
-        cursor.execute(f"select * from {table_name} where tg_message_id={tg_message_id}")
+        cursor.execute(f"select * from '{table_name}' where tg_message_id = ?", (tg_message_id,))
         result = cursor.fetchall()
         cursor.close()
         if len(result):
@@ -57,7 +58,7 @@ class MessageDB:
         for idx, forward in enumerate(FORWARD_LIST):
             table_name = '_' + str(idx)
             purge_time = int(time.mktime((datetime.datetime.now() - datetime.timedelta(weeks=2)).timetuple()))
-            cursor.execute(f"delete from {table_name} where timestamp < {purge_time} ;")
+            cursor.execute(f"delete from {table_name} where timestamp < ?;", (purge_time,))
             self.conn.commit()
         cursor.close()
 
