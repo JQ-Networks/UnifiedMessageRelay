@@ -2,6 +2,9 @@ import sqlite3
 import datetime
 import time
 from bot_constant import FORWARD_LIST
+import logging
+
+logger = logging.getLogger("CTBMain." + __name__)
 
 
 class MessageDB:
@@ -35,6 +38,10 @@ class MessageDB:
         cursor = self.conn.cursor()
         table_name = '_' + str(forward_index)
         timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        logger.debug(type(tg_message_id))
+        logger.debug(type(qq_message_id))
+        logger.debug(type(qq_number))
+        logger.debug(type(timestamp))
         cursor.execute(f"insert into '{table_name}' (tg_message_id, qq_message_id, qq_number, timestamp)"
                        f"values (?, ?, ?, ?)",
                        (tg_message_id, qq_message_id, qq_number, timestamp))
