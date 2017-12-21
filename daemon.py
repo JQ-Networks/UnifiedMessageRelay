@@ -49,7 +49,7 @@ def error(bot, update, error):
 
 class MainProcess(Daemon):
     def run(self):
-        global_vars.create_variable('mdb', MessageDB('message'))
+        global_vars.create_variable('mdb', MessageDB('message.db'))
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
                         secret=SECRET)
