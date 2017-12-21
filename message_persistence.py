@@ -1,28 +1,24 @@
-from shelve import DbfilenameShelf
+import sqlite3
 import datetime
 import time
 from bot_constant import FORWARD_LIST
 
-class AutoSyncShelf(DbfilenameShelf):
-    # default to newer pickle protocol and writeback=True
-    def __init__(self, filename, protocol=2, writeback=True):
-        DbfilenameShelf.__init__(self, filename, protocol=protocol, writeback=writeback)
-
-    def __setitem__(self, key, value):
-        DbfilenameShelf.__setitem__(self, key, value)
-        self.sync()
-
-    def __delitem__(self, key):
-        DbfilenameShelf.__delitem__(self, key)
-        self.sync()
-
 
 class MessageDB:
     def __init__(self, db_name: str):
-        self.db = AutoSyncShelf(db_name, writeback=True)
+        self.conn = sqlite3.connect(db_name)
+        cursor = self.conn.cursor()
         for idx, forward in enumerate(FORWARD_LIST):
-            if str(idx) not in self.db:
-                self.db[str(idx)] = dict()
+            table_name = '_' + str(idx)
+            cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';")
+            result = cursor.fetchall()
+            if result[0][0]:
+                pass
+            else:
+                cursor.execute(f"create table {table_name} (tg_message_id int primary key,"
+                               f"qq_message_id int, qq_number int, timestamp int)")
+                self.conn.commit()
+        cursor.close()
 
     def append_message(self, qq_message_id: int,
                        tg_message_id: int,
@@ -36,25 +32,34 @@ class MessageDB:
         :param qq_number: If from QQ, then QQ sender's number. If from Telegram, then 0 (used for recall)
         :return:
         """
-        self.db[str(forward_index)][str(tg_message_id)] = [int(time.mktime(datetime.datetime.now().timetuple())),
-                                                           qq_message_id,
-                                                           qq_number]
-        self.db.sync()
+        cursor = self.conn.cursor()
+        table_name = '_' + str(forward_index)
+        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        cursor.execute(f"insert into {table_name} (tg_message_id, qq_message_id, qq_number, timestamp)"
+                       f"values ({tg_message_id}, {qq_message_id}, {qq_number}, {timestamp})")
+        self.conn.commit()
+        cursor.close()
 
     def retrieve_message(self, tg_message_id: int,
                          forward_index: int):
-        if str(tg_message_id) in self.db[str(forward_index)]:
-            return self.db[str(forward_index)][str(tg_message_id)][1:]
+        cursor = self.conn.cursor()
+        table_name = '_' + str(forward_index)
+        cursor.execute(f"select * from {table_name} where tg_message_id={tg_message_id}")
+        result = cursor.fetchall()
+        cursor.close()
+        if len(result):
+            return result[0]
         else:
             return None
 
     def purge_message(self):
-        for outer_key, forward in self.db.items():
-            for key, value in forward.items():
-                timestamp = datetime.datetime.utcfromtimestamp(value[0])
-                if datetime.datetime.now() - timestamp > datetime.timedelta(weeks=2):
-                    del self.db[outer_key][key]
-        self.db.sync()
+        cursor = self.conn.cursor()
+        for idx, forward in enumerate(FORWARD_LIST):
+            table_name = '_' + str(idx)
+            purge_time = int(time.mktime((datetime.datetime.now() - datetime.timedelta(weeks=2)).timetuple()))
+            cursor.execute(f"delete from {table_name} where timestamp < {purge_time} ;")
+            self.conn.commit()
+        cursor.close()
 
     def __del__(self):
-        self.db.close()
+        self.conn.close()

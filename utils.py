@@ -120,7 +120,7 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
         saved_message = global_vars.mdb.retrieve_message(tg_message_id, forward_index)
         if not saved_message:
             return ''
-        qq_number = saved_message[1]
+        qq_number = saved_message[2]
         if not qq_number:  # message is bot command (tg side)
             return ''
         reply_to = get_qq_name(qq_number, forward_index)
