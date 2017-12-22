@@ -24,18 +24,19 @@ def recall(tg_group_id: int,
                                        text='Please refer to a message.',
                                        reply_to_message_id=tg_message_id)
         return
-    tg_reply_to_user = tg_reply_to.from_user.id
 
-    if tg_reply_to_user != global_vars.tg_bot_id:
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text='Recalling messages from other QQ users is not supported.',
-                                       reply_to_message_id=tg_message_id)
-        return
     tg_reply_id = tg_reply_to.message_id
     saved_message = global_vars.mdb.retrieve_message(tg_reply_id, forward_index)
     if not saved_message:
         global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
                                        text='Message not recallable.',
+                                       reply_to_message_id=tg_message_id)
+        return
+
+    qq_number = saved_message[2]
+    if qq_number:  # 0 means from tg, >0 means from qq
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
+                                       text='Recalling messages from other QQ users is not supported.',
                                        reply_to_message_id=tg_message_id)
         return
     qq_message_id = saved_message[1]
