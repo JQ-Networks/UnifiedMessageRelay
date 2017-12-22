@@ -17,7 +17,7 @@ def reload_all_qq_namelist():
         global_vars.group_members[i] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[i]['QQ'])
 
 
-@command_listener('update namelist', 'un', description='update namelist for current group')
+@command_listener('update namelist', 'name', description='update namelist for current group')
 def update_namelist(forward_index: int,
                     tg_group_id: int=None,
                     tg_user: telegram.User=None,

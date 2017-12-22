@@ -99,7 +99,7 @@ def qq_command(context):
     return {'pass': True}
 
 
-@command_listener('show commands', 'sc', qq_only=True, description='print all commands')
+@command_listener('show commands', 'cmd', qq_only=True, description='print all commands')
 def command_qq(qq_group_id: int,
                qq_discuss_id:int,
                qq_user: int):
@@ -110,7 +110,7 @@ def command_qq(qq_group_id: int,
     return {'reply': result}
 
 
-@command_listener('show commands', 'sc', tg_only=True, description='print all commands')
+@command_listener('show commands', 'cmd', tg_only=True, description='print all commands')
 def command_tg(tg_group_id: int,
                tg_user: telegram.User,
                tg_message_id: int,

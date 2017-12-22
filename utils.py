@@ -215,7 +215,7 @@ def send_from_tg_to_qq(forward_index: int,
     reply_to = get_reply_to(tg_reply_to, forward_index)
 
     if edited:  # if edited, add edit mark
-        edit_mark = ' ✎ '
+        edit_mark = ' E '  # ' ✎ '
     else:
         edit_mark = ''
 
