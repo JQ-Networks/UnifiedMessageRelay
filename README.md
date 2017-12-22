@@ -1,9 +1,15 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **3.0**
+QQ和Telegram的消息互转机器人 **3.1**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
+
+## 3.1 更新
+
+支持撤回（2分钟内）
+
+支持编辑消息时撤回老消息（2分钟内）
 
 ## 3.0 更新
 
@@ -205,6 +211,12 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 关闭：在QQ群或Telegram群中发送 !!drive mode off 或 !!dmoff
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
+
+## 撤回消息（新）
+
+对一条非 bot 发送的消息（即 Telegram 转发到 QQ 的消息）回复 !!recall 或 !!del，即可撤回。
+
+如果超过两分钟则无法撤回。
 
 # 管理功能 （正在构建，不推荐使用）
 
