@@ -22,6 +22,7 @@ def update_namelist(forward_index: int,
                     tg_group_id: int=None,
                     tg_user: telegram.User=None,
                     tg_message_id: int=None,
+                    tg_reply_to: telegram.Message=None,
                     qq_group_id: int=None,
                     qq_discuss_id: int=None,
                     qq_user: int=None):

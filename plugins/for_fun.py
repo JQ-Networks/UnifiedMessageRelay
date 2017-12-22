@@ -12,10 +12,11 @@ logger.debug(__name__ + " loading")
 @command_listener('dice', 'dice', tg_only=True, description='throw a dice')
 def dice(tg_group_id: int,
          tg_user: telegram.User,
-         tg_message_id: int):
+         tg_message_id: int,
+         tg_reply_to: telegram.Message = None):
     forward_index = get_forward_index(tg_group_id=tg_group_id)
     if forward_index == -1:
-        raise DispatcherHandlerStop()
+        return
 
     reply_entity = list()
     reply_entity.append({
@@ -34,10 +35,11 @@ def dice(tg_group_id: int,
 @command_listener('rps', 'rps', tg_only=True, description='rock paper stone')
 def rps(tg_group_id: int,
         tg_user: telegram.User,
-        tg_message_id: int):
+        tg_message_id: int,
+        tg_reply_to: telegram.Message):
     forward_index = get_forward_index(tg_group_id=tg_group_id)
     if forward_index == -1:
-        raise DispatcherHandlerStop()
+            return
 
     reply_entity = list()
     reply_entity.append({

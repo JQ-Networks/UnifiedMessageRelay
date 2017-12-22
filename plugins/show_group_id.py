@@ -11,7 +11,8 @@ logger.debug(__name__ + " loading")
 @command_listener('show group id', 'id', tg_only=True, description='show current telegram group id')
 def show_tg_group_id(tg_group_id: int,
                      tg_user: telegram.User,
-                     tg_message_id: int):
+                     tg_message_id: int,
+                     tg_reply_to: telegram.Message):
     msg = 'Telegram group id is: ' + str(tg_group_id)
     global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
                                    text=msg)

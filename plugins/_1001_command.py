@@ -18,22 +18,24 @@ logger.debug(__name__ + " loading")
 def tg_command(bot: telegram.Bot,
                update: telegram.Update):
     if update.edited_message:  # handle edit
-        message = update.edited_message
+        message: telegram.Message = update.edited_message
     else:
-        message = update.message
-
-    tg_group_id = message.chat_id  # telegram group id
+        message: telegram.Message = update.message
 
     if not message.text.startswith('!!'):  # no command indicator
         return
+
+    tg_group_id = message.chat_id  # telegram group id
+    tg_reply_to = message.reply_to_message
 
     text = message.text[2:]
 
     for command in global_vars.command_list:  # process all non-forward commands
         if command.tg_only and (text == command.command or text == command.short_command):
-            command.handler(tg_group_id,
-                            message.from_user,
-                            message.message_id)
+            command.handler(tg_group_id=tg_group_id,
+                            tg_user=message.from_user,
+                            tg_message_id=message.message_id,
+                            tg_reply_to=tg_reply_to)
             raise DispatcherHandlerStop()
 
     forward_index = get_forward_index(tg_group_id=tg_group_id)
@@ -45,7 +47,8 @@ def tg_command(bot: telegram.Bot,
             command.handler(forward_index,
                             tg_user=message.from_user,
                             tg_group_id=tg_group_id,
-                            tg_message_id=message.message_id)
+                            tg_message_id=message.message_id,
+                            tg_reply_to=tg_reply_to)
             raise DispatcherHandlerStop()
 
 
@@ -110,7 +113,8 @@ def command_qq(qq_group_id: int,
 @command_listener('show commands', 'sc', tg_only=True, description='print all commands')
 def command_tg(tg_group_id: int,
                tg_user: telegram.User,
-               tg_message_id: int):
+               tg_message_id: int,
+               tg_reply_to: telegram.Message):
     result = ''
     for command in global_vars.command_list:
         if not command.qq_only:
@@ -134,7 +138,8 @@ Please use "!!show commands" or "!!sc" to show all commands.
 @command_listener('help', 'h', tg_only=True, description='print help')
 def command_tg(tg_group_id: int,
                tg_user: telegram.User,
-               tg_message_id: int):
+               tg_message_id: int,
+               tg_reply_to: telegram.Message = None):
     result = '''I'm a relay bot between qq and tg.
 Please use "!!show commands" or "!!sc" to show all commands.
 '''

@@ -12,13 +12,18 @@ logger.debug(__name__ + " loading")
 
 @command_listener('recall', 'del', tg_only=True, description='recall a message')
 def recall(tg_group_id: int,
-         tg_user: telegram.User,
-         tg_message_id: int):
+           tg_user: telegram.User,
+           tg_message_id: int,
+           tg_reply_to: telegram.Message):
     forward_index = get_forward_index(tg_group_id=tg_group_id)
     if forward_index == -1:
-        raise DispatcherHandlerStop()
-
-    saved_message = global_vars.mdb.retrieve_message(tg_message_id, forward_index)
+        return
+    if not tg_reply_to:
+        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
+                                       text='please refer to a message.',
+                                       reply_to_message_id=tg_message_id)
+    tg_reply_id = tg_reply_to.message_id
+    saved_message = global_vars.mdb.retrieve_message(tg_reply_id, forward_index)
     if not saved_message:
         global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
                                        text='message not recallable.',
