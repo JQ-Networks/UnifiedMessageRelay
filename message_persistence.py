@@ -39,15 +39,31 @@ class MessageDB:
         table_name = '_' + str(forward_index)
         timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
         logger.debug(f'append tg_msg_id:{tg_message_id}, qq_msg_id:{qq_message_id}, '
-                   f'qq_num:{qq_number}, time:{timestamp} to {table_name}')
-        cursor.execute(f"insert into '{table_name}' (tg_message_id, qq_message_id, qq_number, timestamp)"
-                       f"values (?, ?, ?, ?)",
-                       (tg_message_id, qq_message_id, qq_number, timestamp))
+                     f'qq_num:{qq_number}, time:{timestamp} to {table_name}')
+
+        # find if already exists
+        cursor.execute(f"select * from '{table_name}' where tg_message_id = ?", (tg_message_id,))
+        result = cursor.fetchall()
+        cursor.close()
+        cursor = self.conn.cursor()
+        if len(result):  # if exists, update record
+            cursor.execute(f"update '{table_name}' set qq_message_id=?, qq_number=?, timestamp=? where tg_message_id=?;",
+                           (qq_message_id, qq_number, timestamp, tg_message_id))
+        else:  # if not, create record
+            cursor.execute(f"insert into '{table_name}' (tg_message_id, qq_message_id, qq_number, timestamp)"
+                           f"values (?, ?, ?, ?)",
+                           (tg_message_id, qq_message_id, qq_number, timestamp))
         self.conn.commit()
         cursor.close()
 
     def retrieve_message(self, tg_message_id: int,
                          forward_index: int):
+        """
+        get specific record
+        :param tg_message_id:
+        :param forward_index:
+        :return:
+        """
         cursor = self.conn.cursor()
         table_name = '_' + str(forward_index)
         cursor.execute(f"select * from '{table_name}' where tg_message_id = ?", (tg_message_id,))
@@ -58,7 +74,25 @@ class MessageDB:
         else:
             return None
 
+    def delete_message(self, tg_message_id: int,
+                       forward_index: int):
+        """
+        delete record
+        :param tg_message_id:
+        :param forward_index:
+        :return:
+        """
+        cursor = self.conn.cursor()
+        table_name = '_' + str(forward_index)
+        cursor.execute(f"delete from {table_name} where tg_message_id=?;", (tg_message_id,))
+        self.conn.commit()
+        cursor.close()
+
     def purge_message(self):
+        """
+        delete outdated records
+        :return:
+        """
         cursor = self.conn.cursor()
         for idx, forward in enumerate(FORWARD_LIST):
             table_name = '_' + str(idx)

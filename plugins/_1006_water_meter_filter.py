@@ -34,7 +34,7 @@ def tg_water_meter(bot: telegram.Bot,
         if message.caption:
             message_text = message.caption
         elif message.text:
-            message.text = message.text
+            message_text = message.text
 
         if not message_text:
             return

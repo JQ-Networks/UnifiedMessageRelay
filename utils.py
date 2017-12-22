@@ -12,6 +12,7 @@ from typing import Union
 from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
     cq_location_regex, CQ_IMAGE_ROOT
 import logging
+import datetime
 
 logger = logging.getLogger("CTBMain.utils")
 
@@ -466,34 +467,36 @@ def send_both_side(forward_index: int,
                            qq_discuss_id=qq_discuss_id)
         return {'reply': message}
 
-# def send_all_except_current(forward_index: int,
-#                             message: list,
-#                             qq_group_id: int = 0,
-#                             qq_discuss_id: int = 0,
-#                             qq_user: int=None,
-#                             tg_group_id: int = 0,
-#                             tg_user: telegram.User=None,
-#                             tg_forward_from: telegram.Message=None,
-#                             tg_reply_to: telegram.Message=None,
-#                             edited: bool=False,
-#                             auto_escape: bool=True):
-#     """
-#     send message from one to the other
-#     :param forward_index: forward group index
-#     :param message: message in cq-http-api like format
-#     :param qq_group_id: which group this message came from, can be None if qq_discuss_id is not None
-#     :param qq_discuss_id: which discuss this message came from, can be None if qq_group_id is not None
-#     :param qq_user:  which user sent this message
-#     :param tg_user: telegram user who send this message
-#     :param tg_group_id: telegram group id
-#     :param tg_forward_from: who the message is forwarded from
-#     :param tg_reply_to:  who the message is replied to
-#     :param edited: the status of edition
-#     :param auto_escape: if contain coolq code, pass False
-#     :return: (not implemented)
-#     """
-#     if tg_group_id:
-#         send_from_tg_to_qq(forward_index, message, tg_user, tg_forward_from, tg_reply_to, edited, auto_escape)
-#
-#     else:
-#         send_from_qq_to_tg(forward_index, message, qq_group_id, qq_discuss_id, qq_user)
+
+def recall_message(forward_index: int,
+                   tg_message: telegram.Message):
+    """
+    recall qq message(only bot sent message can be recalled in two minutes)
+    :param forward_index: group forward index
+    :param tg_message: telegram message
+    :return:
+    -1: message empyt
+    -2: message not found in database
+    -3: message was from other qq
+    -4: message has expired two minutes
+    0: success
+    """
+    if not tg_message:
+        return -1
+
+    tg_reply_id = tg_message.message_id
+    saved_message = global_vars.mdb.retrieve_message(tg_reply_id, forward_index)
+    global_vars.mdb.delete_message(tg_reply_id, forward_index)
+    if not saved_message:
+        return -2
+
+    qq_number = saved_message[2]
+    if qq_number:  # 0 means from tg, >0 means from qq
+        return -3
+    timestamp = tg_message.date
+    if datetime.datetime.now() - timestamp > datetime.timedelta(minutes=2):
+        return -4
+    else:
+        qq_message_id = saved_message[1]
+        global_vars.qq_bot.delete_msg(message_id=qq_message_id)
+        return 0

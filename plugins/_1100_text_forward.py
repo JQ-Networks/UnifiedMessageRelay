@@ -1,7 +1,7 @@
 from bot_constant import FORWARD_LIST, JQ_MODE, BAIDU_API
 import global_vars
 from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
-    get_plugin_priority,  send_from_qq_to_tg, send_from_tg_to_qq, send_both_side
+    get_plugin_priority,  send_from_qq_to_tg, send_from_tg_to_qq, send_both_side, recall_message
 from command import command_listener
 from PIL import Image
 from configparser import ConfigParser
@@ -278,6 +278,9 @@ def photo_from_telegram(bot: telegram.Bot,
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
 
+    if edited:
+        recall_message(forward_index, message)
+
     reply_entity = list()
 
     file_id = message.photo[-1].file_id
@@ -483,6 +486,9 @@ def text_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    if edited:
+        recall_message(forward_index, message)
 
     if message.text.startswith('//'):
         return

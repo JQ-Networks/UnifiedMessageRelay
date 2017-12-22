@@ -1,9 +1,9 @@
 from command import command_listener
-from utils import get_forward_index, send_from_tg_to_qq
-from telegram.ext.dispatcher import DispatcherHandlerStop
+from utils import get_forward_index, recall_message
 import telegram
 import logging
 import global_vars
+import datetime
 
 
 logger = logging.getLogger("CTBPlugin." + __name__)
@@ -19,28 +19,19 @@ def recall(tg_group_id: int,
     if forward_index == -1:
         return
 
-    if not tg_reply_to:
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text='Please refer to a message.',
-                                       reply_to_message_id=tg_message_id)
-        return
+    result = recall_message(forward_index, tg_reply_to)
 
-    tg_reply_id = tg_reply_to.message_id
-    saved_message = global_vars.mdb.retrieve_message(tg_reply_id, forward_index)
-    if not saved_message:
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text='Message not recallable.',
-                                       reply_to_message_id=tg_message_id)
-        return
+    if result == -1:
+        text = 'Please refer to a message.'
+    elif result == -2:
+        text = 'Message not recallable.'
+    elif result == -3:
+        text = 'Recalling messages from other QQ users is not supported.',
+    elif result == -4:
+        text = 'Message sent more than two minutes ago. Recalling failed.'
+    else:
+        text = 'Message recalled.'
 
-    qq_number = saved_message[2]
-    if qq_number:  # 0 means from tg, >0 means from qq
-        global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                       text='Recalling messages from other QQ users is not supported.',
-                                       reply_to_message_id=tg_message_id)
-        return
-    qq_message_id = saved_message[1]
-    global_vars.qq_bot.delete_msg(message_id=qq_message_id)
     global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
-                                   text='Message recalled.',
+                                   text=text,
                                    reply_to_message_id=tg_message_id)
