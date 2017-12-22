@@ -30,15 +30,16 @@ def tg_water_meter(bot: telegram.Bot,
                                       tg_message_id=message.message_id)
             raise DispatcherHandlerStop()
 
+    message_text = ''
+    if message.caption:
+        message_text = message.caption
+    elif message.text:
+        message_text = message.text
+
+    if not message_text:
+        return
+
     for keyword in global_vars.filter_list['keywords']:
-        if message.caption:
-            message_text = message.caption
-        elif message.text:
-            message_text = message.text
-
-        if not message_text:
-            return
-
         if keyword in message_text:
             logger.debug("message is blocked")
             global_vars.drive_mode_on(forward_index,
