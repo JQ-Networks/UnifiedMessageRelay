@@ -141,7 +141,7 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 请注意，bot需要 python3.6及以上版本，如运行报错请检查此项是否满足。
 
-保证酷Q已启动并登录，在bot_constant.py内填好了必需的参数，sample文件已经改名。
+保证酷Q已启动并登录，在bot_constant.py或相应的配置文件内填好了必需的参数，sample文件已经改名。
 
 目前已经实现了 daemon 模式，请使用 `python3.6 daemon.py start` 以后台运行
 
@@ -155,43 +155,43 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 ### 查看命令开关
 
-发送 !!show commands 或者 !!sc 可以查看当前注册的所有命令，会只在发送的客户端显示
+发送 `!!show commands` 或者 `!!sc` 可以查看当前注册的所有命令，会只在发送的客户端显示
 
 ### 查看作者的吱口令红包
 
-发送 !!alipay 或者 !!ali，不需要花你一分钱即可 donate 作者
+发送 `!!alipay` 或者 `!!ali`，不需要花你一分钱即可 donate 作者
 
 ### 查看 Telegram 群 ID
 
-在 Telegram 中发送 !!show group id 或者 !!id 可以查看 Telegram 群号
+在 Telegram 中发送 `!!show group id` 或者 `!!id `可以查看 Telegram 群号
 
 ### 更新 QQ 群名片列表
 
-发送 !!update namelist 或者 !!un 可以更新当前转发的 QQ 群名片缓存
+发送 `!!update namelist` 或者 `!!un` 可以让Bot手动更新当前的 QQ 群名片缓存
 
 注意： Coolq 的群名片更新可能很不及时，所以此功能主要用于新加入成员之后的首次更新
 
 ### 图片链接模式 （Coolq Air Only）
 
-开启：在QQ群或Telegram群中发送 !!pic link on 或者 !!plon
+开启：在QQ群或Telegram群中发送 `!!pic link on` 或者 `!!plon`
 
-关闭：在QQ群或Telegram群中发送 !!pic link off 或者 !!ploff
+关闭：在QQ群或Telegram群中发送 `!!pic link off` 或者 `!!ploff`
 
 开启后，图片和Sticker转发到QQ群的时候，会显示图片链接。
 
 ### 开车模式
 
-开启：在QQ群或Telegram群中发送 !!drive mode on 或 !!dmon
+开启：在QQ群或Telegram群中发送 `!!drive mode on` 或 `!!dmon`
 
-关闭：在QQ群或Telegram群中发送 !!drive mode off 或 !!dmoff
+关闭：在QQ群或Telegram群中发送 `!!drive mode off` 或 `!!dmoff`
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
 
 ### 撤回消息（v3.1+）
 
-对一条非 bot 发送的消息（即 Telegram 转发到 QQ 的消息）回复 !!recall 或 !!del，即可撤回。
+对一条非 bot 发送的消息（即 Telegram 转发到 QQ 的消息）回复 `!!recall` 或 `!!del`，即可撤回。
 
-如果超过两分钟则无法撤回。
+**如果超过两分钟则无法撤回。**
 
 # 管理功能 （正在构建，不推荐使用）
 
@@ -201,8 +201,8 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 ## 提问前请检查
 
- 1. 请在提问前检查是否使用 Python 3.6+，是否安装 requirements.txt，是否正确部署cqsocketapi并在coolq中启用
- 2. bot 是否与coolq主程序可以通过127.0.0.1直连，如果一个在docker内部一个在外部是连不上的，参考 [#10](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/10)
+ 1. 请在提问前检查是否使用 Python 3.6+，是否安装 requirements.txt中的依赖，是否正确部署cq-http-api并在coolq中启用
+ <!--2. bot 是否与coolq主程序可以通过127.0.0.1直连，如果一个在docker内部一个在外部是连不上的，参考 [#10](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/10)-->
 
 ## 提问需要携带的信息
 
