@@ -29,14 +29,14 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 + QQ群的图片可以转发Telegram群，Telegram群的图片将会以链接的形式转发到QQ群
 + Telegram群的Sticker会转换成对应的emoji转发给QQ群，QQ群的常用QQ表情会以emoji的形式转发到Telegram群 
 + 支持开启Telegram群的Sticker导出模式，开启该模式后，在QQ可以通过链接保存Sticker。
-+ 支持命令，使用 !!show commands 或者 !!cmd 查看
++ 支持查看命令列表，使用 `!!show commands` 或者 `!!cmd` 查看
 
 ### 如果您使用的是酷Q Pro
 
 + 支持QQ群和Telegram群的文字消息互转
 + QQ群的图片可以转发Telegram群，Telegram群的图片和sticker可以转发到QQ群，QQ群的QQ表情会以emoji的形式转发到Telegram群
 + 支持临时关闭转发
-+ 支持命令，使用 !!show commands 或者 !!cmd 查看
++ 支持查看命令列表，使用 `!!show commands` 或者 `!!cmd` 查看
 
 ## 环境的搭建
 
