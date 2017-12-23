@@ -29,14 +29,14 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 + QQ群的图片可以转发Telegram群，Telegram群的图片将会以链接的形式转发到QQ群
 + Telegram群的Sticker会转换成对应的emoji转发给QQ群，QQ群的常用QQ表情会以emoji的形式转发到Telegram群 
 + 支持开启Telegram群的Sticker导出模式，开启该模式后，在QQ可以通过链接保存Sticker。
-+ 支持命令，使用 !!show commands 或者 !!sc 查看
++ 支持命令，使用 !!show commands 或者 !!cmd 查看
 
 ### 如果您使用的是酷Q Pro
 
 + 支持QQ群和Telegram群的文字消息互转
 + QQ群的图片可以转发Telegram群，Telegram群的图片和sticker可以转发到QQ群，QQ群的QQ表情会以emoji的形式转发到Telegram群
 + 支持临时关闭转发
-+ 支持命令，使用 !!show commands 或者 !!sc 查看
++ 支持命令，使用 !!show commands 或者 !!cmd 查看
 
 ## 环境的搭建
 
@@ -155,7 +155,7 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 ### 查看命令开关
 
-发送 `!!show commands` 或者 `!!sc` 可以查看当前注册的所有命令，会只在发送的客户端显示
+发送 `!!show commands` 或者 `!!cmd` 可以查看当前注册的所有命令，会只在发送的客户端显示
 
 ### 查看作者的吱口令红包
 
@@ -167,23 +167,23 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 ### 更新 QQ 群名片列表
 
-发送 `!!update namelist` 或者 `!!un` 可以让Bot手动更新当前的 QQ 群名片缓存
+发送 `!!update namelist` 或者 `!!name` 可以让Bot手动更新当前的 QQ 群名片缓存
 
 注意： Coolq 的群名片更新可能很不及时，所以此功能主要用于新加入成员之后的首次更新
 
 ### 图片链接模式 （Coolq Air Only）
 
-开启：在QQ群或Telegram群中发送 `!!pic link on` 或者 `!!plon`
+开启：在QQ群或Telegram群中发送 `!!pic link on` 或者 `!!lnkon`
 
-关闭：在QQ群或Telegram群中发送 `!!pic link off` 或者 `!!ploff`
+关闭：在QQ群或Telegram群中发送 `!!pic link off` 或者 `!!lnkoff`
 
 开启后，图片和Sticker转发到QQ群的时候，会显示图片链接。
 
 ### 开车模式
 
-开启：在QQ群或Telegram群中发送 `!!drive mode on` 或 `!!dmon`
+开启：在QQ群或Telegram群中发送 `!!drive mode on` 或 `!!drive`
 
-关闭：在QQ群或Telegram群中发送 `!!drive mode off` 或 `!!dmoff`
+关闭：在QQ群或Telegram群中发送 `!!drive mode off` 或 `!!park`
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
 
