@@ -97,6 +97,7 @@ ENV/
 
 namelist.json
 bot.log
+bot.log*
 nohup.out
 bot_constant.py
 special_sticker_list.py
@@ -105,3 +106,6 @@ nouse.py
 .DS_Store
 .idea
 .vscode
+
+# ignore DB file
+*.db
