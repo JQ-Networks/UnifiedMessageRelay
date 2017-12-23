@@ -1,47 +1,20 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **3.1**
+QQ和Telegram的消息互转机器人 **v3.1**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
-## 3.1 更新
+## 最近更新
+### v3.1
+- 支持撤回已发送消息（2分钟内）
+- 支持编辑消息时撤回老消息（2分钟内）
 
-支持撤回（2分钟内）
-
-支持编辑消息时撤回老消息（2分钟内）
-
-## 3.0 更新
-
-底层 API 从 cqsocketapi 迁移至 cq-http-api
-
-新增作者吱口令红包，群里发送 !!ali 或者 !!alipay 即可查看
-
-2.x升级需要安装 [CQ-HTTP-API]（https://github.com/richardchien/coolq-http-api) 插件，可以卸载之前的 cqsocketapi。
-
-除此之外需要修改一些配置
-
-新增 Telegram 到 qq 发送地图坐标，需要设置百度地图 API，方法自行搜索
-
-`Drive_mode` 修改为 `DRIVE_MODE`
-
-`Pic_link` 修改为 `IMAGE_LINK`
-
-插件配置见下面安装部分
-
-由于使用了 Type Hint, 必须使用 Python3.6+ 才能正常运行，请升级 Python 或者使用 [Docker](https://github.com/Z4HD/coolq-telegram-bot-docker)
-
-requirements.txt 已精简
-
-准备支持加群加加讨论组等功能
-
-可能会支持权限管理
-
-tg 私聊添加管理员面板 - 待添加
+查看更多
 
 ----------------------------
 
-## docker 版
+## docker 容器
 
 1. Star 本 Repo
 2. Star [这个](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
@@ -178,25 +151,27 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 如需后台运行，请 `Ctrl C` 并重新 `python3.6 daemon.py start`
 
-## 查看命令开关
+## 基本操作
+
+### 查看命令开关
 
 发送 !!show commands 或者 !!sc 可以查看当前注册的所有命令，会只在发送的客户端显示
 
-## 查看作者的吱口令红包
+### 查看作者的吱口令红包
 
 发送 !!alipay 或者 !!ali，不需要花你一分钱即可 donate 作者
 
-## 查看 Telegram 群 ID
+### 查看 Telegram 群 ID
 
 在 Telegram 中发送 !!show group id 或者 !!id 可以查看 Telegram 群号
 
-## 更新 QQ 群名片列表
+### 更新 QQ 群名片列表
 
 发送 !!update namelist 或者 !!un 可以更新当前转发的 QQ 群名片缓存
 
 注意： Coolq 的群名片更新可能很不及时，所以此功能主要用于新加入成员之后的首次更新
 
-## 图片链接模式 （Coolq Air Only）
+### 图片链接模式 （Coolq Air Only）
 
 开启：在QQ群或Telegram群中发送 !!pic link on 或者 !!plon
 
@@ -204,7 +179,7 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 开启后，图片和Sticker转发到QQ群的时候，会显示图片链接。
 
-## 开车模式
+### 开车模式
 
 开启：在QQ群或Telegram群中发送 !!drive mode on 或 !!dmon
 
@@ -212,7 +187,7 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 开启后，Telegram消息不会转发到QQ群内，QQ消息也不能转发到Telegram群组内。
 
-## 撤回消息（新）
+### 撤回消息（v3.1+）
 
 对一条非 bot 发送的消息（即 Telegram 转发到 QQ 的消息）回复 !!recall 或 !!del，即可撤回。
 
