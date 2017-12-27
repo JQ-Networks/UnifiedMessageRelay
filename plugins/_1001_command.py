@@ -141,7 +141,7 @@ def command_tg(tg_group_id: int,
                tg_message_id: int,
                tg_reply_to: telegram.Message = None):
     result = '''I'm a relay bot between qq and tg.
-Please use "!!show commands" or "!!sc" to show all commands.
+Please use "!!show commands" or "!!cmd" to show all commands.
 '''
     global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
                                    text=result,

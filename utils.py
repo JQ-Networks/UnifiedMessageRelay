@@ -313,7 +313,7 @@ def divide_qq_message(forward_index: int,
         if _qq_number == QQ_BOT_ID:
             _pending_text += ' @bot '
         else:
-            _pending_text = '@' + get_qq_name(_qq_number, forward_index)
+            _pending_text += ' @' + get_qq_name(_qq_number, forward_index) + ' '
 
     def _face(data):
         nonlocal _pending_text
