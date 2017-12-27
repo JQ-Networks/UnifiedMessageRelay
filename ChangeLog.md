@@ -3,6 +3,7 @@
 ## v3.1
 - 支持撤回已发送消息（2分钟内）
 - 支持编辑消息时撤回老消息（2分钟内）
+-  **修改了部分命令名称及缩写，发送 `!!cmd` 查询命令列表。 ** 
 
 ## v3.0
 - 底层 API 从 cqsocketapi 迁移至 [cq-http-api](https://github.com/richardchien/coolq-http-api)
@@ -10,6 +11,7 @@
 - 新增作者吱口令红包，群里发送 `!!ali` 或者 `!!alipay` 即可查看
 - 新增 Telegram 到 qq 发送地图坐标，需要设置百度地图 API，方法自行搜索
 - requirements.txt 已精简，删除了不必要的依赖。
+- 新增指令缩写，可通过键入简短的 `!!sc` 查看命令列表。
 
 ### 配置文件更改
 - `Drive_mode` 修改为 `DRIVE_MODE`
