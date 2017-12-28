@@ -7,12 +7,28 @@ logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
 
+@global_vars.qq_bot.on_event(group=0)
+def handle_all(context):
+
+    logger.debug(context)
+
+    # tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
+    #                                         qq_group_id=qq_group_id,
+    #                                         qq_user=context['user_id'])
+    #
+    # # save message to database, using telegram message id as index
+    # for msg_id in tg_message_id_list:
+    #     global_vars.mdb.append_message(context.get('message_id'), msg_id, forward_index, context.get('user_id'))
+
+    return ''
+
+
 @global_vars.qq_bot.on_event('group_upload', group=get_plugin_priority(__name__))
 def handle_group_upload(context):
     qq_group_id = context.get('group_id')
     user_id = context.get('user_id')
     file = context.get('file')
-    logger.log(context)
+    logger.debug(context)
     forward_index = get_forward_index(qq_group_id=qq_group_id)
 
     qq_name = get_qq_name(user_id, forward_index)
@@ -34,7 +50,7 @@ def handle_group_admin(context):
     sub_type = context.get('sub_type')
     user_id = context.get('user_id')
     file = context.get('file')
-    logger.log(context)
+    logger.debug(context)
     forward_index = get_forward_index(qq_group_id=qq_group_id)
 
     # tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
@@ -54,7 +70,7 @@ def handle_group_decrease(context):
     sub_type = context.get('sub_type')
     user_id = context.get('user_id')
     operator_id = context.get('operator_id')
-    logger.log(context)
+    logger.debug(context)
     forward_index = get_forward_index(qq_group_id=qq_group_id)
 
     # tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
@@ -74,7 +90,7 @@ def handle_group_increase(context):
     sub_type = context.get('sub_type')
     user_id = context.get('user_id')
     operator_id = context.get('operator_id')
-    logger.log(context)
+    logger.debug(context)
     forward_index = get_forward_index(qq_group_id=qq_group_id)
 
     # tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
