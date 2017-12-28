@@ -40,6 +40,7 @@ def tg_command(bot: telegram.Bot,
 
     forward_index = get_forward_index(tg_group_id=tg_group_id)
     if forward_index == -1:
+        logger.warning('Forward not found, please check your forward settings.')
         raise DispatcherHandlerStop()
 
     for command in global_vars.command_list:  # process all forward commands
@@ -86,6 +87,7 @@ def qq_command(context):
     forward_index = get_forward_index(qq_group_id=qq_group_id,
                                       qq_discuss_id=qq_discuss_id)
     if forward_index == -1:
+        logger.warning('Forward not found, please check your forward settings.')
         return ''
 
     for command in global_vars.command_list:  # process all forward commands

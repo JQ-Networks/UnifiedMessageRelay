@@ -29,7 +29,7 @@ logger.addHandler(rHandler)
 # log telegram Bot library
 
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
-logger_telegram = logging.getLogger()
+logger_telegram = logging.getLogger('telegram')
 logger_telegram.setLevel(logging.INFO)
 logger_telegram.addHandler(rHandler)
 
