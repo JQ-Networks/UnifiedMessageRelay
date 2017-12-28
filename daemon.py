@@ -81,10 +81,6 @@ class MainProcess(Daemon):
 
         import plugins  # load all plugins
 
-        while True:
-            utils.from_main_thread_blocking()
-            time.sleep(1)
-
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
         # start_polling() is non-blocking and will stop the bot gracefully.
