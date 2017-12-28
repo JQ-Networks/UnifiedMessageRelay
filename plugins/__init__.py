@@ -14,3 +14,4 @@ import plugins._1005_drive_mode
 import plugins._1006_water_meter_filter
 import plugins._1100_text_forward
 
+import plugins._1101_other_qq_group_events
