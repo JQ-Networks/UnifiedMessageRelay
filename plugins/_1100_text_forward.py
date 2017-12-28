@@ -490,9 +490,6 @@ def text_from_telegram(bot: telegram.Bot,
     if edited:
         recall_message(forward_index, message)
 
-    if message.text.startswith('//'):
-        return
-
     reply_entity = list()
 
     reply_entity.append({
