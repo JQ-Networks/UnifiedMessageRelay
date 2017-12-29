@@ -1,7 +1,7 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-[中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/README-zh_CN.md)
+[中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/blob/master/README-zh_CN.md)
 
 QQ & Telegram Relay Bot **v3.1**
 
@@ -9,14 +9,14 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 ## Recent Update
 ### v3.1
-- Support Message Recalling（within 2 minutes）
-- Edit will recall old message（within 2 minutes）
+- Support Message Recalling（2-minute limitation）
+- Edits will recall old messages（2-minute limitation）
 
 [View More](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/ChangeLog.md)
 
 ----------------------------
 
-## docker Usage
+## Docker Usage
 
 1. Star This Repo
 2. Star [This](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
