@@ -440,16 +440,15 @@ def send_from_qq_to_tg(forward_index: int,
     logger.debug('qq -> tg: ' + str(message))
 
     message_list = divide_qq_message(forward_index, message)
-    logger.debug(str(message_list))
     forward_from = ''
     if 'text' in message_list[0]:
-        sender, forward_from, _, _, message[0]['text'] = extract_universal_mark(message[0]['text'])
+        sender, forward_from, _, _, message_list[0]['text'] = extract_universal_mark(message_list[0]['text'])
         if forward_from:
             forward_from = '(↩️' + forward_from + ')'
         elif sender:
             forward_from = '(↩️' + sender + ')'
-        if not message[0]['text'].strip():
-            del message[0]
+        if not message_list[0]['text'].strip():
+            del message_list[0]
 
     message_count = len(message_list)
 
