@@ -106,7 +106,6 @@ conv_handler = ConversationHandler(
 
 
 global_vars.dp.add_handler(conv_handler,
-                           filters=Filters.private,
                            group=get_plugin_priority(__name__))
 global_vars.dp.add_handler(CommandHandler(command='add_keyword',
                                           callback=add_keyword,
