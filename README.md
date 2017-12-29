@@ -198,7 +198,7 @@ Message must be sent by bot in QQ side.
 
 ** If the message exceed 2 minutes, recall will fail**
 
-# Manage Features (Under Construction)
+# Management Features (Under Construction)
 
 Currently QQ group invites and accept invites is available via private chat.
 
