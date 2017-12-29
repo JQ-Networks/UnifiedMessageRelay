@@ -261,9 +261,12 @@ def send_from_tg_to_qq(forward_index: int,
     if tg_forward_from.forward_from and tg_forward_from.forward_from.id == global_vars.tg_bot_id:
         logger.debug('reached')
         if message[0]['type'] == 'text':
+            logger.debug('reached1')
             _, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
         elif len(message) > 1:
+            logger.debug('reached2')
             _, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(message[1]['data']['text'])
+        logger.debug(forward_from)
     else:
         forward_from = get_forward_from(tg_forward_from)
     if edited:  # if edited, add edit mark
