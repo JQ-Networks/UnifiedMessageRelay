@@ -81,7 +81,7 @@ def get_forward_from(message: telegram.Message):
             result = ''
     else:
         result = get_full_user_name(message.forward_from)
-    return '(↩' + result + ')'
+    return '(↩️' + result + ')'
 
 
 def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
@@ -103,7 +103,7 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
         if not qq_number:  # message is bot command (tg side)
             return ''
         reply_to = get_qq_name_encoded(qq_number, forward_index)
-    return '(→' + reply_to + ')'
+    return '(➡️' + reply_to + ')'
 
 
 def get_forward_index(qq_group_id=None,
@@ -153,7 +153,8 @@ def get_qq_name_encoded(qq_number: int,
     :param forward_index:
     :return:
     """
-    return encode_html(get_qq_name(qq_number, forward_index))
+    return encode_html(get_qq_name(qq_number, forward_index)).replace('(', '').replace(')', '')\
+        .replace('➡️', '').replace('↩️', '')
 
 priority = re.compile(r'_(\d+)_*')
 
@@ -187,6 +188,50 @@ def text_reply(text):
     }]
 
 
+def extract_universal_mark(message: str) -> (str, str, str, bool, str):
+    """
+    message with attributes
+    :param message:
+    :return: sender, forward_from, reply_to, edited, trimmed message
+    """
+
+    if '💬' not in message:
+        return '', '', '', False, message
+
+    forward_regex = re.compile(r'\(↩(.*)\)')
+    reply_regex = re.compile(r'\(➡️(.*)\)')
+    send_regex = re.compile(r'^(.*)💬 ')
+
+    sender = ''
+    forward_from = ''
+    reply_to = ''
+    edited = False
+
+    def extract_forward(match):
+        nonlocal forward_from
+        forward_from = match.group(1)
+        return ''
+
+    def extract_reply(match):
+        nonlocal reply_to
+        reply_to = match.group(1)
+        return ''
+
+    def extract_send(match):
+        nonlocal sender
+        sender = match.group(1).strip()
+        return ''
+
+    message = forward_regex.sub(extract_forward, message, count=1)
+    message = reply_regex.sub(extract_reply, message, count=1)
+    if '✎ 💬 ' in message:
+        edited = True
+        message = message.replace('✎', '', count=1)
+    message = send_regex.sub(extract_send, message, count=1)
+
+    return sender, forward_from, reply_to, edited, message
+
+
 def send_from_tg_to_qq(forward_index: int,
                        message: list,
                        tg_group_id: int,
@@ -208,16 +253,22 @@ def send_from_tg_to_qq(forward_index: int,
     :return: qq message id
     """
     logger.debug("tg -> qq: " + str(message))
-    sender_name = get_full_user_name(tg_user)
-    forward_from = get_forward_from(tg_forward_from)
-    reply_to = get_reply_to(tg_reply_to, forward_index)
 
+    sender_name = get_full_user_name(tg_user)
+    reply_to = get_reply_to(tg_reply_to, forward_index)
+    if tg_forward_from and tg_forward_from.from_user.id == global_vars.tg_bot_id:
+        if message[0]['type'] == 'text':
+            _, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
+        elif len(message) > 1:
+            _, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(message[1]['data']['text'])
+    else:
+        forward_from = get_forward_from(tg_forward_from)
     if edited:  # if edited, add edit mark
         edit_mark = ' ✎ '
     else:
         edit_mark = ''
 
-    message_attribute = sender_name + reply_to + forward_from + edit_mark + ': '
+    message_attribute = sender_name + reply_to + forward_from + edit_mark + '💬 '
 
     if sender_name:  # insert extra info at beginning
         message.insert(0, {

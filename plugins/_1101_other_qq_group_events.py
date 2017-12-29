@@ -21,7 +21,7 @@ def handle_group_upload(context):
 
     qq_name = get_qq_name_encoded(user_id, forward_index)
 
-    result = f'<b>{qq_name}</b> sent a group file: {file["name"]}. Please view it on qq.'
+    result = f'<b>{qq_name}</b> sent a 📎group file: {file["name"]}. Please view it on QQ.'
     global_vars.tg_bot.sendMessage(chat_id=FORWARD_LIST[forward_index]['TG'],
                                    text=result,
                                    parse_mode='HTML')
