@@ -8,7 +8,7 @@ log-calls==0.3.2
 olefile==0.44
 Pillow==4.3.0
 pycurl==7.43.0
-python-telegram-bot==8.1.1
+python-telegram-bot==9.0.0
 requests==2.18.4
 unattended-upgrades==0.1
 urllib3==1.22
