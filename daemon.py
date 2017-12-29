@@ -6,6 +6,7 @@ import queue
 import threading
 import time
 from logging.handlers import RotatingFileHandler
+from cqhttp import Error
 
 from telegram.ext import CommandHandler, Updater
 
@@ -83,7 +84,7 @@ class MainProcess(Daemon):
 
         try:
             bot_status = qq_bot.get_status()
-        except ConnectionError as e:
+        except Error as e:
             logger.error('Could not reach Coolq-http-api, please check Coolq plugins.')
             exit(-1)
         logger.debug('Coolq-http-api status: ok')

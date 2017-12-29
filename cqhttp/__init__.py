@@ -29,10 +29,13 @@ class _ApiClient(object):
         headers = {}
         if self._access_token:
             headers['Authorization'] = 'Token ' + self._access_token
-        resp = requests.post(
-            self._url, json=kwargs,
-            headers=headers
-        )
+        try:
+            resp = requests.post(
+                self._url, json=kwargs,
+                headers=headers
+            )
+        except ConnectionError as e:
+
         if resp.ok:
             data = resp.json()
             if data.get('status') == 'failed':
