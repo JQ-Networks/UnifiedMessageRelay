@@ -226,7 +226,7 @@ def extract_universal_mark(message: str) -> (str, str, str, bool, str):
     message = reply_regex.sub(extract_reply, message, count=1)
     if '✎ 💬 ' in message:
         edited = True
-        message = message.replace('✎', '', count=1)
+        message = message.replace('✎', '', 1)
     message = send_regex.sub(extract_send, message, count=1)
 
     return sender, forward_from, reply_to, edited, message
