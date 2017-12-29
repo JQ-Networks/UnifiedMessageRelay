@@ -8,7 +8,6 @@ from bot_constant import *
 import telegram
 import global_vars
 import re
-from typing import Union
 from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
     cq_location_regex, CQ_IMAGE_ROOT
 import logging
@@ -75,7 +74,7 @@ def get_forward_from(message: telegram.Message):
             message_text = message.text
         else:
             message_text = ''
-        right_end = message_text.find(':')
+        right_end = message_text.find('💬')
         if right_end != -1:  # from qq
             result = message_text[:right_end]
         else:  # self generated command text, etc.
@@ -103,7 +102,7 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
         qq_number = saved_message[2]
         if not qq_number:  # message is bot command (tg side)
             return ''
-        reply_to = get_qq_name(qq_number, forward_index)
+        reply_to = get_qq_name_encoded(qq_number, forward_index)
     return '(→' + reply_to + ')'
 
 
@@ -135,6 +134,26 @@ def get_qq_name(qq_number: int,
             return group_member['card'] if group_member.get('card') else group_member['nickname']
     return str(qq_number)
 
+
+def encode_html(encode_string: str):
+    """
+    used for telegram parse_mode=HTML
+    :param encode_string: string to encode
+    :return: encoded string
+    """
+
+    return encode_string.strip().replace('<', '&lt;').replace('>', '&gt;')
+
+
+def get_qq_name_encoded(qq_number: int,
+                        forward_index: int):
+    """
+    get encoded qq name
+    :param qq_number:
+    :param forward_index:
+    :return:
+    """
+    return encode_html(get_qq_name(qq_number, forward_index))
 
 priority = re.compile(r'_(\d+)_*')
 
@@ -194,7 +213,7 @@ def send_from_tg_to_qq(forward_index: int,
     reply_to = get_reply_to(tg_reply_to, forward_index)
 
     if edited:  # if edited, add edit mark
-        edit_mark = ' E '  # ' ✎ '
+        edit_mark = ' ✎ '
     else:
         edit_mark = ''
 
@@ -284,7 +303,7 @@ def divide_qq_message(forward_index: int,
 
     def _text(data):
         nonlocal _pending_text
-        _pending_text += data['text'].strip().replace('<', '&lt;').replace('>', '&gt;')
+        _pending_text += encode_html(data['text'])
 
     def _at(data):
         nonlocal _pending_text
@@ -292,7 +311,7 @@ def divide_qq_message(forward_index: int,
         if _qq_number == QQ_BOT_ID:
             _pending_text += ' @bot '
         else:
-            _pending_text += ' @' + get_qq_name(_qq_number, forward_index) + ' '
+            _pending_text += ' @' + get_qq_name_encoded(_qq_number, forward_index) + ' '
 
     def _face(data):
         nonlocal _pending_text
@@ -335,7 +354,7 @@ def divide_qq_message(forward_index: int,
         if message_part['type'] in switch:
             switch[message_part['type']](message_part['data'])
         else:
-            logger.debug('unknown coolq message part: ' + message_part)
+            logger.info('unknown coolq message part: ' + message_part)
 
     if _pending_text:
         if _pending_image:
@@ -383,10 +402,10 @@ def send_from_qq_to_tg(forward_index: int,
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
 
             if message_part.get('text'):
-                full_msg = get_qq_name(qq_user, forward_index) + ': ' \
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + '💬 ' \
                            + message_index_attribute + message_part['text']
             else:
-                full_msg = get_qq_name(qq_user, forward_index) + ': ' + message_index_attribute
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + '💬 ' + message_index_attribute
 
             if filename.lower().endswith('gif'):  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
@@ -400,7 +419,7 @@ def send_from_qq_to_tg(forward_index: int,
         else:
             # only first message could be pure text
             if qq_user:
-                full_msg_bold = '<b>' + get_qq_name(qq_user, forward_index) + '</b>: ' + \
+                full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>💬 ' + \
                                 message_index_attribute +\
                                 message_list[0]['text']
             else:

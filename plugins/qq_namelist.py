@@ -29,7 +29,7 @@ def update_namelist(forward_index: int,
 
     global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[forward_index]['QQ'])
 
-    message = 'QQ群名片已重新加载'
+    message = 'QQ name list reloaded.'
 
     return send_both_side(forward_index,
                           message,

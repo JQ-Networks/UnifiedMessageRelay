@@ -11,14 +11,16 @@ from telegram.ext import CommandHandler, Updater
 
 # region log
 
-# log main thread
-logger = logging.getLogger("CTBMain")
-logger.setLevel(logging.DEBUG)
+# rotate file handler: max size: 1MB, so always enable debug mode is ok
 rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
 standardFormatter = logging.Formatter(
     "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s")
 rHandler.setFormatter(standardFormatter)
+
+# log main thread
+logger = logging.getLogger("CTBMain")
+logger.setLevel(logging.DEBUG)
 logger.addHandler(rHandler)
 
 # log plugins
@@ -30,7 +32,7 @@ logger.addHandler(rHandler)
 
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
-logger_telegram.setLevel(logging.INFO)
+logger_telegram.setLevel(logging.DEBUG)
 logger_telegram.addHandler(rHandler)
 
 # endregion
