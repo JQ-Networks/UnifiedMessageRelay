@@ -13,7 +13,7 @@ from telegram.ext import CommandHandler, Updater
 
 # region log
 
-coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
 
 
 # rotate file handler: max size: 1MB, so always enable debug mode is ok
