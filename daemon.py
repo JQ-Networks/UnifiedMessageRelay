@@ -23,19 +23,19 @@ rotate_handler = RotatingFileHandler(
 
 # log main thread
 logger = logging.getLogger("CTBMain")
-logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 logger.addHandler(rotate_handler)
 
 # log plugins
 logger_plugins = logging.getLogger("CTBPlugin")
-logger_plugins.setLevel(logging.DEBUG)
+# logger_plugins.setLevel(logging.DEBUG)
 logger.addHandler(rotate_handler)
 
 # log telegram Bot library
 
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
-logger_telegram.setLevel(logging.DEBUG)
+# logger_telegram.setLevel(logging.DEBUG)
 logger_telegram.addHandler(rotate_handler)
 
 # endregion
@@ -119,9 +119,9 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     elif args.command == 'restart':
         daemon.restart()
     elif args.command == 'run':
-        logger.setLevel(logging.DEBUG)
-        logger_plugins.setLevel(logging.DEBUG)
-        logger_telegram.setLevel(logging.DEBUG)
+        # logger.setLevel(logging.DEBUG)
+        # logger_plugins.setLevel(logging.DEBUG)
+        # logger_telegram.setLevel(logging.DEBUG)
         stream_handler = logging.StreamHandler()
         logger.addHandler(stream_handler)
         logger_plugins.addHandler(stream_handler)
