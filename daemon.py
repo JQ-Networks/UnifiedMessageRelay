@@ -84,7 +84,7 @@ class MainProcess(Daemon):
 
         try:
             bot_status = qq_bot.get_status()
-        except Error as e:
+        except Exception as e:
             logger.error('Could not reach Coolq-http-api, please check Coolq plugins.')
             exit(-1)
         logger.debug('Coolq-http-api status: ok')
