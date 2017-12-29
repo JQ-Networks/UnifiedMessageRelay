@@ -198,9 +198,9 @@ def extract_universal_mark(message: str) -> (str, str, str, bool, str):
     if '💬' not in message:
         return '', '', '', False, message
 
-    forward_regex = re.compile(r'\(↩(.*?)\).*?💬 ')
-    reply_regex = re.compile(r'\(➡️(.*?)\).*?💬 ')
-    send_regex = re.compile(r'^(.*?)💬 ')
+    forward_regex = re.compile(r'\(↩(.*?)\).*?(?=💬)')
+    reply_regex = re.compile(r'\(➡️(.*?)\).*?(?=💬)')
+    send_regex = re.compile(r'^(.*?)💬')
 
     sender = ''
     forward_from = ''
