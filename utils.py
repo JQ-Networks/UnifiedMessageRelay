@@ -198,9 +198,9 @@ def extract_universal_mark(message: str) -> (str, str, str, bool, str):
     if '💬' not in message:
         return '', '', '', False, message
 
-    forward_regex = re.compile(r'\(↩(.*)\)')
-    reply_regex = re.compile(r'\(➡️(.*)\)')
-    send_regex = re.compile(r'^(.*)💬 ')
+    forward_regex = re.compile(r'\(↩(.*?)\).*?💬 ')
+    reply_regex = re.compile(r'\(➡️(.*?)\).*?💬 ')
+    send_regex = re.compile(r'^(.*?)💬 ')
 
     sender = ''
     forward_from = ''
@@ -440,6 +440,17 @@ def send_from_qq_to_tg(forward_index: int,
     logger.debug('qq -> tg: ' + str(message))
 
     message_list = divide_qq_message(forward_index, message)
+
+    forward_from = ''
+    if message_list[0]['type'] == 'text':
+        sender, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
+        if forward_from:
+            forward_from = '(↩️' + forward_from + ')'
+        elif sender:
+            forward_from = '(↩️' + sender + ')'
+        if not message[0]['data']['text'].strip():
+            del message[0]
+
     message_count = len(message_list)
 
     telegram_message_id_list = list()
@@ -457,10 +468,10 @@ def send_from_qq_to_tg(forward_index: int,
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
 
             if message_part.get('text'):
-                full_msg = get_qq_name_encoded(qq_user, forward_index) + '💬 ' \
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '💬 ' \
                            + message_index_attribute + message_part['text']
             else:
-                full_msg = get_qq_name_encoded(qq_user, forward_index) + '💬 ' + message_index_attribute
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '💬 ' + message_index_attribute
 
             if filename.lower().endswith('gif'):  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
@@ -474,7 +485,7 @@ def send_from_qq_to_tg(forward_index: int,
         else:
             # only first message could be pure text
             if qq_user:
-                full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>💬 ' + \
+                full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '💬 ' + \
                                 message_index_attribute +\
                                 message_list[0]['text']
             else:
