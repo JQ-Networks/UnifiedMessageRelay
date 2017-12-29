@@ -1,5 +1,3 @@
-#!/use/bin/env python3
-
 import os
 import threading
 import traceback
@@ -74,7 +72,7 @@ def get_forward_from(message: telegram.Message):
             message_text = message.text
         else:
             message_text = ''
-        right_end = message_text.find('💬')
+        right_end = message_text.find('꞉')  # this is not a common ':', its '꞉'
         if right_end != -1:  # from qq
             result = message_text[:right_end]
         else:  # self generated command text, etc.
@@ -195,12 +193,12 @@ def extract_universal_mark(message: str) -> (str, str, str, bool, str):
     :return: sender, forward_from, reply_to, edited, trimmed message
     """
 
-    if '💬' not in message:
+    if '꞉' not in message:
         return '', '', '', False, message
 
-    forward_regex = re.compile(r'\(↩(.*?)\).*?(?=💬 )')
-    reply_regex = re.compile(r'\(➡️(.*?)\).*?(?=💬 )')
-    send_regex = re.compile(r'^(.*?)💬 ')
+    forward_regex = re.compile(r'\(↩(.*?)\).*?(?=꞉ )')
+    reply_regex = re.compile(r'\(➡️(.*?)\).*?(?=꞉ )')
+    send_regex = re.compile(r'^(.*?)꞉ ')
 
     sender = ''
     forward_from = ''
@@ -224,7 +222,7 @@ def extract_universal_mark(message: str) -> (str, str, str, bool, str):
 
     message = forward_regex.sub(extract_forward, message, count=1)
     message = reply_regex.sub(extract_reply, message, count=1)
-    if '✎ 💬 ' in message:
+    if '✎ ꞉ ' in message:
         edited = True
         message = message.replace('✎', '', 1)
     message = send_regex.sub(extract_send, message, count=1)
@@ -272,7 +270,7 @@ def send_from_tg_to_qq(forward_index: int,
     else:
         edit_mark = ''
 
-    message_attribute = sender_name + reply_to + forward_from + edit_mark + '💬 '
+    message_attribute = sender_name + reply_to + forward_from + edit_mark + '꞉ '
 
     if sender_name:  # insert extra info at beginning
         message.insert(0, {
@@ -467,10 +465,10 @@ def send_from_qq_to_tg(forward_index: int,
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
 
             if message_part.get('text'):
-                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '💬 ' \
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' \
                            + message_index_attribute + message_part['text']
             else:
-                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '💬 ' + message_index_attribute
+                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
 
             if filename.lower().endswith('gif'):  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
@@ -484,7 +482,7 @@ def send_from_qq_to_tg(forward_index: int,
         else:
             # only first message could be pure text
             if qq_user:
-                full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '💬 ' + \
+                full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '꞉ ' + \
                                 message_index_attribute +\
                                 message_list[0]['text']
             else:

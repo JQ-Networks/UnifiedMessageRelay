@@ -81,6 +81,11 @@ class MainProcess(Daemon):
             daemon=True)
         threaded_server.start()
 
+        bot_status = qq_bot.get_status()
+        if not bot_status:
+            logger.error('Could not reach Coolq-http-api, please check Coolq plugins.')
+            exit(-1)
+
         import plugins  # load all plugins
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
