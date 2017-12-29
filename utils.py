@@ -256,11 +256,7 @@ def send_from_tg_to_qq(forward_index: int,
 
     sender_name = get_full_user_name(tg_user)
     reply_to = get_reply_to(tg_reply_to, forward_index)
-    logger.debug(tg_forward_from)
-    logger.debug(tg_forward_from.from_user.id)
-    logger.debug(global_vars.tg_bot_id)
-    if tg_forward_from and tg_forward_from.from_user.id == global_vars.tg_bot_id:
-        logger.debug("reached")
+    if tg_forward_from.forward_from and tg_forward_from.forward_from.from_user.id == global_vars.tg_bot_id:
         try:
             if message[0]['type'] == 'text':
                 _, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
@@ -268,7 +264,6 @@ def send_from_tg_to_qq(forward_index: int,
                 _, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(message[1]['data']['text'])
         except Exception as e:
             logger.debug(e)
-        logger.debug(message)
     else:
         forward_from = get_forward_from(tg_forward_from)
     if edited:  # if edited, add edit mark
