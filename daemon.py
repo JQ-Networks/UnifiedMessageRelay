@@ -13,32 +13,30 @@ from telegram.ext import CommandHandler, Updater
 
 # region log
 
-coloredlogs.install()
+coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
 
 
 # rotate file handler: max size: 1MB, so always enable debug mode is ok
-FORMAT = logging.Formatter("[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s")
 
-rHandler = RotatingFileHandler(
+rotate_handler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
-rHandler.setFormatter(FORMAT)
 
 # log main thread
 logger = logging.getLogger("CTBMain")
 logger.setLevel(logging.DEBUG)
-logger.addHandler(rHandler)
+logger.addHandler(rotate_handler)
 
 # log plugins
 logger_plugins = logging.getLogger("CTBPlugin")
 logger_plugins.setLevel(logging.DEBUG)
-logger.addHandler(rHandler)
+logger.addHandler(rotate_handler)
 
 # log telegram Bot library
 
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
 logger_telegram.setLevel(logging.DEBUG)
-logger_telegram.addHandler(rHandler)
+logger_telegram.addHandler(rotate_handler)
 
 # endregion
 
@@ -124,11 +122,10 @@ run     - run as foreground Debug mode. every log will print to screen and log t
         logger.setLevel(logging.DEBUG)
         logger_plugins.setLevel(logging.DEBUG)
         logger_telegram.setLevel(logging.DEBUG)
-        sH = logging.StreamHandler()
-        sH.setFormatter(FORMAT)
-        logger.addHandler(sH)
-        logger_plugins.addHandler(sH)
-        logger_telegram.addHandler(sH)
+        stream_handler = logging.StreamHandler()
+        logger.addHandler(stream_handler)
+        logger_plugins.addHandler(stream_handler)
+        logger_telegram.addHandler(stream_handler)
         logger.info('Now running in debug mode...')
         daemon.run()
 
