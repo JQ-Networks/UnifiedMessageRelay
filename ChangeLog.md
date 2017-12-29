@@ -4,6 +4,7 @@
 - 支持撤回已发送消息（2分钟内）
 - 支持编辑消息时撤回老消息（2分钟内）
 -  **修改了部分命令名称及缩写，发送 `!!cmd` 查询命令列表。 ** 
+- 更好的 forward 和 reply（支持 qq 直接复制粘贴 tg 消息的格式转换）
 
 ## v3.0
 - 底层 API 从 cqsocketapi 迁移至 [cq-http-api](https://github.com/richardchien/coolq-http-api)
