@@ -17,7 +17,7 @@ coloredlogs.install()
 
 
 # rotate file handler: max size: 1MB, so always enable debug mode is ok
-FORMAT = "[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n"
+FORMAT = "[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d): %(message)s"
 
 rHandler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
