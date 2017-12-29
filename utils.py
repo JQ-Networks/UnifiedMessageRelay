@@ -261,6 +261,7 @@ def send_from_tg_to_qq(forward_index: int,
             _, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
         elif len(message) > 1:
             _, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(message[1]['data']['text'])
+        logger.debug(message)
     else:
         forward_from = get_forward_from(tg_forward_from)
     if edited:  # if edited, add edit mark
