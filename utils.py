@@ -440,7 +440,7 @@ def send_from_qq_to_tg(forward_index: int,
     logger.debug('qq -> tg: ' + str(message))
 
     message_list = divide_qq_message(forward_index, message)
-
+    logger.debug(str(message_list))
     forward_from = ''
     if 'text' in message_list[0]:
         sender, forward_from, _, _, message[0]['text'] = extract_universal_mark(message[0]['text'])
