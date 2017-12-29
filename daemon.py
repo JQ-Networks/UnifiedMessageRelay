@@ -174,7 +174,6 @@ run     - run as foreground Debug mode. every log will print to screen and log t
         logger_plugins.setLevel(logging.DEBUG)
         logger_telegram.setLevel(logging.DEBUG)
         sH = logging.StreamHandler()
-        sH.setFormatter(standardFormatter)
         logger.addHandler(sH)
         logger_plugins.addHandler(sH)
         logger_telegram.addHandler(sH)
