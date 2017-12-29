@@ -53,7 +53,7 @@ Docker is preferred, choose one from below if you want
 Please follow the instruction of the one you chose, and jump to **Configuration** part of this instruction
 
 
-### Directly use of Wine CoolQ
+### Directly use Wine CoolQ
 If you don't prefer Docker, follow this instruction (Please use Ubuntu, since bugs appear on Debian 9)
 > [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
 
