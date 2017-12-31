@@ -28,4 +28,3 @@ def show_qq_group_id(qq_group_id: int,
     else:
         msg = 'QQ discuss id is: ' + str(qq_discuss_id)
         return {'reply': msg}
-

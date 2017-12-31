@@ -356,7 +356,7 @@ def divide_qq_message(forward_index: int,
 
     def _text(data):
         nonlocal _pending_text
-        _pending_text += encode_html(data['text'])
+        _pending_text += data['text']
 
     def _at(data):
         nonlocal _pending_text
@@ -484,9 +484,9 @@ def send_from_qq_to_tg(forward_index: int,
             if qq_user:
                 full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '꞉ ' + \
                                 message_index_attribute +\
-                                message_list[0]['text']
+                                encode_html(message_list[0]['text'])
             else:
-                full_msg_bold = message_index_attribute + message_list[0]['text']
+                full_msg_bold = message_index_attribute + encode_html(message_list[0]['text'])
             _msg: telegram.Message = global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'],
                                                                     full_msg_bold,
                                                                     parse_mode='HTML')
