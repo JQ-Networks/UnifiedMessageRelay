@@ -20,6 +20,9 @@ coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%
 
 rotate_handler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
+standardFormatter = logging.Formatter(
+    '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+rotate_handler.setFormatter(standardFormatter)
 
 # log main thread
 logger = logging.getLogger("CTBMain")
