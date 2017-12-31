@@ -506,10 +506,13 @@ def text_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
-
+    
+    if forward_index == -1:
+        return ''
+    
     if edited:
         recall_message(forward_index, message)
-
+    
     reply_entity = list()
 
     reply_entity.append({
@@ -559,7 +562,9 @@ def handle_forward(context):
 
     forward_index = get_forward_index(qq_group_id=qq_group_id,
                                       qq_discuss_id=qq_discuss_id)
-
+    if forward_index == -1:
+        return ''
+    
     tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
                                             qq_group_id=qq_group_id,
                                             qq_discuss_id=qq_discuss_id,
