@@ -19,6 +19,7 @@ def ignore_old_message(bot: telegram.Bot,
                        update: telegram.Update):  # ignore old message that are more than 60s ago
 
     if (datetime.datetime.now() - update.message.date).total_seconds() > 60:
+        logger.debug('Telegram message ignored: sent more than 60 seconds ago')
         raise DispatcherHandlerStop()
 
 

@@ -19,11 +19,9 @@ def tg_water_meter(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=int(tg_group_id))
-    logger.debug("Water meter processing")
     if message.forward_from_chat and message.forward_from_chat.type == 'channel':
-        logger.debug("message is forward from channel")
         if update.message.forward_from_chat.id in global_vars.filter_list['channels']:
-            logger.debug("message is blocked")
+            logger.debug('Message ignored: matched water meter channels')
             global_vars.drive_mode_on(forward_index,
                                       tg_user=message.from_user,
                                       tg_group_id=tg_group_id,
@@ -40,11 +38,12 @@ def tg_water_meter(bot: telegram.Bot,
         return
 
     if message_text.startswith('//'):
+        logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
     for keyword in global_vars.filter_list['keywords']:
         if keyword in message_text:
-            logger.debug("message is blocked")
+            logger.debug('Message ignored: matched water meter keywords')
             global_vars.drive_mode_on(forward_index,
                                       tg_user=message.from_user,
                                       tg_group_id=tg_group_id,
