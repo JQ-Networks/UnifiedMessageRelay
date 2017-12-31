@@ -407,7 +407,7 @@ def divide_qq_message(forward_index: int,
         if message_part['type'] in switch:
             switch[message_part['type']](message_part['data'])
         else:
-            logger.info('unknown coolq message part: ' + message_part)
+            logger.info('unknown coolq message part: ' + str(message_part))
 
     if _pending_text:
         if _pending_image:
