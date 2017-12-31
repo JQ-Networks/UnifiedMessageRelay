@@ -4,6 +4,7 @@ import argparse
 import logging
 import queue
 import threading
+import coloredlogs
 import time
 from logging.handlers import RotatingFileHandler
 from cqhttp import Error
@@ -12,29 +13,33 @@ from telegram.ext import CommandHandler, Updater
 
 # region log
 
+coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
+
+
 # rotate file handler: max size: 1MB, so always enable debug mode is ok
-rHandler = RotatingFileHandler(
+
+rotate_handler = RotatingFileHandler(
     'bot.log', maxBytes=1048576, backupCount=3)
 standardFormatter = logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(name)s - %(module)s(%(filename)s) : %(message)s")
-rHandler.setFormatter(standardFormatter)
+    '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+rotate_handler.setFormatter(standardFormatter)
 
 # log main thread
 logger = logging.getLogger("CTBMain")
-logger.setLevel(logging.DEBUG)
-logger.addHandler(rHandler)
+# logger.setLevel(logging.DEBUG)
+logger.addHandler(rotate_handler)
 
 # log plugins
 logger_plugins = logging.getLogger("CTBPlugin")
-logger_plugins.setLevel(logging.DEBUG)
-logger.addHandler(rHandler)
+# logger_plugins.setLevel(logging.DEBUG)
+logger.addHandler(rotate_handler)
 
 # log telegram Bot library
 
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
-logger_telegram.setLevel(logging.DEBUG)
-logger_telegram.addHandler(rHandler)
+# logger_telegram.setLevel(logging.DEBUG)
+logger_telegram.addHandler(rotate_handler)
 
 # endregion
 
@@ -117,14 +122,13 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     elif args.command == 'restart':
         daemon.restart()
     elif args.command == 'run':
-        logger.setLevel(logging.DEBUG)
-        logger_plugins.setLevel(logging.DEBUG)
-        logger_telegram.setLevel(logging.DEBUG)
-        sH = logging.StreamHandler()
-        sH.setFormatter(standardFormatter)
-        logger.addHandler(sH)
-        logger_plugins.addHandler(sH)
-        logger_telegram.addHandler(sH)
+        # logger.setLevel(logging.DEBUG)
+        # logger_plugins.setLevel(logging.DEBUG)
+        # logger_telegram.setLevel(logging.DEBUG)
+        stream_handler = logging.StreamHandler()
+        logger.addHandler(stream_handler)
+        logger_plugins.addHandler(stream_handler)
+        logger_telegram.addHandler(stream_handler)
         logger.info('Now running in debug mode...')
         daemon.run()
 
