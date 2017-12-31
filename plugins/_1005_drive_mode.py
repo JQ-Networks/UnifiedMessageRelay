@@ -29,6 +29,7 @@ def tg_drive_mode(bot: telegram.Bot,
     forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
     if global_vars.DRIVE_MODE[forward_index]:  # normal block
+        logger.debug('Telegram message ignored: drive mode is on')
         raise DispatcherHandlerStop()
 
 

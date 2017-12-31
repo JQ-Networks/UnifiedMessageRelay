@@ -28,14 +28,17 @@ def tg_command(bot: telegram.Bot,
     tg_group_id = message.chat_id  # telegram group id
     tg_reply_to = message.reply_to_message
 
+    logger.debug('Command indicator met: ' + message.text)
     text = message.text[2:]
 
     for command in global_vars.command_list:  # process all non-forward commands
         if command.tg_only and (text == command.command or text == command.short_command):
+            logger.debug(f'Matched Telegram only command: {command.command}')
             command.handler(tg_group_id=tg_group_id,
                             tg_user=message.from_user,
                             tg_message_id=message.message_id,
                             tg_reply_to=tg_reply_to)
+
             raise DispatcherHandlerStop()
 
     forward_index = get_forward_index(tg_group_id=tg_group_id)
@@ -45,6 +48,7 @@ def tg_command(bot: telegram.Bot,
 
     for command in global_vars.command_list:  # process all forward commands
         if not command.tg_only and not command.qq_only and (text == command.command or text == command.short_command):
+            logger.debug(f'Matched general command: {command.command}')
             command.handler(forward_index,
                             tg_user=message.from_user,
                             tg_group_id=tg_group_id,
@@ -74,12 +78,12 @@ def qq_command(context):
     if not text.startswith('!!'):  # no command indicator
         return {'pass': True}
 
-    logger.debug('command indicator met: ' + text)
+    logger.debug('Command indicator met: ' + text)
     text = text[2:]
 
     for command in global_vars.command_list:  # process all non-forward commands
         if command.qq_only and (text == command.command or text == command.short_command):
-            logger.debug('command: ' + command.command + ' , qq_only')
+            logger.debug(f'Matched QQ only command: {command.command}')
             return command.handler(qq_group_id,
                                    qq_discuss_id,
                                    int(context['user_id']))
@@ -92,7 +96,7 @@ def qq_command(context):
 
     for command in global_vars.command_list:  # process all forward commands
         if not command.tg_only and not command.qq_only and (text == command.command or text == command.short_command):
-            logger.debug('command: ' + command.command)
+            logger.debug(f'Matched general command: {command.command}')
             return command.handler(forward_index,
                                    qq_group_id=qq_group_id,
                                    qq_discuss_id=qq_discuss_id,
