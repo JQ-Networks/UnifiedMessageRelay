@@ -94,7 +94,7 @@ class MainProcess(Daemon):
                 should_wait = False
             except Exception as e:
                 logger.warning('Could not reach Coolq-http-api, keep waiting...')
-                time.sleep(0.5)
+                time.sleep(1)
         logger.debug('Coolq-http-api status: ok')
 
         import plugins  # load all plugins
