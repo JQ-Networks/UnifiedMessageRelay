@@ -87,7 +87,7 @@ class MainProcess(Daemon):
             daemon=True)
         threaded_server.start()
 
-        should_wait = true
+        should_wait = True
         while should_wait:
             try:
                 bot_status = qq_bot.get_status()
