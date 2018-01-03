@@ -1,4 +1,4 @@
-from bot_constant import FORWARD_LIST
+from bot_constant import FORWARD_LIST, QQ_BOT_ID
 import global_vars
 from utils import get_plugin_priority, get_forward_index, get_qq_name_encoded
 import logging
@@ -68,7 +68,11 @@ def handle_group_decrease(context):
         return ''
 
     if sub_type == 'leave':
-        result = 'Your bot left group.'
+        if str(user_id) == str(QQ_BOT_ID):
+            result = 'Your bot left the group.'
+        else:
+            qq_name = get_qq_name_encoded(user_id, forward_index)
+            result = f'{qq_name} left the group.'
     elif sub_type == 'kick':
         qq_name = get_qq_name_encoded(user_id, forward_index)
         operator_name = get_qq_name_encoded(operator_id, forward_index)
@@ -102,9 +106,9 @@ def handle_group_increase(context):
     operator_name = get_qq_name_encoded(operator_id, forward_index)
 
     if sub_type == 'approve':
-        result = f'{qq_name} approved by {operator_name} has joined group.'
+        result = f'{qq_name} approved by {operator_name} joined the group.'
     else:
-        result = f'{qq_name} invited by {operator_name} has joined group.'
+        result = f'{qq_name} invited by {operator_name} joined the group.'
 
     global_vars.tg_bot.sendMessage(chat_id=FORWARD_LIST[forward_index]['TG'],
                                    text=result,
