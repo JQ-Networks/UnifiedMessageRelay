@@ -95,6 +95,9 @@ def handle_group_increase(context):
     if forward_index == -1:
         return ''
 
+    # reload namelist because there is a new member here
+    global_vars.reload_qq_namelist(forward_index)
+
     qq_name = get_qq_name_encoded(user_id, forward_index)
     operator_name = get_qq_name_encoded(operator_id, forward_index)
 

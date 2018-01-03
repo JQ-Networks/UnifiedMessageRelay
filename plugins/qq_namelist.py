@@ -12,9 +12,18 @@ logger.debug(__name__ + " loading")
 global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
 
 
+def reload_qq_namelist(forward_index: int):
+    global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[forward_index]['QQ'])
+
+
 def reload_all_qq_namelist():
     for i in range(len(FORWARD_LIST)):
-        global_vars.group_members[i] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[i]['QQ'])
+        reload_qq_namelist(i)
+
+
+# register the two functions to global_vars for accessing from other modules
+global_vars.create_variable('reload_qq_namelist', reload_qq_namelist)
+global_vars.create_variable('reload_all_qq_namelist', reload_all_qq_namelist)
 
 
 @command_listener('update namelist', 'name', description='update namelist for current group')
@@ -27,7 +36,7 @@ def update_namelist(forward_index: int,
                     qq_discuss_id: int=None,
                     qq_user: int=None):
 
-    global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[forward_index]['QQ'])
+    reload_qq_namelist(i)
 
     message = 'QQ name list reloaded.'
 
