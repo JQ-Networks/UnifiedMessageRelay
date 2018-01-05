@@ -311,7 +311,7 @@ def divide_qq_message(forward_index: int,
         _pending_text = '分享了<a href="' + data['url'] + '">' + data['title'] + '</a>'
 
     def _rich(data):
-        nonlocal _pending_text
+        nonlocal _pending_text, _text_encoded
         if data.get('url'):
             if data['url'].startswith('mqqapi'):
                 lat, lon, name, addr = extract_mqqapi(data['url'])
@@ -322,7 +322,7 @@ def divide_qq_message(forward_index: int,
             else:
                 _pending_text = '<a href="' + data['url'] + '">' + data['text'] + '</a>'
         else:
-            _pending_text = encode_html(data['text'])
+            _pending_text, _text_encoded = encode_html(data['text'])
 
     def _dice(data):
         nonlocal _pending_text
@@ -422,8 +422,12 @@ def divide_qq_message(forward_index: int,
 
     if _pending_text:
         if _pending_image:
-            message_list.append({'image': _pending_image,
-                                 'text': _pending_text})
+            if _text_encoded:
+                message_list.append({'image': _pending_image})
+                message_list.append({'text': _pending_text})
+            else:
+                message_list.append({'image': _pending_image,
+                                     'text': _pending_text})
         else:
             message_list.append({'text': _pending_text})
     elif _pending_image:
