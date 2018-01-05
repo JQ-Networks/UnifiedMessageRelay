@@ -133,14 +133,18 @@ def get_qq_name(qq_number: int,
     return str(qq_number)
 
 
-def encode_html(encode_string: str):
+def encode_html(encode_string: str) -> (str, bool):
     """
     used for telegram parse_mode=HTML
     :param encode_string: string to encode
-    :return: encoded string
+    :return: encoded string, is encoded
     """
+    if '<' in encode_string or '>' in encode_string:
+        encoded = True
+    else:
+        encoded = False
 
-    return encode_string.strip().replace('<', '&lt;').replace('>', '&gt;')
+    return encode_string.strip().replace('<', '&lt;').replace('>', '&gt;'), encoded
 
 
 def get_qq_name_encoded(qq_number: int,
@@ -151,7 +155,7 @@ def get_qq_name_encoded(qq_number: int,
     :param forward_index:
     :return:
     """
-    return encode_html(get_qq_name(qq_number, forward_index)).replace('(', '').replace(')', '')\
+    return encode_html(get_qq_name(qq_number, forward_index))[0].replace('(', '').replace(')', '')\
         .replace('➡️', '').replace('↩️', '')
 
 priority = re.compile(r'_(\d+)_*')
@@ -300,6 +304,7 @@ def divide_qq_message(forward_index: int,
 
     _pending_text = ''
     _pending_image = ''
+    _text_encoded = False
 
     def _share(data):
         nonlocal _pending_text
@@ -317,7 +322,7 @@ def divide_qq_message(forward_index: int,
             else:
                 _pending_text = '<a href="' + data['url'] + '">' + data['text'] + '</a>'
         else:
-            _pending_text = data['text']
+            _pending_text = encode_html(data['text'])
 
     def _dice(data):
         nonlocal _pending_text
@@ -340,23 +345,29 @@ def divide_qq_message(forward_index: int,
         _pending_text = '说了句话，请到电报查看'
 
     def _image(data):
-        nonlocal _pending_text
-        nonlocal _pending_image
+        nonlocal _pending_text, _pending_image, _text_encoded
         if _pending_image:
             if _pending_text:
-                message_list.append({'image': _pending_image, 'text': _pending_text})
+                if _text_encoded:
+                    message_list.append({'image': _pending_image})
+                    message_list.append({'text': _pending_text})
+                else:
+                    message_list.append({'image': _pending_image, 'text': _pending_text})
                 _pending_text = ''
+                _text_encoded = False
             else:
                 message_list.append({'image': _pending_image})
 
         elif _pending_text:
             message_list.append({'text': _pending_text})
             _pending_text = ''
+            _text_encoded = False
         _pending_image = data['file']
 
     def _text(data):
-        nonlocal _pending_text
-        _pending_text += data['text']
+        nonlocal _pending_text, _text_encoded
+        _text_tmp, _text_encoded = encode_html(data['text'])
+        _pending_text += _text_tmp
 
     def _at(data):
         nonlocal _pending_text
@@ -480,13 +491,12 @@ def send_from_qq_to_tg(forward_index: int,
                                                                       caption=full_msg)
 
         else:
-            # only first message could be pure text
             if qq_user:
                 full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '꞉ ' + \
                                 message_index_attribute +\
-                                encode_html(message_list[0]['text'])
+                                message_list[0]['text']
             else:
-                full_msg_bold = message_index_attribute + encode_html(message_list[0]['text'])
+                full_msg_bold = message_index_attribute + message_list[0]['text']
             _msg: telegram.Message = global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'],
                                                                     full_msg_bold,
                                                                     parse_mode='HTML')
