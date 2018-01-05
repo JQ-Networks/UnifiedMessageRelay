@@ -473,7 +473,7 @@ def send_from_qq_to_tg(forward_index: int,
         else:
             message_index_attribute = '(' + str(idx + 1) + '/' + str(message_count) + ')'
         if message_part.get('image'):
-            filename = message_part['image']
+            filename = message_part.get('image')
 
             cq_get_pic_url(filename)
             cq_download_pic(filename)
@@ -481,7 +481,7 @@ def send_from_qq_to_tg(forward_index: int,
 
             if message_part.get('text'):
                 full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' \
-                           + message_index_attribute + message_part['text']
+                           + message_index_attribute + message_part.get('text')
             else:
                 full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
 
@@ -498,9 +498,9 @@ def send_from_qq_to_tg(forward_index: int,
             if qq_user:
                 full_msg_bold = '<b>' + get_qq_name_encoded(qq_user, forward_index) + '</b>' + forward_from + '꞉ ' + \
                                 message_index_attribute +\
-                                message_list[0]['text']
+                                message_part.get('text')
             else:
-                full_msg_bold = message_index_attribute + message_list[0]['text']
+                full_msg_bold = message_index_attribute + message_part.get('text')
             _msg: telegram.Message = global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'],
                                                                     full_msg_bold,
                                                                     parse_mode='HTML')
