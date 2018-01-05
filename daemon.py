@@ -7,14 +7,20 @@ import threading
 import coloredlogs
 import time
 from logging.handlers import RotatingFileHandler
-from cqhttp import Error
-
+import sys
+import traceback
 from telegram.ext import CommandHandler, Updater
 
 # region log
 
 coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
 
+
+def log_except_hook(*exc_info):
+    text = "".join(traceback.format_exception(*exc_info))
+    logging.error("Unhandled exception: %s", text)
+
+sys.excepthook = log_except_hook
 
 # rotate file handler: max size: 1MB, so always enable debug mode is ok
 
