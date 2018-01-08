@@ -36,7 +36,7 @@ def update_namelist(forward_index: int,
                     qq_discuss_id: int=None,
                     qq_user: int=None):
 
-    reload_qq_namelist(i)
+    reload_qq_namelist(forward_index)
 
     message = 'QQ name list reloaded.'
 
