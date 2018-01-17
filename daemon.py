@@ -38,7 +38,7 @@ logger.addHandler(rotate_handler)
 # log plugins
 logger_plugins = logging.getLogger("CTBPlugin")
 # logger_plugins.setLevel(logging.DEBUG)
-logger.addHandler(rotate_handler)
+logger_plugins.addHandler(rotate_handler)
 
 # log telegram Bot library
 
