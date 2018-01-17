@@ -1,4 +1,4 @@
-from bot_constant import FORWARD_LIST, JQ_MODE, BAIDU_API
+from bot_constant import FORWARD_LIST, BAIDU_API
 import global_vars
 from utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
     get_plugin_priority,  send_from_qq_to_tg, send_from_tg_to_qq, send_both_side, recall_message
@@ -20,7 +20,7 @@ logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
 """
-CQ_IMAGE_ROOT SERVER_PIC_URL JQ_MODE required
+CQ_IMAGE_ROOT SERVER_PIC_URL required
 """
 
 # region utils
@@ -290,7 +290,7 @@ def photo_from_telegram(bot: telegram.Bot,
 
     file_id = message.photo[-1].file_id
     pic_url = tg_get_pic_url(file_id, 'jpg')
-    if JQ_MODE:
+    if global_vars.JQ_MODE:
         reply_entity.append({
             'type': 'image',
             'data': {'file': file_id + '.jpg'}
@@ -419,7 +419,7 @@ def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
     reply_entity = list()
 
     file_id = message.sticker.file_id
-    if JQ_MODE:
+    if global_vars.JQ_MODE:
         tg_get_pic_url(file_id, 'png')
         reply_entity.append({
             'type': 'image',
@@ -577,7 +577,7 @@ def handle_forward(context):
     return ''
 
 
-@command_listener('image link on', 'lnkon', description='enable pic link mode, only available when JQ_MODE=False')
+@command_listener('image link on', 'lnkon', description='enable pic link mode, only available for Air users')
 def pic_link_on(forward_index: int,
                 tg_group_id: int=None,
                 tg_user: telegram.User=None,
@@ -586,7 +586,7 @@ def pic_link_on(forward_index: int,
                 qq_group_id: int=None,
                 qq_discuss_id: int=None,
                 qq_user: int=None):
-    if JQ_MODE:
+    if global_vars.JQ_MODE:
         return
     IMAGE_LINK_MODE[forward_index] = True
     message = 'QQ 图片链接模式已启动'
@@ -599,7 +599,7 @@ def pic_link_on(forward_index: int,
                           tg_message_id)
 
 
-@command_listener('image link off', 'lnkoff', description='disable pic link mode, only available when JQ_MODE=False')
+@command_listener('image link off', 'lnkoff', description='disable pic link mode, only available for Air users')
 def pic_link_off(forward_index: int,
                  tg_group_id: int=None,
                  tg_user: telegram.User=None,
@@ -608,7 +608,7 @@ def pic_link_off(forward_index: int,
                  qq_group_id: int=None,
                  qq_discuss_id: int=None,
                  qq_user: int=None):
-    if JQ_MODE:
+    if global_vars.JQ_MODE:
         return
     IMAGE_LINK_MODE[forward_index] = False
     message = 'QQ 图片链接模式已关闭'

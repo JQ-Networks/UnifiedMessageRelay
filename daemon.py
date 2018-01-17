@@ -101,8 +101,10 @@ class MainProcess(Daemon):
             except Exception as e:
                 logger.warning('Could not reach Coolq-http-api, keep waiting...')
                 time.sleep(1)
-        logger.debug('Coolq-http-api status: ok')
-
+        logger.info('Coolq-http-api status: ok')
+        coolq_version = global_vars.qq_bot.get_version_info()['coolq_edition']
+        global_vars.create_variable("JQ_MODE", coolq_version == 'pro')
+        logger.info(f'Coolq {coolq_version} detected')
         import plugins  # load all plugins
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,

@@ -36,5 +36,4 @@ FORWARD_LIST = settingsJSON['FORWARD_LIST']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
 # if use Coolq Pro, set as True, otherwise False
-JQ_MODE = settingsJSON['JQ_MODE']
 logger.info('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')

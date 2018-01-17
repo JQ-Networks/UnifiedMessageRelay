@@ -119,7 +119,6 @@ Key              | Value
 `FORWARD_LIST`   | A list that defines forwards. Every dict in this list `[QQ Group Number, Telegran Group ID，Default for DRIVE_MODE, Default for IMAGE_LINK_MODE]` stands for a forward. Only one to one forward is supported.
 `SERVER_PIC_URL` | Your server's domain(used for url access, if you are using Pro, you can set whatever you like since it is not used)
 `CQ_ROOT_DIR`    | Coolq's root directory
-`JQ_MODE`        | Pro Mode: True for Coolq Pro, and False for Coolq Air
 `API_ROOT`       | 'http://127.0.0.1:5700/' cq-http-api's api root
 `ACCESS_TOKEN`   | 'access_token'   cq-http-api's access_token, see cq-http-api's doc for further information
 `SECRET`         | 'secret '  cq-http-api's secret, see cq-http-api's doc for further information

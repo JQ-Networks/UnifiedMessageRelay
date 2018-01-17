@@ -29,7 +29,6 @@ def get_global_settings():
     settings.setdefault('FORWARD_LIST', FORWARD_LIST)
     settings.setdefault('SERVER_PIC_URL', SERVER_PIC_URL)
     settings.setdefault('CQ_ROOT', CQ_ROOT)
-    settings.setdefault('JQ_MODE', JQ_MODE)
     return settings
 
 

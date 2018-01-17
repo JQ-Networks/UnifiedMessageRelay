@@ -27,4 +27,3 @@ FORWARD_LIST = [
 ]
 SERVER_PIC_URL = 'http://expample.com/image/'
 CQ_ROOT = '/home/user/coolq/'
-JQ_MODE = True  # If you are using CoolQ AIr, change to False
