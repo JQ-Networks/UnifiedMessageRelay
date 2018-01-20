@@ -430,7 +430,7 @@ def document_from_telegram(bot: telegram.Bot,
     if message.document.mime_type == 'video/mp4':
         file_id = message.document.file_id
         if global_vars.JQ_MODE:
-            tg_get_pic_url(file_id, 'mp4', False)
+            tg_get_pic_url(file_id, 'gif', False)
             reply_entity.append({
                 'type': 'image',
                 'data': {'file': file_id + '.gif'}
@@ -441,7 +441,7 @@ def document_from_telegram(bot: telegram.Bot,
                     'data': {'text': message.caption}
                 })
         elif IMAGE_LINK_MODE[forward_index]:
-            pic_url = tg_get_pic_url(file_id, 'mp4', True)
+            pic_url = tg_get_pic_url(file_id, 'gif', True)
             if message.caption:
                 reply_entity.append({
                     'type': 'text',
