@@ -188,19 +188,14 @@ def create_png_image(path: str, name: str):
 def create_gif_image(path: str, name: str):
     mp4_input = os.path.join(path, name)
     output_name = os.path.join(path, name + '.gif')
-    logger.debug(f'input: {mp4_input}')
-    logger.debug(f'output: {output_name}')
-    try:
-        ff = ffmpy.FFmpeg(inputs={mp4_input: None},
-                          outputs={'/tmp/palettegen.png': '-vf palettegen'},
-                          global_options=('-y'))
-        ff.run()
-        ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
-                          outputs={output_name: '-filter_complex paletteuse'},
-                          global_options=('-y'))
-        ff.run()
-    except Exception as e:
-        logger.debug(e)
+    ff = ffmpy.FFmpeg(inputs={mp4_input: None},
+                      outputs={'/tmp/palettegen.png': '-vf palettegen'},
+                      global_options=('-y'))
+    ff.run()
+    ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
+                      outputs={output_name: '-filter_complex paletteuse'},
+                      global_options=('-y'))
+    ff.run()
 
 
 def cq_get_pic_url(filename: str):
@@ -456,6 +451,39 @@ def document_from_telegram(bot: telegram.Bot,
             reply_entity.append({
                 'type': 'text',
                 'data': {'text': '[ 视频 ]'}
+            })
+    elif message.document.mime_type == 'image/gif':
+        file_id = message.document.file_id
+        if global_vars.JQ_MODE:
+            file = global_vars.tg_bot.getFile(file_id)
+            file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id + '.gif'))
+            reply_entity.append({
+                'type': 'image',
+                'data': {'file': file_id + '.gif'}
+            })
+            if message.caption:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': message.caption}
+                })
+        elif IMAGE_LINK_MODE[forward_index]:
+            file = global_vars.tg_bot.getFile(file_id)
+            file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id + '.gif'))
+            pic_url = get_short_url(SERVER_PIC_URL + file_id + '.gif')
+            if message.caption:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': '[ GIF, 请点击查看' + pic_url + ' ]' + message.caption}
+                })
+            else:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': '[ GIF, 请点击查看' + pic_url + ' ]'}
+                })
+        else:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ GIF ]'}
             })
     else:
         reply_entity.append({
