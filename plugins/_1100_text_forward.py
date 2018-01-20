@@ -359,37 +359,16 @@ def video_from_telegram(bot: telegram.Bot,
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
 
-    file_id = message.video
-
     reply_entity = list()
 
-    if global_vars.JQ_MODE:
-        tg_get_pic_url(file_id, 'mp4', False)
-        reply_entity.append({
-            'type': 'image',
-            'data': {'file': file_id + '.gif'}
-        })
-        if message.caption:
-            reply_entity.append({
-                'type': 'text',
-                'data': {'text': message.caption}
-            })
-    elif IMAGE_LINK_MODE[forward_index]:
-        pic_url = tg_get_pic_url(file_id, 'mp4', True)
-        if message.caption:
-            reply_entity.append({
-                'type': 'text',
-                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]' + message.caption}
-            })
-        else:
-            reply_entity.append({
-                'type': 'text',
-                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]'}
-            })
-    else:
+    reply_entity.append({
+        'type': 'text',
+        'data': {'text': '[ 视频 ]'}
+    })
+    if message.caption:
         reply_entity.append({
             'type': 'text',
-            'data': {'text': '[ 图片 ]'}
+            'data': {'text': message.caption}
         })
 
     qq_message_id = send_from_tg_to_qq(forward_index,
@@ -443,10 +422,41 @@ def document_from_telegram(bot: telegram.Bot,
 
     reply_entity = list()
 
-    reply_entity.append({
-        'type': 'text',
-        'data': {'text': '[ 文件 ]'}
-    })
+    if message.document.mime_type == 'video/mp4':
+        file_id = message.document.file_id
+        if global_vars.JQ_MODE:
+            tg_get_pic_url(file_id, 'mp4', False)
+            reply_entity.append({
+                'type': 'image',
+                'data': {'file': file_id + '.gif'}
+            })
+            if message.caption:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': message.caption}
+                })
+        elif IMAGE_LINK_MODE[forward_index]:
+            pic_url = tg_get_pic_url(file_id, 'mp4', True)
+            if message.caption:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': '[ 视频, 请点击查看' + pic_url + ' ]' + message.caption}
+                })
+            else:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': '[ 视频, 请点击查看' + pic_url + ' ]'}
+                })
+        else:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ 视频 ]'}
+            })
+    else:
+        reply_entity.append({
+            'type': 'text',
+            'data': {'text': '[ 文件 ]'}
+        })
     qq_message_id = send_from_tg_to_qq(forward_index,
                                        message=reply_entity,
                                        tg_group_id=tg_group_id,
