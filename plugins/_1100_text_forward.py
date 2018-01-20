@@ -188,14 +188,19 @@ def create_png_image(path: str, name: str):
 def create_gif_image(path: str, name: str):
     mp4_input = os.path.join(path, name)
     output_name = os.path.join(path, name + '.gif')
-    ff = ffmpy.FFmpeg(inputs={mp4_input: None},
-                      outputs={'/tmp/palettegen.png': '-vf palettegen'},
-                      global_options=('-y'))
-    ff.run()
-    ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
-                      outputs={output_name: '-filter_complex paletteuse'},
-                      global_options=('-y'))
-    ff.run()
+    logger.debug(f'input: {mp4_input}')
+    logger.debug(f'output: {output_name}')
+    try:
+        ff = ffmpy.FFmpeg(inputs={mp4_input: None},
+                          outputs={'/tmp/palettegen.png': '-vf palettegen'},
+                          global_options=('-y'))
+        ff.run()
+        ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
+                          outputs={output_name: '-filter_complex paletteuse'},
+                          global_options=('-y'))
+        ff.run()
+    except Exception as e:
+        logger.debug(e)
 
 
 def cq_get_pic_url(filename: str):
