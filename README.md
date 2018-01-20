@@ -1,8 +1,18 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
+## Demo
+Telegram:
+
+![Telegram](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/raw/master/image/telegram.png)
+
+QQ:
+
+![QQ](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/raw/master/image/qq.png)
+
 [中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/blob/master/README-zh_CN.md)
 
+## Description
 QQ & Telegram Relay Bot **v3.1**
 
 QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram API based on [python_telegram_bot](https://python-telegram-bot.org)
