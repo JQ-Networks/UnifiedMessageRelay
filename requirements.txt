@@ -12,3 +12,4 @@ python-telegram-bot==9.0.0
 requests==2.18.4
 urllib3==1.22
 coloredlogs==7.3.1
+ffmpy==0.2.2

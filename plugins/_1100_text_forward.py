@@ -8,6 +8,7 @@ from configparser import ConfigParser
 from urllib.request import urlretrieve
 from telegram.ext import MessageHandler, Filters
 import requests
+import ffmpy
 from typing import Union
 
 import traceback
@@ -184,6 +185,19 @@ def create_png_image(path: str, name: str):
     im.save(os.path.join(path, name + ".png"), "PNG")
 
 
+def create_gif_image(path: str, name: str):
+    mp4_input = os.path.join(path, name)
+    output_name = os.path.join(path, name.replace('.mp4', '.gif'))
+    ff = ffmpy.FFmpeg(inputs={mp4_input: None},
+                      outputs={'/tmp/palettegen.png': '-vf palettegen'},
+                      global_options=('-y'))
+    ff.run()
+    ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
+                      outputs={output_name: '-filter_complex paletteuse'},
+                      global_options=('-y'))
+    ff.run()
+
+
 def cq_get_pic_url(filename: str):
     """
     get real image url from cqimg file
@@ -238,11 +252,12 @@ def get_short_url(long_url: str):
         return long_url
 
 
-def tg_get_pic_url(file_id: str, pic_type: str):
+def tg_get_pic_url(file_id: str, pic_type: str, image_link: bool):
     """
     download image from Telegram Server, and generate new image link that send to QQ group
     :param file_id: telegram file id
     :param pic_type: picture extension name
+    :param image_link: generate image link
     :return: pic url
     """
     file = global_vars.tg_bot.getFile(file_id)
@@ -250,12 +265,12 @@ def tg_get_pic_url(file_id: str, pic_type: str):
     file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id))
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
-        pic_url = get_short_url(SERVER_PIC_URL + file_id + '.jpg')
-        return pic_url
     elif pic_type == 'png':
         create_png_image(CQ_IMAGE_ROOT, file_id)
-        pic_url = get_short_url(SERVER_PIC_URL + file_id + '.png')
-        return pic_url
+    elif pic_type == 'gif':
+        create_gif_image(CQ_IMAGE_ROOT, file_id)
+    if image_link:
+        return get_short_url(SERVER_PIC_URL + file_id + '.' + pic_type)
     return ''
 
 # endregion
@@ -289,8 +304,8 @@ def photo_from_telegram(bot: telegram.Bot,
     reply_entity = list()
 
     file_id = message.photo[-1].file_id
-    pic_url = tg_get_pic_url(file_id, 'jpg')
     if global_vars.JQ_MODE:
+        tg_get_pic_url(file_id, 'jpg', False)
         reply_entity.append({
             'type': 'image',
             'data': {'file': file_id + '.jpg'}
@@ -300,7 +315,8 @@ def photo_from_telegram(bot: telegram.Bot,
                 'type': 'text',
                 'data': {'text': message.caption}
             })
-    else:
+    elif IMAGE_LINK_MODE[forward_index]:
+        pic_url = tg_get_pic_url(file_id, 'jpg', True)
         if message.caption:
             reply_entity.append({
                 'type': 'text',
@@ -311,6 +327,11 @@ def photo_from_telegram(bot: telegram.Bot,
                 'type': 'text',
                 'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]'}
             })
+    else:
+        reply_entity.append({
+            'type': 'text',
+            'data': {'text': '[ 图片 ]' + message.caption}
+        })
     qq_message_id = send_from_tg_to_qq(forward_index,
                                        message=reply_entity,
                                        tg_group_id=tg_group_id,
@@ -338,12 +359,39 @@ def video_from_telegram(bot: telegram.Bot,
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
 
+    file_id = message.video
+
     reply_entity = list()
 
-    reply_entity.append({
-        'type': 'text',
-        'data': {'text': '[ 视频 ]'}
-    })
+    if global_vars.JQ_MODE:
+        tg_get_pic_url(file_id, 'mp4', False)
+        reply_entity.append({
+            'type': 'image',
+            'data': {'file': file_id + '.gif'}
+        })
+        if message.caption:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': message.caption}
+            })
+    elif IMAGE_LINK_MODE[forward_index]:
+        pic_url = tg_get_pic_url(file_id, 'mp4', True)
+        if message.caption:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]' + message.caption}
+            })
+        else:
+            reply_entity.append({
+                'type': 'text',
+                'data': {'text': '[ 图片, 请点击查看' + pic_url + ' ]'}
+            })
+    else:
+        reply_entity.append({
+            'type': 'text',
+            'data': {'text': '[ 图片 ]'}
+        })
+
     qq_message_id = send_from_tg_to_qq(forward_index,
                                        message=reply_entity,
                                        tg_group_id=tg_group_id,
@@ -420,13 +468,13 @@ def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
 
     file_id = message.sticker.file_id
     if global_vars.JQ_MODE:
-        tg_get_pic_url(file_id, 'png')
+        tg_get_pic_url(file_id, 'png', False)
         reply_entity.append({
             'type': 'image',
             'data': {'file': file_id + '.png'}
         })
     elif IMAGE_LINK_MODE[forward_index]:
-        pic_url = tg_get_pic_url(file_id, 'png')
+        pic_url = tg_get_pic_url(file_id, 'png', True)
         reply_entity.append({
             'type': 'text',
             'data': {'text': '[ ' + message.sticker.emoji + ' sticker, 请点击查看' + pic_url + ' ]'}
