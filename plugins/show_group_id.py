@@ -18,7 +18,7 @@ def show_tg_group_id(tg_group_id: int,
                                    text=msg)
 
 
-@command_listener('show group id', 'id', qq_only=True, description='show current telegram group id')
+@command_listener('show group id', 'id', qq_only=True, description='show current QQ group id')
 def show_qq_group_id(qq_group_id: int,
                      qq_discuss_id: int,
                      qq_user: int):

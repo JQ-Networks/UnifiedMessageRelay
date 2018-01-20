@@ -342,7 +342,7 @@ def divide_qq_message(forward_index: int,
 
     def _record(data):  # not implemented
         nonlocal _pending_text
-        _pending_text = '说了句话，请到电报查看'
+        _pending_text = '说了句话，请到 QQ 查看'
 
     def _image(data):
         nonlocal _pending_text, _pending_image, _text_encoded
