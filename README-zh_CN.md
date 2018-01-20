@@ -6,9 +6,9 @@ QQ和Telegram的消息互转机器人 **v3.1**
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 最近更新
-### v3.1
-- 支持撤回已发送消息（2分钟内）
-- 支持编辑消息时撤回老消息（2分钟内）
+### v3.2
+- GIF 双向转发
+- LRU 缓存管理（待实现）
 
 查看更多
 
