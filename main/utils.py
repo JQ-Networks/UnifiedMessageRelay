@@ -1,15 +1,17 @@
+import datetime
+import logging
 import os
+import re
 import threading
 import traceback
-import requests
-from bot_constant import *
-import telegram
+
 import global_vars
-import re
-from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
+import requests
+import telegram
+from bot_constant import *
+
+from main.cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic, \
     cq_location_regex, CQ_IMAGE_ROOT
-import logging
-import datetime
 
 logger = logging.getLogger("CTBMain.utils")
 
@@ -72,7 +74,7 @@ def get_forward_from(message: telegram.Message):
             message_text = message.text
         else:
             message_text = ''
-        right_end = message_text.find('꞉')  # this is not a common ':', its '꞉'
+        right_end = message_text.find('꞉')  # this is not a main ':', its '꞉'
         if right_end != -1:  # from qq
             result = message_text[:right_end]
         else:  # self generated command text, etc.

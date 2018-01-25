@@ -2,7 +2,12 @@ import global_vars
 from command import command_listener
 import telegram
 import logging
+import logging
 
+import telegram
+from main.command import command_listener
+
+import global_vars
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
