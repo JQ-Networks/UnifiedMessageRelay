@@ -1,5 +1,5 @@
 import sys
-from command import Command
+from main.command import Command
 import telegram
 qq_bot = None
 dp = None
