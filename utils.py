@@ -338,7 +338,12 @@ def divide_qq_message(forward_index: int,
 
     def _music(data):
         nonlocal _pending_text
-        _pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + data['id'] + '_num.html"> qq 音乐</a>'
+        if data['type'].startswith('163'):
+            _pending_text = '分享了<a href="https://music.163.com/song?id=' + data['id'] + '"> 网易云音乐</a>'
+        elif data['type'].startswith('qq'):
+            _pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + data['id'] + '_num.html"> QQ 音乐</a>'
+        else:
+            _pending_text = data
 
     def _record(data):  # not implemented
         nonlocal _pending_text
@@ -375,7 +380,7 @@ def divide_qq_message(forward_index: int,
         if _qq_number == QQ_BOT_ID:
             _pending_text += ' @bot '
         else:
-            _pending_text += ' @' + get_qq_name_encoded(_qq_number, forward_index) + ' '
+            _pending_text += ' <b>@' + get_qq_name_encoded(_qq_number, forward_index) + '</b> '
 
     def _face(data):
         nonlocal _pending_text
