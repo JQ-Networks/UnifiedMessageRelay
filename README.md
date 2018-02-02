@@ -151,6 +151,12 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
 `tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` tp `bot_constant.json`
 
+## deploy bot
+
+1. clone this git to docker's data folder (google about where it is)
+2. use `sudo docker exec -it coolq su` to launch docker shell
+3. then you'll be able to find out the bot under `/home/user/coolq`
+
 ## Start bot
 
 Attention: Python 3.6 is required due to variable type hinting is used
