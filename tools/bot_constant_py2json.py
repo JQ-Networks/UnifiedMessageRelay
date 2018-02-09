@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 该脚本可将配置文件bot_constant.py转换为bot_constant.json并保存在当前目录下。
 
@@ -6,9 +7,9 @@ python3 bot_constant-py2json.py [-i *.py file]
     -i 指定输入文件，如不指定则默认为../bot_constant.py
 """
 
-import sys
 import json
 import os.path
+import argparse
 
 
 def get_global_settings():
@@ -33,18 +34,22 @@ def get_global_settings():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3 and sys.argv[1] == '-i':
-        filepath1 = sys.argv[2]
-        with open(filepath1, mode='r') as f1:
-            ex = f1.read()
-        exec(ex)
-    elif len(sys.argv) == 1:
-        with open(os.path.abspath('../bot_constant.py'), mode='r') as f1:
+    defFilePath = "../bot_constant.py"
+    aP = argparse.ArgumentParser(
+        description="该脚本可将配置文件bot_constant.py转换为bot_constant.json并保存在当前目录下。")
+    aP.add_argument('-i', default=defFilePath, type=str,
+                    help='指定输入文件，如不指定则默认为../bot_constant.py')
+    filepath1 = vars(aP.parse_args())['i']
+    # get vars
+    if filepath1 == defFilePath:
+        with open(os.path.abspath(defFilePath), mode='r', encoding="UTF-8") as f1:
             ex = f1.read()
         exec(ex)
     else:
-        print(__doc__)
-        exit(1)
+        with open(filepath1, mode='r', encoding="UTF-8") as f1:
+            ex = f1.read()
+        exec(ex)
+    # get JSON
     text = json.dumps(get_global_settings(), sort_keys=False, indent=4)
     with open('bot_constant.json', 'w') as fo:
         fo.write(text)
