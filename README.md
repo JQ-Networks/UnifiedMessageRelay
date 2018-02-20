@@ -1,6 +1,10 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
+Alternative Project: [coolq-telegram-bot-x](https://github.com/JogleLew/coolq-telegram-bot-x)
+
+coolq-telegram-bot-x is written in C++ and is still under construction, but it needs no Python environment at all. The difference is that **THIS REPO** is on the fast ring, and it intends for feature developments, and **coolq-telegram-bot-x** intends for higher performance, but until now it has fewer features.
+
 ## Demo
 Telegram:
 
