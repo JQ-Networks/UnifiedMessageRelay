@@ -1,6 +1,19 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
+Alternative Project: [coolq-telegram-bot-x](https://github.com/JogleLew/coolq-telegram-bot-x)
+
+coolq-telegram-bot-x is written in C++ and is still under construction, but it needs no Python environment at all. The difference is that **THIS REPO** is on the fast ring, and it intends for feature developments, and **coolq-telegram-bot-x** intends for higher performance, but until now it has fewer features.
+
+## Demo
+Telegram:
+
+![Telegram](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/raw/master/image/telegram.png)
+
+QQ:
+
+![QQ](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/raw/master/image/qq.png)
+
 [中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/blob/master/README-zh_CN.md)
 
 QQ & Telegram Relay Bot **v3.2**
@@ -140,6 +153,12 @@ Example:
 $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
 `tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` tp `bot_constant.json`
+
+## deploy bot
+
+1. clone this git to docker's data folder (google about where it is)
+2. use `sudo docker exec -it coolq su` to launch docker shell
+3. then you'll be able to find out the bot under `/home/user/coolq`
 
 ## Start bot
 

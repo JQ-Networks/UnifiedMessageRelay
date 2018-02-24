@@ -16,7 +16,7 @@ PORT = 8080
 TOKEN = 'telegram_bot_token'
 QQ_BOT_ID = 'qq_number'
 FORWARD_LIST = [
-    {'DISCUSS': 2314324234325346543,
+    {'QQ': 1234334534534,
      'TG': -2323143534534645,
      'DRIVE_MODE': False,
      'IMAGE_LINK': True},
