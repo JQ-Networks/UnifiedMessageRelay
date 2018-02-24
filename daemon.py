@@ -77,7 +77,10 @@ class MainProcess(Daemon):
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
-        updater = Updater(TOKEN)
+        if len(PROXY_URL) > 0:
+            updater = Updater(TOKEN, request_kwargs={'proxy_url': PROXY_URL})
+        else:
+            updater = Updater(TOKEN)
         global_vars.create_variable('job_queue', updater.job_queue)
         global_vars.tg_bot = updater.bot
         # Get the dispatcher to register handlers
