@@ -77,7 +77,7 @@ class MainProcess(Daemon):
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
 
-        if len(PROXY_URL) > 0:
+        if PROXY_URL:
             updater = Updater(TOKEN, request_kwargs={'proxy_url': PROXY_URL})
         else:
             updater = Updater(TOKEN)
