@@ -27,3 +27,4 @@ FORWARD_LIST = [
 ]
 SERVER_PIC_URL = 'http://expample.com/image/'
 CQ_ROOT = '/home/user/coolq/'
+PROXY_URL = 'socks5://127.0.0.1:1080/'
