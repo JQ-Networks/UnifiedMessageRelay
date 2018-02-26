@@ -33,6 +33,10 @@ def tg_drive_mode(bot: telegram.Bot,
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=int(tg_group_id))
 
+    # prevent message leak
+    if forward_index == -1:
+        raise DispatcherHandlerStop()
+
     if global_vars.DRIVE_MODE[forward_index]:  # normal block
         logger.debug('Telegram message ignored: drive mode is on')
         raise DispatcherHandlerStop()
@@ -49,6 +53,10 @@ def qq_drive_mode(context: dict):
 
     forward_index = get_forward_index(qq_group_id=qq_group_id,
                                       qq_discuss_id=qq_discuss_id)
+
+    # prevent message leak
+    if forward_index == -1:
+        return ''
 
     if global_vars.DRIVE_MODE[forward_index]:  # normal block
         return ''
