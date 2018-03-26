@@ -10,7 +10,7 @@ import requests
 import telegram
 from bot_constant import *
 
-from main.cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic, \
+from main.cq_utils import qq_emoji_list, qq_sface_list, cq_download_pic, \
     cq_location_regex, CQ_IMAGE_ROOT
 
 logger = logging.getLogger("CTBMain.utils")
