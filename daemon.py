@@ -110,6 +110,8 @@ class MainProcess(Daemon):
         global_vars.create_variable("JQ_MODE", coolq_version == 'pro')
         logger.info(f'Coolq {coolq_version} detected')
 
+        import plugins  # load all plugins
+
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since
         # start_polling() is non-blocking and will stop the bot gracefully.
