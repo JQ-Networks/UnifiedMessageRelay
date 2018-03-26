@@ -201,39 +201,6 @@ def create_gif_image(path: str, name: str):
     ff.run()
 
 
-def cq_get_pic_url(filename: str):
-    """
-    get real image url from cqimg file
-    :param filename:
-    :return: image url
-    """
-    cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
-    parser = ConfigParser()
-    parser.read(cqimg)
-    url = parser['image']['url']
-    return url
-
-
-def cq_download_pic(filename: str):
-    """
-    download image by cqimg file
-    :param filename: cqimg file name
-    """
-    try:
-        path = os.path.join(CQ_IMAGE_ROOT, filename)
-        if os.path.exists(path):
-            return
-
-        cqimg = os.path.join(CQ_IMAGE_ROOT, filename + '.cqimg')
-        parser = ConfigParser()
-        parser.read(cqimg)
-
-        url = parser['image']['url']
-        urlretrieve(url, path)
-    except:
-        logger.error(filename)
-        traceback.print_exc()
-
 
 def get_short_url(long_url: str):
     """

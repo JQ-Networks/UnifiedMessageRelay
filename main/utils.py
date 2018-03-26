@@ -359,11 +359,11 @@ def divide_qq_message(forward_index: int,
                     message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
                     message_list.append({'text': _pending_text})
                 else:
-                    message_list.append({'image': _pending_image, 'url': _pending_image['url'], 'text': _pending_text})
+                    message_list.append({'image': _pending_image['file'], 'url': _pending_image['url'], 'text': _pending_text})
                 _pending_text = ''
                 _text_encoded = False
             else:
-                message_list.append({'image': _pending_image, 'url': _pending_image['url']})
+                message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
 
         elif _pending_text:
             message_list.append({'text': _pending_text})
@@ -430,15 +430,15 @@ def divide_qq_message(forward_index: int,
     if _pending_text:
         if _pending_image:
             if _text_encoded:
-                message_list.append({'image': _pending_image, 'url': _pending_image['url']})
+                message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
                 message_list.append({'text': _pending_text})
             else:
-                message_list.append({'image': _pending_image, 'url': _pending_image['url'],
+                message_list.append({'image': _pending_image['file'], 'url': _pending_image['url'],
                                      'text': _pending_text})
         else:
             message_list.append({'text': _pending_text})
     elif _pending_image:
-        message_list.append({'image': _pending_image, 'url': _pending_image['url']})
+        message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
 
     return message_list
 
