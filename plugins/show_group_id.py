@@ -1,5 +1,5 @@
 import global_vars
-from command import command_listener
+from main.command import command_listener
 import telegram
 import logging
 import logging
