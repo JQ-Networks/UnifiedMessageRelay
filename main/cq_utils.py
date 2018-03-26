@@ -172,35 +172,17 @@ def create_png_image(path, name):
     im.save(os.path.join(path, name + ".png"), "PNG")
 
 
-def cq_get_pic_url(filename):
+def cq_download_pic(cq_image):
     """
-    get real image url from cqimg file
-    :param filename:
-    :return: image url
-    """
-    cqimg = os.path.join(CQ_IMAGE_ROOT, filename+'.cqimg')
-    parser = ConfigParser()
-    parser.read(cqimg)
-    url = parser['image']['url']
-    return url
-
-
-def cq_download_pic(filename):
-    """
-    download image by cqimg file
-    :param filename: cqimg file name
+    download image by http_api image data
+    :param cq_image: http_api image data
     """
     try:
-        path = os.path.join(CQ_IMAGE_ROOT, filename)
+        path = os.path.join(CQ_IMAGE_ROOT, cq_image['image'])
         if os.path.exists(path):
             return
 
-        cqimg = os.path.join(CQ_IMAGE_ROOT, filename + '.cqimg')
-        parser = ConfigParser()
-        parser.read(cqimg)
-
-        url = parser['image']['url']
-        urlretrieve(url, path)
+        urlretrieve(cq_image['url'], path)
     except:
-        logger.error(filename)
+        logger.error(cq_image)
         traceback.print_exc()

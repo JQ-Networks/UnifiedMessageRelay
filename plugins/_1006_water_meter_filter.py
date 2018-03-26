@@ -1,10 +1,11 @@
-import global_vars
-from telegram.ext.dispatcher import DispatcherHandlerStop
-from telegram.ext import MessageHandler, Filters
-import telegram
-from utils import get_forward_index, get_plugin_priority
 import logging
 
+import global_vars
+import telegram
+from telegram.ext import MessageHandler, Filters
+from telegram.ext.dispatcher import DispatcherHandlerStop
+
+from main.utils import get_forward_index, get_plugin_priority
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")

@@ -1,6 +1,7 @@
 import telegram
-from command import command_listener
-from utils import send_both_side, text_reply
+from main.command import command_listener
+
+from main.utils import send_both_side
 
 
 @command_listener('alipay', 'ali', description="Support Coolq Telegram Bot's work")

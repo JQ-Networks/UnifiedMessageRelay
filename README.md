@@ -16,15 +16,14 @@ QQ:
 
 [中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/blob/master/README-zh_CN.md)
 
-## Description
-QQ & Telegram Relay Bot **v3.1**
+QQ & Telegram Relay Bot **v3.2**
 
 QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram API based on [python_telegram_bot](https://python-telegram-bot.org)
 
 ## Recent Update
-### v3.1
-- Support Message Recalling（2-minute limitation）
-- Edits will recall old messages（2-minute limitation）
+### v3.2
+- GIF forwarding (bi-direction)
+- LRU cache management (not implemented)
 
 [View More](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/ChangeLog.md)
 

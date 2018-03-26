@@ -1,7 +1,9 @@
-from bot_constant import FORWARD_LIST, QQ_BOT_ID
-import global_vars
-from utils import get_plugin_priority, get_forward_index, get_qq_name_encoded
 import logging
+
+import global_vars
+from bot_constant import FORWARD_LIST, QQ_BOT_ID
+
+from main.utils import get_plugin_priority, get_forward_index, get_qq_name_encoded
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")

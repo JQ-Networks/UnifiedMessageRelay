@@ -1,10 +1,10 @@
-from command import command_listener
-from utils import get_forward_index, recall_message
-import telegram
 import logging
-import global_vars
-import datetime
 
+import global_vars
+import telegram
+from main.command import command_listener
+
+from main.utils import get_forward_index, recall_message
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")

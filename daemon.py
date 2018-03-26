@@ -3,13 +3,14 @@
 import argparse
 import logging
 import queue
-import threading
-import coloredlogs
-import time
-from logging.handlers import RotatingFileHandler
 import sys
+import threading
+import time
 import traceback
-from telegram.ext import CommandHandler, Updater
+from logging.handlers import RotatingFileHandler
+
+import coloredlogs
+from telegram.ext import Updater
 
 # region log
 
@@ -52,11 +53,11 @@ logger_telegram.addHandler(rotate_handler)
 # load config
 try:
     from bot_constant import *
-    import utils
+    from main import utils
     import global_vars
     from cqhttp import CQHttp
     from DaemonClass import Daemon
-    from message_persistence import MessageDB
+    from main.message_persistence import MessageDB
 except ImportError as e:
     logger.addHandler(logging.StreamHandler())
     logger.critical("Can't import %s, please check it again." % e.name)
@@ -108,7 +109,6 @@ class MainProcess(Daemon):
         coolq_version = global_vars.qq_bot.get_version_info()['coolq_edition']
         global_vars.create_variable("JQ_MODE", coolq_version == 'pro')
         logger.info(f'Coolq {coolq_version} detected')
-        import plugins  # load all plugins
 
         # Block until the you presses Ctrl-C or the process receives SIGINT,
         # SIGTERM or SIGABRT. This should be used most of the time, since

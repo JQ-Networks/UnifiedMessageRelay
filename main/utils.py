@@ -1,15 +1,17 @@
+import datetime
+import logging
 import os
+import re
 import threading
 import traceback
-import requests
-from bot_constant import *
-import telegram
+
 import global_vars
-import re
-from cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic,\
+import requests
+import telegram
+from bot_constant import *
+
+from main.cq_utils import qq_emoji_list, qq_sface_list, cq_get_pic_url, cq_download_pic, \
     cq_location_regex, CQ_IMAGE_ROOT
-import logging
-import datetime
 
 logger = logging.getLogger("CTBMain.utils")
 
@@ -72,7 +74,7 @@ def get_forward_from(message: telegram.Message):
             message_text = message.text
         else:
             message_text = ''
-        right_end = message_text.find('꞉')  # this is not a common ':', its '꞉'
+        right_end = message_text.find('꞉')  # this is not a main ':', its '꞉'
         if right_end != -1:  # from qq
             result = message_text[:right_end]
         else:  # self generated command text, etc.
@@ -354,20 +356,20 @@ def divide_qq_message(forward_index: int,
         if _pending_image:
             if _pending_text:
                 if _text_encoded:
-                    message_list.append({'image': _pending_image})
+                    message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
                     message_list.append({'text': _pending_text})
                 else:
-                    message_list.append({'image': _pending_image, 'text': _pending_text})
+                    message_list.append({'image': _pending_image, 'url': _pending_image['url'], 'text': _pending_text})
                 _pending_text = ''
                 _text_encoded = False
             else:
-                message_list.append({'image': _pending_image})
+                message_list.append({'image': _pending_image, 'url': _pending_image['url']})
 
         elif _pending_text:
             message_list.append({'text': _pending_text})
             _pending_text = ''
             _text_encoded = False
-        _pending_image = data['file']
+        _pending_image = data
 
     def _text(data):
         nonlocal _pending_text, _text_encoded
@@ -480,7 +482,6 @@ def send_from_qq_to_tg(forward_index: int,
         if message_part.get('image'):
             filename = message_part.get('image')
 
-            cq_get_pic_url(filename)
             cq_download_pic(filename)
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
 

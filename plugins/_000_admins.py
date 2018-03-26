@@ -1,10 +1,12 @@
-from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
-import global_vars
 import json
-from pathlib import Path
-from utils import get_plugin_priority
 import logging
+from pathlib import Path
+
+import global_vars
 import telegram
+from telegram.ext import Filters, CommandHandler
+
+from main.utils import get_plugin_priority
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")

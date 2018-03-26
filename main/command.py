@@ -1,7 +1,7 @@
-import global_vars
 import logging
 from functools import wraps
 
+import global_vars
 
 logger = logging.getLogger("CTBMain." + __name__)
 

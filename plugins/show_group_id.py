@@ -2,7 +2,12 @@ import global_vars
 from command import command_listener
 import telegram
 import logging
+import logging
 
+import telegram
+from main.command import command_listener
+
+import global_vars
 
 logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
@@ -18,7 +23,7 @@ def show_tg_group_id(tg_group_id: int,
                                    text=msg)
 
 
-@command_listener('show group id', 'id', qq_only=True, description='show current telegram group id')
+@command_listener('show group id', 'id', qq_only=True, description='show current QQ group id')
 def show_qq_group_id(qq_group_id: int,
                      qq_discuss_id: int,
                      qq_user: int):

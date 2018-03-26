@@ -1,10 +1,11 @@
-from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHandler
-import global_vars
-from utils import get_plugin_priority, get_full_user_name
 import logging
+
+import global_vars
 import telegram
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackQueryHandler
+
+from main.utils import get_plugin_priority, get_full_user_name
 
 # rely on _000_admins
 
