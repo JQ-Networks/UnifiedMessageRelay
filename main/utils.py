@@ -11,7 +11,7 @@ import telegram
 from bot_constant import *
 
 from main.cq_utils import qq_emoji_list, qq_sface_list, cq_download_pic, \
-    cq_location_regex, CQ_IMAGE_ROOT
+    cq_location_regex
 
 logger = logging.getLogger("CTBMain.utils")
 
