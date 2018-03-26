@@ -189,6 +189,8 @@ def create_png_image(path: str, name: str):
 def create_gif_image(path: str, name: str):
     mp4_input = os.path.join(path, name)
     output_name = os.path.join(path, name + '.gif')
+    if os.path.exists(output_name):
+        return
     ff = ffmpy.FFmpeg(inputs={mp4_input: None},
                       outputs={'/tmp/palettegen.png': '-vf palettegen'},
                       global_options=('-y'))
