@@ -172,8 +172,11 @@ def create_jpg_image(path: str, name: str):
     :param path: save path
     :param name: image name
     """
+    output_name = os.path.join(path, name + ".jpg")
+    if os.path.exists(output_name):
+        return
     im = Image.open(os.path.join(path, name)).convert("RGB")
-    im.save(os.path.join(path, name + ".jpg"), "JPEG")
+    im.save(output_name, "JPEG")
 
 
 def create_png_image(path: str, name: str):
@@ -182,8 +185,11 @@ def create_png_image(path: str, name: str):
     :param path: save path
     :param name: image name
     """
+    output_name = os.path.join(path, name + ".png")
+    if os.path.exists(output_name):
+        return
     im = Image.open(os.path.join(path, name)).convert("RGBA")
-    im.save(os.path.join(path, name + ".png"), "PNG")
+    im.save(output_name, "PNG")
 
 
 def create_gif_image(path: str, name: str):
@@ -232,7 +238,9 @@ def tg_get_pic_url(file_id: str, pic_type: str, image_link: bool):
     """
     file = global_vars.tg_bot.getFile(file_id)
     # urlretrieve(file.file_path, os.path.join(CQ_IMAGE_ROOT, file_id))  # download image
-    file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id))
+    filename = os.path.join(CQ_IMAGE_ROOT, file_id)
+    if not os.path.exists(filename):
+        file.download(custom_path=os.path.join(CQ_IMAGE_ROOT, file_id))
     if pic_type == 'jpg':
         create_jpg_image(CQ_IMAGE_ROOT, file_id)
     elif pic_type == 'png':
