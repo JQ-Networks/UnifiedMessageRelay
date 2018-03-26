@@ -491,7 +491,7 @@ def send_from_qq_to_tg(forward_index: int,
             else:
                 full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
 
-            if filename.lower().endswith('gif'):  # gif pictures send as document
+            if image_path.lower().endswith('gif'):  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
                                                                          pic,
                                                                          caption=full_msg)
