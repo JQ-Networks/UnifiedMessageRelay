@@ -356,20 +356,20 @@ def divide_qq_message(forward_index: int,
         if _pending_image:
             if _pending_text:
                 if _text_encoded:
-                    message_list.append({'image': _pending_image})
+                    message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
                     message_list.append({'text': _pending_text})
                 else:
-                    message_list.append({'image': _pending_image, 'text': _pending_text})
+                    message_list.append({'image': _pending_image, 'url': _pending_image['url'], 'text': _pending_text})
                 _pending_text = ''
                 _text_encoded = False
             else:
-                message_list.append({'image': _pending_image})
+                message_list.append({'image': _pending_image, 'url': _pending_image['url']})
 
         elif _pending_text:
             message_list.append({'text': _pending_text})
             _pending_text = ''
             _text_encoded = False
-        _pending_image = data['file']
+        _pending_image = data
 
     def _text(data):
         nonlocal _pending_text, _text_encoded
@@ -482,7 +482,6 @@ def send_from_qq_to_tg(forward_index: int,
         if message_part.get('image'):
             filename = message_part.get('image')
 
-            cq_get_pic_url(filename)
             cq_download_pic(filename)
             pic = open(os.path.join(CQ_IMAGE_ROOT, filename), 'rb')
 
