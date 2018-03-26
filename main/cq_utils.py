@@ -181,7 +181,7 @@ def cq_download_pic(cq_image):
     try:
         path = os.path.join(CQ_IMAGE_ROOT, cq_image['image'])
         if os.path.exists(path):
-            return
+            return path
         logger.debug(f'downloading file to {path}')
 
         urlretrieve(cq_image['url'], path)
