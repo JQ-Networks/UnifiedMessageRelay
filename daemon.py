@@ -56,7 +56,7 @@ try:
     from main import utils
     import global_vars
     from cqhttp import CQHttp
-    from DaemonClass import Daemon
+    from main.DaemonClass import Daemon
     from main.message_persistence import MessageDB
 except ImportError as e:
     logger.addHandler(logging.StreamHandler())
