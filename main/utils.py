@@ -480,9 +480,7 @@ def send_from_qq_to_tg(forward_index: int,
         else:
             message_index_attribute = '(' + str(idx + 1) + '/' + str(message_count) + ')'
         if message_part.get('image'):
-            image = message_part.get('image')
-
-            image_path = cq_download_pic(image)
+            image_path = cq_download_pic(message_part)
             pic = open(image_path, 'rb')
 
             if message_part.get('text'):
