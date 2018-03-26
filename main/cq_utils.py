@@ -176,6 +176,7 @@ def cq_download_pic(cq_image):
     """
     download image by http_api image data
     :param cq_image: http_api image data
+    :return image path
     """
     try:
         path = os.path.join(CQ_IMAGE_ROOT, cq_image['image'])
@@ -183,6 +184,7 @@ def cq_download_pic(cq_image):
             return
 
         urlretrieve(cq_image['url'], path)
+        return path
     except:
         logger.error(cq_image)
         traceback.print_exc()
