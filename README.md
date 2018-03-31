@@ -22,7 +22,7 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 ## Recent Update
 ### v3.2
-- GIF forwarding (bi-direction)
+- GIF forwarding (bi-direction): requires ffmpeg, run `apt-get install ffmpeg`
 - LRU cache management (not implemented)
 
 [View More](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/ChangeLog.md)
@@ -69,6 +69,7 @@ Please follow the instruction of the one you chose, and jump to **Configuration*
 ### Directly use Wine CoolQ
 If you don't prefer Docker, follow this instruction (Please use Ubuntu, since bugs appear on Debian 9)
 > [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
+apt-get install libcurl4-openssl-dev libssl-dev ffmpeg
 
 ### Install CoolQ HTTP API
 > See [CoolQ HTTP API Documentary](https://richardchien.github.io/coolq-http-api/3.3/#/)
