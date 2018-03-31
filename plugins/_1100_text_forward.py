@@ -207,7 +207,6 @@ def create_gif_image(path: str, name: str):
     ff.run()
 
 
-
 def get_short_url(long_url: str):
     """
     generate short url using Sina Weibo api
@@ -404,10 +403,16 @@ def document_from_telegram(bot: telegram.Bot,
         file_id = message.document.file_id
         if global_vars.JQ_MODE:
             tg_get_pic_url(file_id, 'gif', False)
-            reply_entity.append({
-                'type': 'image',
-                'data': {'file': file_id + '.gif'}
-            })
+            if os.path.getsize(os.path.join(CQ_IMAGE_ROOT, file_id + '.gif')) > 5242880:
+                reply_entity.append({
+                    'type': 'text',
+                    'data': {'text': '[ 视频：大小超过 5 MB ]'}
+                })
+            else:
+                reply_entity.append({
+                    'type': 'image',
+                    'data': {'file': file_id + '.gif'}
+                })
             if message.caption:
                 reply_entity.append({
                     'type': 'text',
