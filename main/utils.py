@@ -15,6 +15,8 @@ from main.cq_utils import qq_emoji_list, qq_sface_list, cq_download_pic, \
 
 logger = logging.getLogger("CTBMain.utils")
 
+CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, 'data/image')
+
 
 class FileDownloader(threading.Thread):
     def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
