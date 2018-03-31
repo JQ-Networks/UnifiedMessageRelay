@@ -64,16 +64,16 @@ def add_admin(bot: telegram.Bot,
 
     if args[0] == 'qq':
         if qq_or_tg_id in global_vars.admin_list['QQ']:
-            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.id)
+            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.message_id)
         else:
             global_vars.admin_list['QQ'].append(qq_or_tg_id)
-            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.id)
+            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.message_id)
     elif args[0] == 'tg':
         if qq_or_tg_id in global_vars.admin_list['TG']:
-            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.id)
+            update.message.reply_text(str(qq_or_tg_id) + ' already in list', reply_to_message_id=update.message.message_id)
         else:
             global_vars.admin_list['TG'].append(qq_or_tg_id)
-            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.id)
+            update.message.reply_text(str(qq_or_tg_id) + ' added', reply_to_message_id=update.message.message_id)
     else:
         update.message.reply_text('Usage: /add_admin [qq|tg] [qq_id|tg_id]')
         return
