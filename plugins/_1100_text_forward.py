@@ -280,7 +280,7 @@ def photo_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption.startswith('//'):
+    if message.caption and message.caption.startswith('//'):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -346,7 +346,7 @@ def video_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption.startswith('//'):
+    if message.caption and message.caption.startswith('//'):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -415,7 +415,7 @@ def document_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption.startswith('//'):
+    if message.caption and message.caption.startswith('//'):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -610,7 +610,7 @@ def text_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption.startswith('//'):
+    if message.text.startswith('//'):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
     
