@@ -38,10 +38,6 @@ def tg_water_meter(bot: telegram.Bot,
     if not message_text:
         return
 
-    if message_text.startswith('//'):
-        logger.debug('Message ignored: matched comment pattern')
-        raise DispatcherHandlerStop()
-
     for keyword in global_vars.filter_list['keywords']:
         if keyword in message_text:
             logger.debug('Message ignored: matched water meter keywords')

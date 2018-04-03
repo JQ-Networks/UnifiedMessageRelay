@@ -6,6 +6,7 @@ from configparser import ConfigParser
 from typing import Union
 from urllib.request import urlretrieve
 
+from telegram.ext import DispatcherHandlerStop
 import ffmpy
 import global_vars
 import requests
@@ -278,6 +279,11 @@ def photo_from_telegram(bot: telegram.Bot,
     if edited:
         recall_message(forward_index, message)
 
+    # don't forward this message
+    if message.caption.startswith('//'):
+        logger.debug('Message ignored: matched comment pattern')
+        raise DispatcherHandlerStop()
+
     reply_entity = list()
 
     file_id = message.photo[-1].file_id
@@ -335,6 +341,14 @@ def video_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    if edited:
+        recall_message(forward_index, message)
+
+    # don't forward this message
+    if message.caption.startswith('//'):
+        logger.debug('Message ignored: matched comment pattern')
+        raise DispatcherHandlerStop()
 
     reply_entity = list()
 
@@ -396,6 +410,14 @@ def document_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
+
+    if edited:
+        recall_message(forward_index, message)
+
+    # don't forward this message
+    if message.caption.startswith('//'):
+        logger.debug('Message ignored: matched comment pattern')
+        raise DispatcherHandlerStop()
 
     reply_entity = list()
 
@@ -586,6 +608,11 @@ def text_from_telegram(bot: telegram.Bot,
     
     if edited:
         recall_message(forward_index, message)
+
+    # don't forward this message
+    if message.caption.startswith('//'):
+        logger.debug('Message ignored: matched comment pattern')
+        raise DispatcherHandlerStop()
     
     reply_entity = list()
 
