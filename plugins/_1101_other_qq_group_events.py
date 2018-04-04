@@ -18,7 +18,7 @@ def handle_group_upload(context):
     logger.debug(context)
 
     forward_index = get_forward_index(qq_group_id=qq_group_id)
-    if not forward_index:
+    if forward_index == -1:
         return ''
 
     qq_name = get_qq_name_encoded(user_id, forward_index)
