@@ -13,8 +13,8 @@ services:
   # richardchien/cqhttp
   cqhttp:
     image: richardchien/cqhttp:latest
+    env_file: dc_settings.env
     ports:
       - ${VNC_PORT}:9000
-    env_file: dc_settings.env
     volumes:
       - '${CQ_DATA}:/home/user/coolq'
