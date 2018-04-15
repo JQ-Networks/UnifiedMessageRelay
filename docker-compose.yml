@@ -4,7 +4,7 @@ services:
     build: '.'
     depends_on: 
       - cqhttp
-    env_file: dc_settings.env
+    env_file: .env
     volumes:
       - '${CQ_DATA}:/home/user/coolq'
     environment:
@@ -13,7 +13,7 @@ services:
   # richardchien/cqhttp
   cqhttp:
     image: richardchien/cqhttp:latest
-    env_file: dc_settings.env
+    env_file: .env
     ports:
       - ${VNC_PORT}:9000
     volumes:
