@@ -1,0 +1,14 @@
+version: '3'
+env_file: dc_settings.env
+services:
+  ctb:
+    build: '.'
+    depends_on: 
+      - cqhttp
+    environment:
+      - 'CTB_JSON_SETTINGS_PATH'
+  cqhttp:
+    image: richardchien/cqhttp:latest
+    port: '${VNC_PORT}:9000'
+    volumes:
+      - "${CQ_DATA}:/home/user/coolq"
