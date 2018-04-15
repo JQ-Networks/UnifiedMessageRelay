@@ -6,9 +6,7 @@ services:
       - cqhttp
     env_file: .env
     volumes:
-      - '${CQ_DATA}:/home/user/coolq'
-    environment:
-      - 'CTB_JSON_SETTINGS_PATH'
+      - '${CQ_DATA_PATH}:/home/user/coolq'
 
   # richardchien/cqhttp
   cqhttp:
@@ -17,4 +15,4 @@ services:
     ports:
       - ${VNC_PORT}:9000
     volumes:
-      - '${CQ_DATA}:/home/user/coolq'
+      - '${CQ_DATA_PATH}:/home/user/coolq'
