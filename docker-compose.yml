@@ -6,13 +6,15 @@ services:
       - cqhttp
     env_file: dc_settings.env
     volumes:
-      - "${CQ_DATA}:/home/user/coolq"
+      - '${CQ_DATA}:/home/user/coolq'
     environment:
       - 'CTB_JSON_SETTINGS_PATH'
+
+  # richardchien/cqhttp
   cqhttp:
     image: richardchien/cqhttp:latest
     ports:
-      -'${VNC_PORT}:9000'
+      - ${VNC_PORT}:9000
     env_file: dc_settings.env
     volumes:
-      - "${CQ_DATA}:/home/user/coolq"
+      - '${CQ_DATA}:/home/user/coolq'
