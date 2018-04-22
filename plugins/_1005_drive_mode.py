@@ -75,7 +75,7 @@ def drive_mode(forward_index: int, mode: bool) -> str:
     tg_group_title: str = global_vars.tg_bot.get_chat(tg_group).title
     if mode:
         if '(Driving)' not in tg_group_title:
-            tg_group_title = '(🚌)'
+            tg_group_title = '(🚌)' + tg_group_title
             try:
                 global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
             except TelegramError as e:
