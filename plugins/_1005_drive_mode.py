@@ -75,22 +75,24 @@ def drive_mode(forward_index: int, mode: bool) -> str:
     tg_group_title: str = global_vars.tg_bot.get_chat(tg_group).title
     if mode:
         if '(Driving)' not in tg_group_title:
-            tg_group_title += ' (Driving)'
+            tg_group_title = '(🚌)'
             try:
                 global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
-            except TelegramError:
-                logger.debug('no right to change title')
+            except TelegramError as e:
+                logger.debug(e.message)
         if current:
             msg = 'Status: 451'
         else:
             msg = 'Status changed: 451'
     else:
-        if '(Driving)' in tg_group_title:
-            tg_group_title = tg_group_title.replace('(Driving)', '').strip()
+        if '(🚌)' in tg_group_title:
+            tg_group_title = tg_group_title.replace('(🚌)', '').strip()
+            if len(tg_group_title) == 0:
+                tg_group_title = "WTF, what happened to the title"
             try:
                 global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
-            except TelegramError:
-                logger.debug('no right to change title')
+            except TelegramError as e:
+                logger.debug(e.message)
         if not current:
             msg = 'Status: 200'
         else:
