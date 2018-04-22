@@ -3,7 +3,7 @@ from main.command import Command
 import telegram
 qq_bot = None
 dp = None
-tg_bot: telegram.bot = None
+tg_bot: telegram.Bot = None
 tg_bot_id: int = None
 command_list = []
 

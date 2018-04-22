@@ -14,7 +14,6 @@ logger.debug(__name__ + " loading")
 
 global_vars.create_variable('DRIVE_MODE', [])
 
-
 for forward in FORWARD_LIST:  # initialize drive mode list
     global_vars.DRIVE_MODE.append(forward['DRIVE_MODE'])
 
@@ -63,22 +62,51 @@ def qq_drive_mode(context: dict):
     return {'pass': True}
 
 
+def drive_mode(forward_index: int, mode: bool) -> str:
+    """
+    set drive mode
+    :param forward_index: forward index
+    :param mode: drive mode to be set
+    :return: Message: str
+    """
+    current = global_vars.DRIVE_MODE[forward_index]
+    tg_group = FORWARD_LIST[forward_index]['TG']
+    tg_group_title: str = global_vars.tg_bot.get_chat(tg_group).title
+    if mode:
+        if '(Driving)' not in tg_group_title:
+            tg_group_title += ' (Driving)'
+            global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+        if current:
+            msg = 'Status: 451'
+        else:
+            msg = 'Status changed: 451'
+    else:
+        if '(Driving)' in tg_group_title:
+            tg_group_title.replace('(Driving)', '')
+            tg_group_title = tg_group_title.strip()
+            global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+        if not current:
+            msg = 'Status: 200'
+        else:
+            msg = 'Status changed: 200'
+    global_vars.DRIVE_MODE[forward_index] = mode
+    return msg
+
+
 # add commands
 
 # forward_index, tg_user=message.from_user, tg_group_id=tg_group_id, tg_message_id=message.id
 
 @command_listener('drive mode on', 'drive', description='enable drive mode')
 def drive_mode_on(forward_index: int,
-                  tg_group_id: int=None,
-                  tg_user: telegram.User=None,
-                  tg_message_id: int=None,
-                  tg_reply_to: telegram.Message=None,
-                  qq_group_id: int=None,
-                  qq_discuss_id: int=None,
-                  qq_user: int=None):
-    global_vars.DRIVE_MODE[forward_index] = True
-
-    message = 'Status changed: 451'
+                  tg_group_id: int = None,
+                  tg_user: telegram.User = None,
+                  tg_message_id: int = None,
+                  tg_reply_to: telegram.Message = None,
+                  qq_group_id: int = None,
+                  qq_discuss_id: int = None,
+                  qq_user: int = None):
+    message = drive_mode(forward_index, True)
 
     return send_both_side(forward_index,
                           message,
@@ -90,16 +118,14 @@ def drive_mode_on(forward_index: int,
 
 @command_listener('drive mode off', 'park', description='disable drive mode')
 def drive_mode_off(forward_index: int,
-                   tg_group_id: int=None,
-                   tg_user: telegram.User=None,
-                   tg_message_id: int=None,
-                   tg_reply_to: telegram.Message=None,
-                   qq_group_id: int=None,
-                   qq_discuss_id: int=None,
-                   qq_user: int=None):
-    global_vars.DRIVE_MODE[forward_index] = False
-
-    message = 'Status changed: 200'
+                   tg_group_id: int = None,
+                   tg_user: telegram.User = None,
+                   tg_message_id: int = None,
+                   tg_reply_to: telegram.Message = None,
+                   qq_group_id: int = None,
+                   qq_discuss_id: int = None,
+                   qq_user: int = None):
+    message = drive_mode(forward_index, False)
 
     return send_both_side(forward_index,
                           message,
