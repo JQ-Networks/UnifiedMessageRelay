@@ -6,6 +6,7 @@ from bot_constant import FORWARD_LIST
 from main.command import command_listener
 from telegram.ext import MessageHandler, Filters
 from telegram.ext.dispatcher import DispatcherHandlerStop
+from telegram import TelegramError
 
 from main.utils import get_forward_index, send_both_side, get_plugin_priority
 
@@ -75,16 +76,21 @@ def drive_mode(forward_index: int, mode: bool) -> str:
     if mode:
         if '(Driving)' not in tg_group_title:
             tg_group_title += ' (Driving)'
-            global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+            try:
+                global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+            except TelegramError:
+                logger.debug('no right to change title')
         if current:
             msg = 'Status: 451'
         else:
             msg = 'Status changed: 451'
     else:
         if '(Driving)' in tg_group_title:
-            tg_group_title.replace('(Driving)', '')
-            tg_group_title = tg_group_title.strip()
-            global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+            tg_group_title = tg_group_title.replace('(Driving)', '').strip()
+            try:
+                global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
+            except TelegramError:
+                logger.debug('no right to change title')
         if not current:
             msg = 'Status: 200'
         else:
