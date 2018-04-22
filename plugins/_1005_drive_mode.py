@@ -74,8 +74,8 @@ def drive_mode(forward_index: int, mode: bool) -> str:
     tg_group = FORWARD_LIST[forward_index]['TG']
     tg_group_title: str = global_vars.tg_bot.get_chat(tg_group).title
     if mode:
-        if '(🏎)' not in tg_group_title:
-            tg_group_title = '(🏎)' + tg_group_title
+        if '(🚝)' not in tg_group_title:
+            tg_group_title = '(🚝)' + tg_group_title
             try:
                 global_vars.tg_bot.setChatTitle(tg_group, tg_group_title)
             except TelegramError as e:
@@ -85,8 +85,8 @@ def drive_mode(forward_index: int, mode: bool) -> str:
         else:
             msg = 'Status changed: 451'
     else:
-        if '(🏎)' in tg_group_title:
-            tg_group_title = tg_group_title.replace('(🏎)', '').strip()
+        if '(🚝)' in tg_group_title:
+            tg_group_title = tg_group_title.replace('(🚝)', '').strip()
             if len(tg_group_title) == 0:
                 tg_group_title = "WTF, what happened to the title"
             try:
