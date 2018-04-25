@@ -13,7 +13,7 @@ import logging
 
 jcsLogger = logging.getLogger("ctbMain.jsonConstantSupport")
 
-filepath = os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json')
+filepath = os.path.abspath(os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json'))
 with open(filepath, 'r') as f1:
     settingsJSON = json.loads(f1.read())
 

@@ -14,6 +14,8 @@
 
 `.env`文件存储了容器运行时所使用的环境变量，等效于运行容器时的`-e`参数。支持所有coolq-telegram-bot 、 [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/) 和 [richardchien/cqhttp](https://hub.docker.com/r/richardchien/cqhttp/) 支持的环境变量，具体使用方法请参考对应文档。
 
+使用前请将`sample.env`重命名为`.env`并针对您的部署环境进行编辑。
+
 为提高部署灵活性，额外定义了几个环境变量，请参考下表。
 
 名称 | 值示例 | 描述
