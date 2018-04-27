@@ -1,0 +1,18 @@
+version: '3'
+services:
+  ctb:
+    build: '.'
+    depends_on: 
+      - cqhttp
+    env_file: .env
+    volumes:
+      - '${CQ_DATA_PATH}:/home/user/coolq'
+
+  # richardchien/cqhttp
+  cqhttp:
+    image: richardchien/cqhttp:latest
+    env_file: .env
+    ports:
+      - ${VNC_PORT}:9000
+    volumes:
+      - '${CQ_DATA_PATH}:/home/user/coolq'

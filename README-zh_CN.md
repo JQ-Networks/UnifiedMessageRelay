@@ -54,7 +54,7 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 > [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
 
 ### 安装酷Q HTTP API
-> HTTP API安装方法见[CoolQ HTTP API 插件文档](https://richardchien.github.io/coolq-http-api/3.3/#/)
+> HTTP API安装方法见[CoolQ HTTP API 插件文档](https://cqhttp.cc/docs/)
 
 - 典型配置方案 (`app/io.github.richardchien.coolqhttpapi/config.cfg`)
 ```
