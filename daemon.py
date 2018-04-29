@@ -138,13 +138,7 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     elif args.command == 'restart':
         daemon.restart()
     elif args.command == 'run':
-        # logger.setLevel(logging.DEBUG)
-        # logger_plugins.setLevel(logging.DEBUG)
-        # logger_telegram.setLevel(logging.DEBUG)
-        # stream_handler = logging.StreamHandler()
-        # logger.addHandler(stream_handler)
-        # logger_plugins.addHandler(stream_handler)
-        # logger_telegram.addHandler(stream_handler)
+        # Run as foreground mode
         logger.info('Now running in debug mode...')
         daemon.run()
 
