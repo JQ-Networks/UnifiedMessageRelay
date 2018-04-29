@@ -27,9 +27,10 @@
 
 与正常流程无太大区别，但应注意下列几点：
 
-1. `HOST`请设置为`ctb`并保持默认端口不变。*不会暴露至公网。*
+1. `HOST`和`PORT`请分别设置为`ctb` 和 `8080`。或与您自定义的`CQHTTP_POST_URL`保持一致
 2. `API_ROOT`请设置为`http://cqhttp:5700`。*（如果修改了`CQHTTP_PORT`，请将`5700`替换为对应的端口值）*
 3. `ACCESS_TOKEN`和`SECRET`应与`.env`中的`CQHTTP_ACCESS_TOKEN` & `CQHTTP_SECRET`保持一致
+4. `CQ_ROOT` 请设置为 `/home/user/coolq`，否则无法在容器内访问酷Q数据。
 
 ### 3、运行
 
