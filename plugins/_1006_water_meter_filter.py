@@ -37,14 +37,14 @@ def tg_water_meter(bot: telegram.Bot,
 
     if not message_text:
         return
-
+    if message.from_user.id in global_vars.filter_list['user']:
+      logger.debug('Message ignored: matched filtered user')
+      raise DispatcherHandlerStop()
+    print(message.from_user.id)
     for keyword in global_vars.filter_list['keywords']:
         if keyword in message_text:
             logger.debug('Message ignored: matched water meter keywords')
-            global_vars.drive_mode_on(forward_index,
-                                      tg_user=message.from_user,
-                                      tg_group_id=tg_group_id,
-                                      tg_message_id=message.message_id)
+            update.message.reply_text("Keyword detected, won't forward to QQ Group(keyword: " + keyword + ")")
             raise DispatcherHandlerStop()
 
 

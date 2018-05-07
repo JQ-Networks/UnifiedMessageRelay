@@ -12,7 +12,7 @@ logger = logging.getLogger("CTBPlugin." + __name__)
 logger.debug(__name__ + " loading")
 
 
-global_vars.create_variable('filter_list', {'keywords': [], 'channels': []})
+global_vars.create_variable('filter_list', {'keywords': [], 'channels': [], 'user': []})
 
 
 def load_data():
@@ -50,6 +50,49 @@ def add_keyword(bot: telegram.Bot,
         global_vars.filter_list['keywords'].append(keyword)
     update.message.reply_text('Done.')
     save_data()
+
+def get_keywords(bot: telegram.Bot,
+                update: telegram.Update,
+                args: list):
+    if update.message.chat_id not in global_vars.admin_list['TG']:
+        update.message.reply_text('U R NOT ADMIN')
+        return
+    s = ""
+    for keyword in global_vars.filter_list["keywords"]:
+        s += keyword + "\n"
+    update.message.reply_text(s)
+    return
+
+def add_user(bot: telegram.Bot,
+                update: telegram.Update,
+                args: list):
+    if update.message.chat_id not in global_vars.admin_list['TG']:
+        return
+
+    if len(args) == 0:
+        update.message.reply_text('Usage: /add_user user1 user2 ...')
+        return
+    for user in args:
+        logger.debug('user: ' + user)
+        user = int(user)
+        if user in global_vars.filter_list['user']:
+            update.message.reply_text('User: "' + user + '" already in list')
+            continue
+        global_vars.filter_list['user'].append(user)
+    update.message.reply_text('Done.')
+    save_data()
+
+def get_user(bot: telegram.Bot,
+                update: telegram.Update,
+                args: list):
+    if update.message.chat_id not in global_vars.admin_list['TG']:
+        update.message.reply_text('U R NOT ADMIN')
+        return
+    s = ""
+    for user in global_vars.filter_list["user"]:
+        s += user + "\n"
+    update.message.reply_text(s)
+    return
 
 CHANNEL = range(1)
 
@@ -110,6 +153,23 @@ global_vars.dp.add_handler(conv_handler,
                            group=get_plugin_priority(__name__))
 global_vars.dp.add_handler(CommandHandler(command='add_keyword',
                                           callback=add_keyword,
+                                          filters=Filters.private,
+                                          pass_args=True),
+                           group=get_plugin_priority(__name__))
+
+global_vars.dp.add_handler(CommandHandler(command='get_keywords',
+                                          callback=get_keywords,
+                                          filters=Filters.private,
+                                          pass_args=True),
+                           group=get_plugin_priority(__name__))
+global_vars.dp.add_handler(CommandHandler(command='add_user',
+                                          callback=add_user,
+                                          filters=Filters.private,
+                                          pass_args=True),
+                           group=get_plugin_priority(__name__))
+
+global_vars.dp.add_handler(CommandHandler(command='get_user',
+                                          callback=get_user,
                                           filters=Filters.private,
                                           pass_args=True),
                            group=get_plugin_priority(__name__))

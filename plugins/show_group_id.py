@@ -2,14 +2,10 @@ import global_vars
 from main.command import command_listener
 import telegram
 import logging
-import logging
-
-import telegram
-from main.command import command_listener
-
-import global_vars
-
+from telegram.ext import Filters, CommandHandler
+from bot_constant import FORWARD_LIST
 logger = logging.getLogger("CTBPlugin." + __name__)
+
 logger.debug(__name__ + " loading")
 
 
@@ -33,3 +29,16 @@ def show_qq_group_id(qq_group_id: int,
     else:
         msg = 'QQ discuss id is: ' + str(qq_discuss_id)
         return {'reply': msg}
+def get_connected_groups(bot: telegram.Bot,
+                         update: telegram.Update,
+                         args: list):
+    if update.message.from_user.id != global_vars.admin_list['TG'][0]:
+        return
+    s = ""
+    for forward in FORWARD_LIST:
+        s += "QQ: `%d`, TG: `%d`\n"%(forward['QQ'], forward['TG'])
+    update.message.reply_markdown(text=s)
+global_vars.dp.add_handler(CommandHandler(command='get_connected_groups',
+                                          callback=get_connected_groups,
+                                          filters=Filters.private,
+                                          pass_args=True))
