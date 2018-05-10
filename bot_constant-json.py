@@ -33,6 +33,7 @@ PORT = settingsJSON['PORT']
 TOKEN = settingsJSON['TOKEN']
 QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
 FORWARD_LIST = settingsJSON['FORWARD_LIST']
+USE_SHORT_URL = settingsJSON['USE_SHORT_URL']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
 

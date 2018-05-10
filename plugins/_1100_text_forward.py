@@ -12,7 +12,7 @@ import global_vars
 import requests
 import telegram
 from PIL import Image
-from bot_constant import FORWARD_LIST, BAIDU_API
+from bot_constant import FORWARD_LIST, BAIDU_API, USE_SHORT_URL
 from main.command import command_listener
 from telegram.ext import MessageHandler, Filters
 
@@ -214,6 +214,8 @@ def get_short_url(long_url: str):
     :param long_url: the original url
     :return: short url
     """
+    if USE_SHORT_URL:
+        return long_url
     # change long url to `t.cn` short url
     sina_api_prefix = 'http://api.t.sina.com.cn/short_url/shorten.json?source=3271760578&url_long='
     try:
@@ -280,7 +282,7 @@ def photo_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption and message.caption.startswith('//'):
+    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -346,7 +348,7 @@ def video_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption and message.caption.startswith('//'):
+    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -415,7 +417,7 @@ def document_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.caption and message.caption.startswith('//'):
+    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
@@ -610,7 +612,7 @@ def text_from_telegram(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if message.text.startswith('//'):
+    if (message.text.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
     
