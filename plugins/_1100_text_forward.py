@@ -214,7 +214,7 @@ def get_short_url(long_url: str):
     :param long_url: the original url
     :return: short url
     """
-    if USE_SHORT_URL:
+    if not USE_SHORT_URL:
         return long_url
     # change long url to `t.cn` short url
     sina_api_prefix = 'http://api.t.sina.com.cn/short_url/shorten.json?source=3271760578&url_long='

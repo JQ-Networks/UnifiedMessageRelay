@@ -22,7 +22,7 @@
             "IMAGE_LINK": true
         }
     ],
-    "USE_SHORT_URL": false,
+    "USE_SHORT_URL": true,
     "SERVER_PIC_URL": "http://expample.com/image/",
     "CQ_ROOT": "/home/user/coolq/",
     "PROXY_URL": "socks5://127.0.0.1:1080/"

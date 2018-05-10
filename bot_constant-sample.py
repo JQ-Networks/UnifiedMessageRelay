@@ -25,7 +25,7 @@ FORWARD_LIST = [
      'DRIVE_MODE': False,
      'IMAGE_LINK': True}
 ]
-USE_SHORT_URL = False
+USE_SHORT_URL = True
 SERVER_PIC_URL = 'http://expample.com/image/'
 CQ_ROOT = '/home/user/coolq/'
 # if you need socks5 proxy, setup proxy_url as below

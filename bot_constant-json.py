@@ -40,3 +40,4 @@ CQ_ROOT = settingsJSON['CQ_ROOT']
 jcsLogger.info('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')
 # optional config
 PROXY_URL = settingsJSON.get('PROXY_URL')
+USE_SHORT_URL = settingsJSON.get('USE_SHORT_URL', True)
