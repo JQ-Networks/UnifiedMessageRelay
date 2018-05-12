@@ -112,7 +112,7 @@ def command_qq(qq_group_id: int,
     result = '\n'
     for command in global_vars.command_list:
         if not command.tg_only:
-            result += f'{command.command}({command.short_command}): \n  {command.description}\n'
+            result += f'{command.command}({command.short_command}): \n  {command.description}\n\n'
     return {'reply': result}
 
 
@@ -124,7 +124,7 @@ def command_tg(tg_group_id: int,
     result = ''
     for command in global_vars.command_list:
         if not command.qq_only:
-            result += f'<b>{command.command}</b>(<b>{command.short_command}</b>): \n  {command.description}\n'
+            result += f'<b>{command.command}</b>(<b>{command.short_command}</b>): \n  {command.description}\n\n'
     global_vars.tg_bot.sendMessage(chat_id=tg_group_id,
                                    text=result,
                                    reply_to_message_id=tg_message_id,
@@ -136,7 +136,7 @@ def command_qq(qq_group_id: int,
                qq_discuss_id:int,
                qq_user: int):
     result = '''I'm a relay bot between qq and tg.
-Please use "!!show commands" or "!!sc" to show all commands.
+Please use "!!show commands" or "!!cmd" to show all commands.
 '''
     return {'reply': result}
 
