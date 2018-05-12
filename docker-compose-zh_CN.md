@@ -8,7 +8,14 @@
 
 ## 使用方法
 
->注：下列内容仅面向一般用户，高玩请自行DIY docker-compose.yml
+>注：下列内容仅面向一般用户，高玩请自行DIY `docker-compose.yml`
+
+### 服务名称
+
+以下是默认写于 `docker-compose.yml` 中的服务名称。
+
+-  `ctb` coolq-telegram-bot
+-  `cqhttp` coolq-http-api
 
 ### 1、配置 .env 文件
 

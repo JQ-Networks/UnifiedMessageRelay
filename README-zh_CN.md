@@ -1,16 +1,19 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **v3.1**
+QQ和Telegram的消息互转机器人 **v3.3**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 最近更新
+
+### v3.3
+
 ### v3.2
 - GIF 双向转发
 - LRU 缓存管理（待实现）
 
-查看更多
+[查看更多](ChangeLog.md)
 
 ----------------------------
 
@@ -122,12 +125,13 @@ server {
 `HOST`           | '127.0.0.1' cq-http-api 上报地址
 `PORT`           | 8080 cq-http-api 上报端口
 `DEBUG_MODE`     | 调试信息记录，推荐开启，会输出到 bot.log。由于使用了日志滚动模式，不会占用很多的空间，请放心开启。
-
+ `PROXY_URL` | 连接到指定的 Socks5 代理地址，值为*空*或 `False` 时不使用代理。<br />*(在JSON格式配置文件中本配置项可选，默认值为`None`）*
+ `USE_SHORT_URL` | 是否使用短链接，建议开启。<br />*(在JSON格式配置文件中本配置项可选，默认值为`true`）*
 
 ### bot_constant.json
-键值对的对应关系与bot_constant.py相同。
+键值对的对应关系与  `bot_constant.py`  相同。
 
-如要使用JSON格式的配置文件，请将`bot_constant-json.py`重命名为`bot_constant.py`以启用JSON配置文件支持特性。
+如要使用JSON格式的配置文件，请将 `bot_constant-json.py` 重命名为 `bot_constant.py` 以启用JSON配置文件支持特性。
 
 如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `CTB_JSON_SETTINGS_PATH`
 例：
@@ -141,11 +145,11 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 请注意，bot需要 python3.6及以上版本，如运行报错请检查此项是否满足。
 
-保证酷Q已启动并登录，在bot_constant.py或相应的配置文件内填好了必需的参数，sample文件已经改名。
+保证酷Q已启动并登录，在 `bot_constant.py` 或相应的配置文件内填好了必需的参数，sample文件已经改名。
 
 目前已经实现了 daemon 模式，请使用 `python3.6 daemon.py start` 以后台运行
 
-如果需要查看启动日志，请先关闭正在运行的 daemon： `python3.6 daemon.py stop`，
+如果需要实时查看日志输出，请先关闭正在运行的 daemon： `python3.6 daemon.py stop`，
 
 然后前台运行： `python3.6 daemon.py run`，前台运行将自动临时开启 debug 模式
 

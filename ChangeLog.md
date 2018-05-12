@@ -1,5 +1,11 @@
 # 更新日志
 
+## v3.3
+- 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
+- JSON配置文件现支持**可选配置**
+- 支持使用 docker-compose 编排服务，[阅读更多](docker-compose-zh_CN.md)
+- 部分细节优化
+
 ## v3.2
 - GIF 双向转发
 - LRU 缓存管理（待实现）
@@ -13,7 +19,7 @@
 
 ## v3.0
 - 底层 API 从 cqsocketapi 迁移至 [cq-http-api](https://github.com/richardchien/coolq-http-api)
-- 由于使用了 Type Hint, 必须使用 Python3.6+ 才能正常运行，请升级 Python 或者使用 [Docker容器](https://github.com/Z4HD/coolq-telegram-bot-docker)
+- 由于使用了 Type Hint, 必须使用 Python3.6+ 才能正常运行，请升级 Python。
 - 新增作者吱口令红包，群里发送 `!!ali` 或者 `!!alipay` 即可查看
 - 新增 Telegram 到 qq 发送地图坐标，需要设置百度地图 API，方法自行搜索（好像没什么卵用，目前不知道什么情况会有此类消息）
 - requirements.txt 已精简，删除了不必要的依赖。
