@@ -14,8 +14,8 @@
 
 以下是默认写于 `docker-compose.yml` 中的服务名称。
 
--  `ctb` coolq-telegram-bot
--  `cqhttp` coolq-http-api
+- `ctb` coolq-telegram-bot
+- `cqhttp` coolq-http-api
 
 ### 1、配置 .env 文件
 
@@ -40,6 +40,8 @@
 4. `CQ_ROOT` 请设置为 `/home/user/coolq`，否则无法在容器内访问酷Q数据。
 
 ### 3、运行
+
+构建ctb镜像前请务必完成Bot配置，确保存在 `bot_constant.py` 。
 
 #### 前台运行
 
