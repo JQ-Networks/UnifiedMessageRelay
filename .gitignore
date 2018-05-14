@@ -95,11 +95,13 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# ignore DB file
+*.db
+
 namelist.json
 bot.log
 bot.log*
 nohup.out
-bot_constant.py
 special_sticker_list.py
 nouse.py
 
@@ -107,5 +109,6 @@ nouse.py
 .idea
 .vscode
 
-# ignore DB file
-*.db
+# ignore config file
+bot_constant.py
+bot_constant.json
