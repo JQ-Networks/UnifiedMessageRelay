@@ -3,12 +3,12 @@
 ## v3.3
 
 - 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
-- JSON配置文件现支持**可选配置**
-- 支持使用 docker-compose 编排服务，[阅读更多](docker-compose-zh_CN.md)
+- JSON配置文件现支持[**可选配置**](README-zh_CN.md#%E5%8F%AF%E9%80%89%E9%85%8D%E7%BD%AEjson%E7%89%B9%E6%9C%89)
+- 支持使用 docker-compose 编排服务，[*阅读更多*](docker-compose-zh_CN.md)
 - 回复开头为 “//” 的消息不会被转发
 - 部分细节优化
 - 管理功能仍在开发中
-- 添加了部分插件文档，位于 [docs/](docs/) 文件夹下。 (by @billchenchina )
+- 添加了部分插件文档，位于 [*docs/*](docs/) 文件夹下。 (by @billchenchina )
 
 ## v3.2
 

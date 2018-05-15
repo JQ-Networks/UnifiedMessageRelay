@@ -129,7 +129,11 @@ pip3 install -r requirements.txt
 
 键值对的对应关系与  `bot_constant.py`  相同。
 
-如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
+如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
+
+```bash
+$ ln -s bot_constant-json.py bot_constant.py
+```
 
 #### 加载外部配置文件（JSON特有）
 如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `CTB_JSON_SETTINGS_PATH`
@@ -153,7 +157,7 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 保证酷Q已启动并登录，在 `bot_constant.py` 或相应的配置文件内填好了必需的参数，sample文件已经改名。
 
-### 查看帮助
+### 查看CLI帮助
 
 ```shell
 $ python3.6 daemon.py -h

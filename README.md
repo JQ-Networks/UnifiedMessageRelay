@@ -14,27 +14,27 @@ QQ:
 
 ![QQ](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/raw/master/image/qq.png)
 
-[中文 Readme](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/blob/master/README-zh_CN.md)
+》》[中文 Readme](README-zh_CN.md)《《
 
-QQ & Telegram Relay Bot **v3.2**
+QQ & Telegram Relay Bot **v3.3**
 
 QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram API based on [python_telegram_bot](https://python-telegram-bot.org)
 
 ## Recent Update
-### v3.2
-- GIF forwarding (bi-direction): requires ffmpeg, run `apt-get install ffmpeg`
-- LRU cache management (not implemented)
 
-[View More](https://github.com/jqqqqqqqqqq/coolq-telegram-bot/ChangeLog.md)
+### v3.3
+
+- New configuration item `USE_SHORT_URL`: You can configure whether to use short links in the configuration file.
+- JSON configuration file now supports [optional configuration](README-zh_CN.md#%E5%8F%AF%E9%80%89%E9%85%8D%E7%BD%AEjson%E7%89%B9%E6%9C%89)
+- Support for using docker-compose orchestration services, [read more](docker-compose-zh_CN.md)
+- Messages beginning with "//" will not be forwarded
+- Partial details optimization
+- Management functions are still under development
+- Added some plugin documentation, located in the [docs/](docs/) folder. (by @billchenchina )
+
+[View More](ChangeLog.md)*(Chinese)*
 
 ----------------------------
-
-## Docker Usage
-
-1. Star This Repo
-2. Star [This](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
-3. Follow coolq-telegram-bot-docker's [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md)
-
 
 ## Features
 
@@ -42,8 +42,8 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 + Support text forward between QQ and Telegram
 + Images from QQ will be forwarded to Telegram, but Telegram images will be forwarded via links
-+ Telegram stickers will be converted to emojis, with link if enabled IMAGE_LINK_MODE
-+ Some QQ emojis will be converted to unicode emojis 
++ Telegram stickers will be converted to emojis, with the link if enabled IMAGE_LINK_MODE
++ Some QQ emojis will be converted to Unicode emojis 
 + Support temporarily disable forwarding
 + Support commands, use `!!show commands` or `!!cmd` to list
 
@@ -51,17 +51,19 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 + Support text forward between QQ and Telegram
 + Images will be forwarded to opposite sides
-+ Some QQ emojis will be converted to unicode emojis 
++ Some QQ emojis will be converted to Unicode emojis 
 + Support commands, use `!!show commands` or `!!cmd` to list
 
 ## Build Environment
 
 ### Use Docker
-Docker is preferred, choose one from below if you want
+
+Now support docker-compose, [more details](docker-compose-zh_CN.md) *(Chinese)*
+
+Only want to run Coolq in a container? These images below here may useful.
 
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *Official Coolq Docker*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *richardchien's Coolq Docker, with Coolq http api*
-- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *Based on richardchien's Coolq Docker, with Coolq Telegram Bot* <b>require manually `build` </b>。
 
 Please follow the instruction of the one you chose, and jump to **Configuration** part of this instruction
 
@@ -75,6 +77,7 @@ apt-get install libcurl4-openssl-dev libssl-dev ffmpeg
 > See [CoolQ HTTP API Documentary](https://richardchien.github.io/coolq-http-api/3.3/#/)
 
 - Typical Coolq http api config (`app/io.github.richardchien.coolqhttpapi/config.cfg`)
+
 ```
 [general]
 host=0.0.0.0
@@ -88,17 +91,14 @@ access_token=very
 secret=long
 post_message_format=array
 serve_data_files=no
-update_source=https://raw.githubusercontent.com/richardchien/coolq-http-api-release/master/
 update_channel=stable
 auto_check_update=no
 auto_perform_update=no
-thread_pool_size=4
-server_thread_pool_size=1
 ```
 
 ### Enable static image server (Coolq Air Only)
 
-Since Coolq Air doesn't support sending images, Telegram images will be sent via link. You need to expose these images for access.
+Since Coolq Air doesn't support sending images, Telegram images will be sent via the link. You need to expose these images for access.
 
 Install nginx under Ubuntu
 
@@ -116,15 +116,11 @@ server {
 } 
 ```
 
-### install python dependencies
+### Install python dependencies
 
 `pip3.6 install -r requirements.txt`
 
 ## Configurations
-
-### bot_constant.py
-
-Please rename `bot_constant-sample.py` to `bot_constant.py` before use.
 
 Key              | Value
 :--------------- | ---
@@ -133,18 +129,27 @@ Key              | Value
 `FORWARD_LIST`   | A list that defines forwards. Every dict in this list `[QQ Group Number, Telegran Group ID，Default for DRIVE_MODE, Default for IMAGE_LINK_MODE]` stands for a forward. Only one to one forward is supported.
 `SERVER_PIC_URL` | Your server's domain(used for url access, if you are using Pro, you can set whatever you like since it is not used)
 `CQ_ROOT_DIR`    | Coolq's root directory
-`API_ROOT`       | 'http://127.0.0.1:5700/' cq-http-api's api root
+`API_ROOT`       | 'http://127.0.0.1:5700/' cq-http-api's API root
 `ACCESS_TOKEN`   | 'access_token'   cq-http-api's access_token, see cq-http-api's doc for further information
 `SECRET`         | 'secret '  cq-http-api's secret, see cq-http-api's doc for further information
 `HOST`           | '127.0.0.1' cq-http-api's event report address
 `PORT`           | 8080 cq-http-api's event report port
 `DEBUG_MODE`     | Debug mode. Set to True is encouraged. Since rotate log handler is used, it will take up no more than 3MB.
+ `PROXY_URL` | Connects to the specified Socks5 proxy address and does not use proxy when the value is *empty* or `False`.<br />*(optional in JSON, the default is `None`)*
+ `USE_SHORT_URL` | Use short links, it is recommended to open.<br />*(optional in JSON, the default is `true`)*
 
+### bot_constant.py
+
+Please rename `bot_constant-sample.py` to `bot_constant.py` before use.
 
 ### bot_constant.json
 Key - Value peer is the same as above
 
-If you want to use JSON, please copy `bot_constant-json.py` to `bot_constant.py`
+If you want to use JSON, please copy or soft-link `bot_constant-json.py` to `bot_constant.py`
+
+```bash
+$ ln -s bot_constant-json.py bot_constant.py
+```
 
 if you want to load external settings file, use `CTB_JSON_SETTINGS_PATH`
 
@@ -153,27 +158,22 @@ Example:
 ```shell
 $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
-`tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` tp `bot_constant.json`
+`tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` to `bot_constant.json`
 
-## deploy bot
-
-1. clone this git to docker's data folder (google about where it is)
-2. use `sudo docker exec -it coolq su` to launch docker shell
-3. then you'll be able to find out the bot under `/home/user/coolq`
-
-## Start bot
+## Start the bot
+<!-- Old content of manual. Need up to date with README_zh-CN.md -->
 
 Attention: Python 3.6 is required due to variable type hinting is used
 
 Make sure Coolq is started and logged in, bot_constant.py is configured
 
-Use `python3.6 daemon.py run` to start your bot. This will run your bot in foreground and enable DEBUG mode temporarily
+Use `python3.6 daemon.py run` to start your bot. This will run your bot in the foreground and enable DEBUG mode temporarily
 
 If no ERROR occurs, please `Ctrl C` and use `python3.6 daemon.py start`
 
 There're other commands like `stop` and `restart`
 
-When updating bot, be aware of that `restart` sometimes cause error. Please `stop` and `start` instead.
+When updating bot, be aware of that `restart` sometimes cause an error. Please `stop` and `start` instead.
 
 ## Commands
 
@@ -207,19 +207,19 @@ Enable：Send `!!drive mode on` or `!!drive`
 
 Disable：Send `!!drive mode off` or `!!park`
 
-Forward function will be disabled temporarily after enabled this
+The forward function will be disabled temporarily after enabled this
 
 ### Recall（v3.1+）
 
 Reply `!!recall` or `!!del` in Telegram to any message you want to recall in QQ.
 
-Message must be sent by bot in QQ side.
+The message must be sent by the bot in QQ side.
 
-** If the message exceed 2 minutes, recall will fail**
+** If the message exceeds 2 minutes, the recall will fail**
 
 # Management Features (Under Construction)
 
-Currently QQ group invites and accept invites is available via private chat.
+Currently, QQ group invites and accept invites is available via private chat.
 
 You can find out the usage by reading `plugins/_00x_xxxxx.py`
 
@@ -238,6 +238,5 @@ You can find out the usage by reading `plugins/_00x_xxxxx.py`
 2. Logs of python3 daemon.py run (Desensitization)
 3. Whether you are using Docker
 4. Which branch you are on (Dev of Master)
-
 
 
