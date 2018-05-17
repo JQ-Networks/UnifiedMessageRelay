@@ -65,7 +65,7 @@ Only want to run Coolq in a container? These images below here may useful.
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *Official Coolq Docker*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *richardchien's Coolq Docker, with Coolq http api*
 
-Please follow the instruction of the one you chose, and jump to **Configuration** part of this instruction
+Please follow the instruction of the one you chose, and jump to [**Configuration**](#Configurations) part of this instruction
 
 
 ### Directly use Wine CoolQ
@@ -161,19 +161,38 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 `tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` to `bot_constant.json`
 
 ## Start the bot
-<!-- Old content of manual. Need up to date with README_zh-CN.md -->
 
-Attention: Python 3.6 is required due to variable type hinting is used
+Make sure that you have finished all configure steps.
 
-Make sure Coolq is started and logged in, bot_constant.py is configured
+### Viewing CLI Help
 
-Use `python3.6 daemon.py run` to start your bot. This will run your bot in the foreground and enable DEBUG mode temporarily
+```shell
+$ python3.6 daemon.py -h
+```
 
-If no ERROR occurs, please `Ctrl C` and use `python3.6 daemon.py start`
+### Background process
 
-There're other commands like `stop` and `restart`
+Currently daemon mode has been implemented, using the following instructions to run in the background.
 
-When updating bot, be aware of that `restart` sometimes cause an error. Please `stop` and `start` instead.
+- Start background service
+
+```shell
+$ python3.6 daemon.py start
+```
+
+- Stop the background service
+
+```shell
+$ python3.6 daemon.py stop
+```
+
+### Front desk process
+
+If you need to see the log output in real time, close the running daemon first. Then follow this command.
+
+```shell
+$ python3.6 daemon.py run
+```
 
 ## Commands
 
@@ -238,5 +257,4 @@ You can find out the usage by reading `plugins/_00x_xxxxx.py`
 2. Logs of python3 daemon.py run (Desensitization)
 3. Whether you are using Docker
 4. Which branch you are on (Dev of Master)
-
 
