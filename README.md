@@ -65,7 +65,7 @@ Only want to run Coolq in a container? These images below here may useful.
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *Official Coolq Docker*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *richardchien's Coolq Docker, with Coolq http api*
 
-Please follow the instruction of the one you chose, and jump to [**Configuration**](#Configurations) part of this instruction
+Please follow the instruction of the one you chose, and jump to [**Configuration**](#configurations) part of this instruction
 
 
 ### Directly use Wine CoolQ
