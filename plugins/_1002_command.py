@@ -8,7 +8,7 @@ from telegram.ext.dispatcher import DispatcherHandlerStop
 
 from main.utils import get_forward_index, get_plugin_priority
 
-logger = logging.getLogger("CTB.Plugin." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
 # Commands are only available in group and discuss
