@@ -26,3 +26,9 @@ pylint = "*"
 
 [requires]
 python_version = "3.6"
+
+[scripts]
+run = "python3 daemon.py run"
+start = "python3 daemon.py start"
+stop = "python3 daemon.py stop"
+restart = "python3 daemon.py restart"

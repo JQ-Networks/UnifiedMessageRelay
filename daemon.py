@@ -17,17 +17,10 @@ from telegram.ext import Updater
 coloredlogs.install(
     fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
 
-# rotate file handler: max size: 1MB, so always enable debug mode is ok
-rotate_handler = RotatingFileHandler(
-    'bot.log', maxBytes=1048576, backupCount=3)
-standardFormatter = logging.Formatter(
-    '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
-rotate_handler.setFormatter(standardFormatter)
-
 # get and conf root logger
 rootLogger = logging.getLogger('CTB')
 rootLogger.setLevel('DEBUG')
-rootLogger.addHandler(rotate_handler)
+
 # log main thread
 logger = logging.getLogger("CTB.Main")
 
@@ -38,7 +31,19 @@ logger_plugins = logging.getLogger("CTB.Plugin")
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
 # logger_telegram.setLevel(logging.DEBUG)
-logger_telegram.addHandler(rotate_handler)
+
+
+def setup_rotate_handler(logPath: str):
+    'will save log file in logPath'
+    global rootLogger, logger_telegram
+    # rotate file handler: max size: 1MB, so always enable debug mode is ok
+    rotate_handler = RotatingFileHandler(
+        'bot.log', maxBytes=1048576, backupCount=3)
+    standardFormatter = logging.Formatter(
+        '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+    rotate_handler.setFormatter(standardFormatter)
+    rootLogger.addHandler(rotate_handler)
+    logger_telegram.addHandler(rotate_handler)
 
 
 def log_except_hook(*exc_info):
@@ -62,12 +67,9 @@ try:
     from main.DaemonClass import Daemon
     from main.message_persistence import MessageDB
 except ImportError as e:
-    logger.addHandler(logging.StreamHandler())
-    logger.critical("Can't import %s, please check it again." % e.name)
+    # logger.addHandler(logging.StreamHandler())
+    logger.critical("Can't import [%s], please check it again." % e.name)
     exit(1)
-
-global_vars.create_variable('mainLogger', logger)
-global_vars.create_variable('pluginLogger', logger_plugins)
 
 
 def error(bot, update, error):
@@ -76,6 +78,7 @@ def error(bot, update, error):
 
 class MainProcess(Daemon):
     def run(self):
+        # TODO Use a variable to set where db file will save.
         global_vars.create_variable('mdb', MessageDB('message.db'))
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
@@ -126,6 +129,12 @@ class MainProcess(Daemon):
 
 
 def main():
+    # TODO Use a variable to set where log files will save.
+    setup_rotate_handler('bot.log')
+    global_vars.create_variable('mainLogger', logger)
+    global_vars.create_variable('pluginLogger', logger_plugins)
+
+    # ARGS
     argP = argparse.ArgumentParser(
         description="QQ <-> Telegram Bot Framework & Forwarder", formatter_class=argparse.RawTextHelpFormatter)
     cmdHelpStr = """
@@ -146,7 +155,7 @@ run     - run as foreground Debug mode. every log will print to screen and log t
         daemon.restart()
     elif args.command == 'run':
         # Run as foreground mode
-        logger.info('Now running in debug mode...')
+        logger.debug('Now running in debug mode...')
         daemon.run()
 
 
