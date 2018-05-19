@@ -5,15 +5,15 @@ import re
 import threading
 import traceback
 
-import global_vars
 import requests
 import telegram
+
+import global_vars
 from bot_constant import *
+from main.cq_utils import (cq_download_pic, cq_location_regex, qq_emoji_list,
+                           qq_sface_list)
 
-from main.cq_utils import qq_emoji_list, qq_sface_list, cq_download_pic, \
-    cq_location_regex
-
-logger = logging.getLogger("CTB.Main.utils")
+logger = logging.getLogger("CTB."+__name__)
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, 'data/image')
 
@@ -98,7 +98,8 @@ def get_reply_to(reply_to_message: telegram.Message, forward_index: int):
     reply_to = get_full_user_name(reply_to_message.from_user)
     if reply_to_message.from_user.id == global_vars.tg_bot_id:
         tg_message_id = reply_to_message.message_id
-        saved_message = global_vars.mdb.retrieve_message(tg_message_id, forward_index)
+        saved_message = global_vars.mdb.retrieve_message(
+            tg_message_id, forward_index)
         if not saved_message:
             return ''
         qq_number = saved_message[2]
@@ -162,6 +163,7 @@ def get_qq_name_encoded(qq_number: int,
     return encode_html(get_qq_name(qq_number, forward_index))[0].replace('(', '').replace(')', '')\
         .replace('➡️', '').replace('↩️', '')
 
+
 priority = re.compile(r'_(\d+)_*')
 
 
@@ -175,11 +177,12 @@ def get_plugin_priority(name):
 
 
 def extract_mqqapi(link):
-    locations = cq_location_regex.findall(link)  # [('lat', 'lon', 'name', 'addr')]
+    locations = cq_location_regex.findall(
+        link)  # [('lat', 'lon', 'name', 'addr')]
     return locations[0],\
-           locations[1],\
-           locations[2],\
-           locations[3]
+        locations[1],\
+        locations[2],\
+        locations[3]
 
 
 def text_reply(text):
@@ -264,9 +267,11 @@ def send_from_tg_to_qq(forward_index: int,
     reply_to = get_reply_to(tg_reply_to, forward_index)
     if tg_forward_from and tg_forward_from.forward_from and tg_forward_from.forward_from.id == global_vars.tg_bot_id:
         if message[0]['type'] == 'text':
-            sender, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(message[0]['data']['text'])
+            sender, forward_from, _, _, message[0]['data']['text'] = extract_universal_mark(
+                message[0]['data']['text'])
         else:
-            sender, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(message[1]['data']['text'])
+            sender, forward_from, _, _, message[1]['data']['text'] = extract_universal_mark(
+                message[1]['data']['text'])
         if forward_from:
             forward_from = '(↩️' + forward_from + ')'
         else:
@@ -312,7 +317,8 @@ def divide_qq_message(forward_index: int,
 
     def _share(data):
         nonlocal _pending_text
-        _pending_text = '分享了<a href="' + data['url'] + '">' + data['title'] + '</a>'
+        _pending_text = '分享了<a href="' + \
+            data['url'] + '">' + data['title'] + '</a>'
 
     def _rich(data):
         nonlocal _pending_text, _text_encoded
@@ -324,7 +330,8 @@ def divide_qq_message(forward_index: int,
                                                 latitude=float(lat),
                                                 longitude=float(lon))
             else:
-                _pending_text = '<a href="' + data['url'] + '">' + data['text'] + '</a>'
+                _pending_text = '<a href="' + \
+                    data['url'] + '">' + data['text'] + '</a>'
         else:
             _pending_text, _text_encoded = encode_html(data['text'])
 
@@ -334,7 +341,8 @@ def divide_qq_message(forward_index: int,
 
     def _rps(data):
         nonlocal _pending_text
-        _pending_text = '出了 <b>' + {'1': '石头', '2': '剪刀', '3': '布'}[data['type']] + '</b>'
+        _pending_text = '出了 <b>' + {'1': '石头',
+                                    '2': '剪刀', '3': '布'}[data['type']] + '</b>'
 
     def _shake(data):
         nonlocal _pending_text
@@ -343,9 +351,11 @@ def divide_qq_message(forward_index: int,
     def _music(data):
         nonlocal _pending_text
         if data['type'].startswith('163'):
-            _pending_text = '分享了<a href="https://music.163.com/song?id=' + data['id'] + '"> 网易云音乐</a>'
+            _pending_text = '分享了<a href="https://music.163.com/song?id=' + \
+                data['id'] + '"> 网易云音乐</a>'
         elif data['type'].startswith('qq'):
-            _pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + data['id'] + '_num.html"> QQ 音乐</a>'
+            _pending_text = '分享了<a href="https://y.qq.com/n/yqq/song/' + \
+                data['id'] + '_num.html"> QQ 音乐</a>'
         else:
             _pending_text = data
 
@@ -358,14 +368,17 @@ def divide_qq_message(forward_index: int,
         if _pending_image:
             if _pending_text:
                 if _text_encoded:
-                    message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
+                    message_list.append(
+                        {'image': _pending_image['file'], 'url': _pending_image['url']})
                     message_list.append({'text': _pending_text})
                 else:
-                    message_list.append({'image': _pending_image['file'], 'url': _pending_image['url'], 'text': _pending_text})
+                    message_list.append(
+                        {'image': _pending_image['file'], 'url': _pending_image['url'], 'text': _pending_text})
                 _pending_text = ''
                 _text_encoded = False
             else:
-                message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
+                message_list.append(
+                    {'image': _pending_image['file'], 'url': _pending_image['url']})
 
         elif _pending_text:
             message_list.append({'text': _pending_text})
@@ -384,7 +397,8 @@ def divide_qq_message(forward_index: int,
         if _qq_number == QQ_BOT_ID:
             _pending_text += ' @bot '
         else:
-            _pending_text += ' <b>@' + get_qq_name_encoded(_qq_number, forward_index) + '</b> '
+            _pending_text += ' <b>@' + \
+                get_qq_name_encoded(_qq_number, forward_index) + '</b> '
 
     def _face(data):
         nonlocal _pending_text
@@ -432,7 +446,8 @@ def divide_qq_message(forward_index: int,
     if _pending_text:
         if _pending_image:
             if _text_encoded:
-                message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
+                message_list.append(
+                    {'image': _pending_image['file'], 'url': _pending_image['url']})
                 message_list.append({'text': _pending_text})
             else:
                 message_list.append({'image': _pending_image['file'], 'url': _pending_image['url'],
@@ -440,7 +455,8 @@ def divide_qq_message(forward_index: int,
         else:
             message_list.append({'text': _pending_text})
     elif _pending_image:
-        message_list.append({'image': _pending_image['file'], 'url': _pending_image['url']})
+        message_list.append(
+            {'image': _pending_image['file'], 'url': _pending_image['url']})
 
     return message_list
 
@@ -464,7 +480,8 @@ def send_from_qq_to_tg(forward_index: int,
     message_list = divide_qq_message(forward_index, message)
     forward_from = ''
     if 'text' in message_list[0]:
-        sender, forward_from, _, _, message_list[0]['text'] = extract_universal_mark(message_list[0]['text'])
+        sender, forward_from, _, _, message_list[0]['text'] = extract_universal_mark(
+            message_list[0]['text'])
         if forward_from:
             forward_from = '(↩️' + forward_from + ')'
         elif sender:
@@ -480,16 +497,18 @@ def send_from_qq_to_tg(forward_index: int,
         if message_count == 1:
             message_index_attribute = ''
         else:
-            message_index_attribute = '(' + str(idx + 1) + '/' + str(message_count) + ')'
+            message_index_attribute = '(' + str(idx + 1) + \
+                '/' + str(message_count) + ')'
         if message_part.get('image'):
             image_path = cq_download_pic(message_part)
             pic = open(image_path, 'rb')
 
             if message_part.get('text'):
                 full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' \
-                           + message_index_attribute + message_part.get('text')
+                    + message_index_attribute + message_part.get('text')
             else:
-                full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
+                full_msg = get_qq_name_encoded(
+                    qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
 
             if image_path.lower().endswith('gif'):  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
@@ -506,7 +525,8 @@ def send_from_qq_to_tg(forward_index: int,
                                 message_index_attribute +\
                                 message_part.get('text')
             else:
-                full_msg_bold = message_index_attribute + message_part.get('text')
+                full_msg_bold = message_index_attribute + \
+                    message_part.get('text')
             _msg: telegram.Message = global_vars.tg_bot.sendMessage(FORWARD_LIST[forward_index]['TG'],
                                                                     full_msg_bold,
                                                                     parse_mode='HTML')
@@ -566,7 +586,8 @@ def recall_message(forward_index: int,
         return -1
 
     tg_reply_id = tg_message.message_id
-    saved_message = global_vars.mdb.retrieve_message(tg_reply_id, forward_index)
+    saved_message = global_vars.mdb.retrieve_message(
+        tg_reply_id, forward_index)
     global_vars.mdb.delete_message(tg_reply_id, forward_index)
     if not saved_message:
         return -2

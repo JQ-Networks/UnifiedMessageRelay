@@ -4,7 +4,7 @@ import time
 from bot_constant import FORWARD_LIST
 import logging
 
-logger = logging.getLogger("CTB.Main." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 
 
 class MessageDB:

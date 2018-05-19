@@ -1,17 +1,20 @@
-import re
-from PIL import Image
-from configparser import ConfigParser
-import os
-from urllib.request import urlretrieve
-import traceback
-from bot_constant import CQ_ROOT
 import logging
+import os
+import re
+import traceback
+from configparser import ConfigParser
+from urllib.request import urlretrieve
+
+from PIL import Image
+
+from bot_constant import CQ_ROOT
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 
-cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
+cq_location_regex = re.compile(
+    r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
 
-logger = logging.getLogger("CTB.Main.cq_utils")
+logger = logging.getLogger("CTB."+__name__)
 
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     0: u'\U0001F62E',

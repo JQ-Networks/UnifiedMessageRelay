@@ -24,9 +24,6 @@ rootLogger.setLevel('DEBUG')
 # log main thread
 logger = logging.getLogger("CTB.Main")
 
-# log plugins
-logger_plugins = logging.getLogger("CTB.Plugin")
-
 # log telegram Bot library
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
@@ -131,8 +128,6 @@ class MainProcess(Daemon):
 def main():
     # TODO Use a variable to set where log files will save.
     setup_rotate_handler('bot.log')
-    global_vars.create_variable('mainLogger', logger)
-    global_vars.create_variable('pluginLogger', logger_plugins)
 
     # ARGS
     argP = argparse.ArgumentParser(
