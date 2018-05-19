@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 RUN pip install --no-cache-dir pipenv
 COPY Pipfile* ./
-RUN pipenv install
+RUN pipenv install -v
 
 COPY . .
 
