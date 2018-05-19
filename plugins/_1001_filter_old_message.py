@@ -8,7 +8,7 @@ from telegram.ext.dispatcher import DispatcherHandlerStop
 
 from main.utils import get_plugin_priority
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 # Telegram messages will expire in 60 seconds if bot isn't running

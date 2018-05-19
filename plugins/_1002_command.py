@@ -8,7 +8,7 @@ from telegram.ext.dispatcher import DispatcherHandlerStop
 
 from main.utils import get_forward_index, get_plugin_priority
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 # Commands are only available in group and discuss
@@ -106,7 +106,7 @@ def qq_command(context):
 
 
 @command_listener('show commands', 'cmd', qq_only=True, description='print all commands')
-def command_qq(qq_group_id: int,
+def command_qq_cmd(qq_group_id: int,
                qq_discuss_id:int,
                qq_user: int):
     result = '\n'
@@ -117,7 +117,7 @@ def command_qq(qq_group_id: int,
 
 
 @command_listener('show commands', 'cmd', tg_only=True, description='print all commands')
-def command_tg(tg_group_id: int,
+def command_tg_cmd(tg_group_id: int,
                tg_user: telegram.User,
                tg_message_id: int,
                tg_reply_to: telegram.Message):
@@ -132,7 +132,7 @@ def command_tg(tg_group_id: int,
 
 
 @command_listener('help', 'h', qq_only=True, description='print help')
-def command_qq(qq_group_id: int,
+def command_qq_h(qq_group_id: int,
                qq_discuss_id:int,
                qq_user: int):
     result = '''I'm a relay bot between qq and tg.
@@ -142,7 +142,7 @@ Please use "!!show commands" or "!!cmd" to show all commands.
 
 
 @command_listener('help', 'h', tg_only=True, description='print help')
-def command_tg(tg_group_id: int,
+def command_tg_h(tg_group_id: int,
                tg_user: telegram.User,
                tg_message_id: int,
                tg_reply_to: telegram.Message = None):

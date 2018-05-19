@@ -9,7 +9,7 @@ from main.utils import get_plugin_priority, get_full_user_name
 
 # rely on _000_admins
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 global_vars.create_variable('group_requests', {})  # pending admissions

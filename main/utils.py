@@ -13,7 +13,7 @@ from bot_constant import *
 from main.cq_utils import qq_emoji_list, qq_sface_list, cq_download_pic, \
     cq_location_regex
 
-logger = logging.getLogger("CTBMain.utils")
+logger = logging.getLogger("CTB.Main.utils")
 
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, 'data/image')
 

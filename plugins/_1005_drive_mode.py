@@ -10,7 +10,7 @@ from telegram import TelegramError
 
 from main.utils import get_forward_index, send_both_side, get_plugin_priority
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 global_vars.create_variable('DRIVE_MODE', [])

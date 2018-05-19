@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHa
 
 from main.utils import get_plugin_priority
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 

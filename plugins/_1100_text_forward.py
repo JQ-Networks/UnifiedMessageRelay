@@ -19,7 +19,7 @@ from telegram.ext import MessageHandler, Filters
 from main.utils import get_forward_index, CQ_IMAGE_ROOT, SERVER_PIC_URL, \
     get_plugin_priority, send_from_qq_to_tg, send_from_tg_to_qq, send_both_side, recall_message
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB.Plugin." + __name__)
 logger.debug(__name__ + " loading")
 
 """
