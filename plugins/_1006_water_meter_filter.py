@@ -34,13 +34,11 @@ def tg_water_meter(bot: telegram.Bot,
         message_text = message.caption
     elif message.text:
         message_text = message.text
-
+    if message.from_user.id in global_vars.filter_list['user']:
+        logger.debug('Message ignored: matched filtered user')
+        raise DispatcherHandlerStop()
     if not message_text:
         return
-    if message.from_user.id in global_vars.filter_list['user']:
-      logger.debug('Message ignored: matched filtered user')
-      raise DispatcherHandlerStop()
-    print(message.from_user.id)
     for keyword in global_vars.filter_list['keywords']:
         if keyword in message_text:
             logger.debug('Message ignored: matched water meter keywords')
