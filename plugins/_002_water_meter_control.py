@@ -92,7 +92,7 @@ def get_user(bot: telegram.Bot,
         return
     s = ""
     for user in global_vars.filter_list["user"]:
-        s += user + "\n"
+        s += str(user) + "\n"
     update.message.reply_text(s)
     return
 
