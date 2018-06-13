@@ -1,25 +1,24 @@
 # coolq-telegram-bot 
 ![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
 
-QQ和Telegram的消息互转机器人 **v3.1**
+QQ和Telegram的消息互转机器人 **v3.3**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 最近更新
-### v3.2
-- GIF 双向转发
-- LRU 缓存管理（待实现）
 
-查看更多
+### v3.3
+- 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
+- JSON配置文件现支持[可选配置](README-zh_CN.md#可选配置（JSON特有）)
+- 支持使用 docker-compose 编排服务，[阅读更多](docker-compose-zh_CN.md)
+- 回复开头为 “//” 的消息不会被转发
+- 部分细节优化
+- 管理功能仍在开发中
+- 添加了部分插件文档，位于 [docs/](docs/) 文件夹下。 (by @billchenchina )
+
+[查看更多](ChangeLog.md)
 
 ----------------------------
-
-## docker 容器
-
-1. Star 本 Repo
-2. Star [这个](https://github.com/Z4HD/coolq-telegram-bot-docker) repo
-3. 参考 coolq-telegram-bot-docker 的 [Readme](https://github.com/Z4HD/coolq-telegram-bot-docker/blob/master/README.md) 完成构建。
-
 
 ## 功能和特性
 
@@ -41,20 +40,21 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 ## 环境的搭建
 
 ### 使用Docker部署
-推荐使用Docker镜像部署酷Q
 
-- [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *酷Q官方镜像*
+推荐使用docker-compose进行服务编排，[阅读更多](docker-compose-zh_CN.md)。
+
+自己动手？这些镜像可能会帮到你。
+- [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *酷Q官方镜像*
 - [richardchien/cqhttp](https://richardchien.github.io/coolq-http-api/3.3/#/Docker) *基于wine-coolq的第三方镜像，内置了酷Q HTTP API*
-- [coolq-telegram-bot-docker](https://github.com/Z4HD/coolq-telegram-bot-docker) *基于richardchien/cqhttp的镜像，内置了本Bot及其运行环境。* <b>需要手动 `build` </b>。
 
-使用 Docker 部署后续请参考 Docker 版教程，本教程可以直接跳到 **参数和配置**
+使用 Docker 部署后续请参考有关教程，本教程可以直接跳到 [参数和配置](#参数和配置)
 
 ### 直接部署Wine 酷Q
 如果不使用Docker，Wine 酷Q的安装可以参照酷Q论坛的教程。
 > [【简单教程】在 DigitalOcean 的 Ubuntu Server 下运行 酷Q Air](https://cqp.cc/t/30970)
 
 ### 安装酷Q HTTP API
-> HTTP API安装方法见[CoolQ HTTP API 插件文档](https://richardchien.github.io/coolq-http-api/3.3/#/)
+> HTTP API安装方法见[CoolQ HTTP API 插件文档](https://cqhttp.cc/docs/)
 
 - 典型配置方案 (`app/io.github.richardchien.coolqhttpapi/config.cfg`)
 ```
@@ -70,12 +70,9 @@ access_token=very
 secret=long
 post_message_format=array
 serve_data_files=no
-update_source=https://raw.githubusercontent.com/richardchien/coolq-http-api-release/master/
 update_channel=stable
 auto_check_update=no
 auto_perform_update=no
-thread_pool_size=4
-server_thread_pool_size=1
 ```
 
 ### 开启图片静态资源访问 (Coolq Air Only)
@@ -97,16 +94,15 @@ server {
     } 
 } 
 ```
+其他Http软件同理。
 
 ### 安装必须的python3包 
 
-`pip3 install -r requirements.txt`
+```
+pip3 install -r requirements.txt
+```
 
 ## 参数和配置
-
-### bot_constant.py
-
-请在bot使用之前，将`bot_constant-sample.py`重命名为`bot_constant.py`
 
 键               | 值
 :--------------- | ---
@@ -122,38 +118,80 @@ server {
 `HOST`           | '127.0.0.1' cq-http-api 上报地址
 `PORT`           | 8080 cq-http-api 上报端口
 `DEBUG_MODE`     | 调试信息记录，推荐开启，会输出到 bot.log。由于使用了日志滚动模式，不会占用很多的空间，请放心开启。
+ `PROXY_URL` | 连接到指定的 Socks5 代理地址，值为*空*或 `False` 时不使用代理。<br />*(在JSON格式配置文件中本配置项可选，默认值为`None`）*
+ `USE_SHORT_URL` | 是否使用短链接，建议开启。<br />*(在JSON格式配置文件中本配置项可选，默认值为`true`）*
 
+### bot_constant.py
+
+如要使用Py格式的配置文件，请在bot启动之前，将`bot_constant-sample.py`重命名为`bot_constant.py`。
 
 ### bot_constant.json
-键值对的对应关系与bot_constant.py相同。
 
-如要使用JSON格式的配置文件，请将`bot_constant-json.py`重命名为`bot_constant.py`以启用JSON配置文件支持特性。
+键值对的对应关系与  `bot_constant.py`  相同。
 
+如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
+
+```bash
+$ ln -s bot_constant-json.py bot_constant.py
+```
+
+#### 加载外部配置文件（JSON特有）
 如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `CTB_JSON_SETTINGS_PATH`
 例：
 
 ```shell
 $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
+
+如果配置文件发生了改变，重启Bot即可生效。
+
 `tools/bot_constant-py2json.py`提供了将`bot_constant.py`转换为`bot_constant.json`的工具
+
+#### 可选配置（JSON特有）
+
+相对于必须要指定值，没有就会报错的配置项，有些配置项是可选的，即使不指定也完全没有问题。这类配置项会在上面的键-值对应表中有特殊标记。不过如果你使用的是Py格式的配置文件，还是赶紧复制一个默认值比较靠谱。
 
 ## Bot的运行
 
 请注意，bot需要 python3.6及以上版本，如运行报错请检查此项是否满足。
 
-保证酷Q已启动并登录，在bot_constant.py或相应的配置文件内填好了必需的参数，sample文件已经改名。
+保证酷Q已启动并登录，在 `bot_constant.py` 或相应的配置文件内填好了必需的参数，sample文件已经改名。
 
-目前已经实现了 daemon 模式，请使用 `python3.6 daemon.py start` 以后台运行
+### 查看CLI帮助
 
-如果需要查看启动日志，请先关闭正在运行的 daemon： `python3.6 daemon.py stop`，
+```shell
+$ python3.6 daemon.py -h
+```
 
-然后前台运行： `python3.6 daemon.py run`，前台运行将自动临时开启 debug 模式
+### 后台运行
 
-如需后台运行，请 `Ctrl C` 并重新 `python3.6 daemon.py start`
+目前已经实现了 daemon 模式，使用下列指令来后台运行。
+
+- 启动后台服务
+
+```shell
+$ python3.6 daemon.py start
+```
+
+- 停止后台服务
+
+```shell
+$ python3.6 daemon.py stop
+```
+
+### 前台运行
+
+如果需要实时查看日志输出，请先关闭正在运行的 daemon。再执行下列指令 
+
+```shell
+$ python3.6 daemon.py run
+```
+
+日志记什么，屏幕打什么（确信）
 
 ## 基本操作
 
-### 查看命令开关
+### 查看命令列表
 
 发送 `!!show commands` 或者 `!!cmd` 可以查看当前注册的所有命令，会只在发送的客户端显示
 
@@ -208,8 +246,6 @@ $ export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 
 1. 症状描述
 2. python3 daemon.py run 的执行输出
-3. 是否使用 docker
+3. 部署方式（如：是否使用 docker）
 4. 使用的开发分支
-
-
-
+5. Bot日志（`bot.log`）

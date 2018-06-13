@@ -30,6 +30,9 @@ def get_global_settings():
     settings.setdefault('FORWARD_LIST', FORWARD_LIST)
     settings.setdefault('SERVER_PIC_URL', SERVER_PIC_URL)
     settings.setdefault('CQ_ROOT', CQ_ROOT)
+    settings.setdefault('PROXY_URL', PROXY_URL)
+    
+    settings.setdefault('USE_SHORT_URL', USE_SHORT_URL)
     return settings
 
 

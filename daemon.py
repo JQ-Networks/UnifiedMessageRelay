@@ -14,39 +14,44 @@ from telegram.ext import Updater
 
 # region log
 
-coloredlogs.install(fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
+coloredlogs.install(
+    fmt='[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n', level='DEBUG')
 
-
-def log_except_hook(*exc_info):
-    text = "".join(traceback.format_exception(*exc_info))
-    logging.error("Unhandled exception: %s", text)
-
-sys.excepthook = log_except_hook
-
-# rotate file handler: max size: 1MB, so always enable debug mode is ok
-
-rotate_handler = RotatingFileHandler(
-    'bot.log', maxBytes=1048576, backupCount=3)
-standardFormatter = logging.Formatter(
-    '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
-rotate_handler.setFormatter(standardFormatter)
+# get and conf root logger
+rootLogger = logging.getLogger('CTB')
+rootLogger.setLevel('DEBUG')
 
 # log main thread
-logger = logging.getLogger("CTBMain")
-# logger.setLevel(logging.DEBUG)
-logger.addHandler(rotate_handler)
-
-# log plugins
-logger_plugins = logging.getLogger("CTBPlugin")
-# logger_plugins.setLevel(logging.DEBUG)
-logger_plugins.addHandler(rotate_handler)
+logger = logging.getLogger("CTB.Main")
 
 # log telegram Bot library
-
 # via https://pypi.python.org/pypi/python-telegram-bot#logging
 logger_telegram = logging.getLogger('telegram')
 # logger_telegram.setLevel(logging.DEBUG)
-logger_telegram.addHandler(rotate_handler)
+
+
+def setup_rotate_handler(logPath: str):
+    'will save log file in logPath'
+    global rootLogger, logger_telegram
+    # rotate file handler: max size: 1MB, so always enable debug mode is ok
+    rotate_handler = RotatingFileHandler(
+        'bot.log', maxBytes=1048576, backupCount=3)
+    standardFormatter = logging.Formatter(
+        '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+    rotate_handler.setFormatter(standardFormatter)
+    rootLogger.addHandler(rotate_handler)
+    logger_telegram.addHandler(rotate_handler)
+
+
+def log_except_hook(*exc_info):
+    # root log hook
+    global rootLogger
+    exHookLogger = rootLogger.getChild('root')
+    text = "".join(traceback.format_exception(*exc_info))
+    exHookLogger.error("Unhandled exception: %s", text)
+
+
+sys.excepthook = log_except_hook
 
 # endregion
 
@@ -59,8 +64,8 @@ try:
     from main.DaemonClass import Daemon
     from main.message_persistence import MessageDB
 except ImportError as e:
-    logger.addHandler(logging.StreamHandler())
-    logger.critical("Can't import %s, please check it again." % e.name)
+    # logger.addHandler(logging.StreamHandler())
+    logger.critical("Can't import [%s], please check it again." % e.name)
     exit(1)
 
 
@@ -70,6 +75,7 @@ def error(bot, update, error):
 
 class MainProcess(Daemon):
     def run(self):
+        # TODO Use a variable to set where db file will save.
         global_vars.create_variable('mdb', MessageDB('message.db'))
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
@@ -103,7 +109,8 @@ class MainProcess(Daemon):
                 bot_status = qq_bot.get_status()
                 should_wait = False
             except Exception as e:
-                logger.warning('Could not reach Coolq-http-api, keep waiting...')
+                logger.warning(
+                    'Could not reach Coolq-http-api, keep waiting...')
                 time.sleep(1)
         logger.info('Coolq-http-api status: ok')
         coolq_version = global_vars.qq_bot.get_version_info()['coolq_edition']
@@ -119,6 +126,10 @@ class MainProcess(Daemon):
 
 
 def main():
+    # TODO Use a variable to set where log files will save.
+    setup_rotate_handler('bot.log')
+
+    # ARGS
     argP = argparse.ArgumentParser(
         description="QQ <-> Telegram Bot Framework & Forwarder", formatter_class=argparse.RawTextHelpFormatter)
     cmdHelpStr = """
@@ -138,14 +149,8 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     elif args.command == 'restart':
         daemon.restart()
     elif args.command == 'run':
-        # logger.setLevel(logging.DEBUG)
-        # logger_plugins.setLevel(logging.DEBUG)
-        # logger_telegram.setLevel(logging.DEBUG)
-        # stream_handler = logging.StreamHandler()
-        # logger.addHandler(stream_handler)
-        # logger_plugins.addHandler(stream_handler)
-        # logger_telegram.addHandler(stream_handler)
-        logger.info('Now running in debug mode...')
+        # Run as foreground mode
+        logger.debug('Now running in debug mode...')
         daemon.run()
 
 

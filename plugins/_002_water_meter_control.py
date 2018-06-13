@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler, Filters, ConversationHandler, CommandHa
 
 from main.utils import get_plugin_priority
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
 
@@ -55,7 +55,6 @@ def get_keywords(bot: telegram.Bot,
                 update: telegram.Update,
                 args: list):
     if update.message.chat_id not in global_vars.admin_list['TG']:
-        update.message.reply_text('U R NOT ADMIN')
         return
     s = ""
     for keyword in global_vars.filter_list["keywords"]:
@@ -74,7 +73,11 @@ def add_user(bot: telegram.Bot,
         return
     for user in args:
         logger.debug('user: ' + user)
-        user = int(user)
+        try:
+            user = int(user)
+        except ValueError as e:
+            update.message.reply_text(e)
+            continue
         if user in global_vars.filter_list['user']:
             update.message.reply_text('User: "' + user + '" already in list')
             continue
@@ -86,11 +89,10 @@ def get_user(bot: telegram.Bot,
                 update: telegram.Update,
                 args: list):
     if update.message.chat_id not in global_vars.admin_list['TG']:
-        update.message.reply_text('U R NOT ADMIN')
         return
     s = ""
     for user in global_vars.filter_list["user"]:
-        s += user + "\n"
+        s += str(user) + "\n"
     update.message.reply_text(s)
     return
 

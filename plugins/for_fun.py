@@ -5,7 +5,7 @@ from main.command import command_listener
 
 from main.utils import get_forward_index, send_from_tg_to_qq
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
 

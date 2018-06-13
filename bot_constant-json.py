@@ -11,9 +11,9 @@ import os
 import json
 import logging
 
-logger = logging.getLogger("ctbMain.jsonConstantSupport")
+jcsLogger = logging.getLogger("CTB.Main.jsonConstantSupport")
 
-filepath = os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json')
+filepath = os.path.abspath(os.getenv('CTB_JSON_SETTINGS_PATH', 'bot_constant.json'))
 with open(filepath, 'r') as f1:
     settingsJSON = json.loads(f1.read())
 
@@ -33,10 +33,10 @@ PORT = settingsJSON['PORT']
 TOKEN = settingsJSON['TOKEN']
 QQ_BOT_ID = settingsJSON['QQ_BOT_ID']
 FORWARD_LIST = settingsJSON['FORWARD_LIST']
-USE_SHORT_URL = settingsJSON['USE_SHORT_URL']
 SERVER_PIC_URL = settingsJSON['SERVER_PIC_URL']
 CQ_ROOT = settingsJSON['CQ_ROOT']
-# if use Coolq Pro, set as True, otherwise False
-logger.info('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')
 
+jcsLogger.info('[CTBot] JSON Config file support [\033[0;32;40mEnable\033[0m]')
+# optional config
 PROXY_URL = settingsJSON.get('PROXY_URL')
+USE_SHORT_URL = settingsJSON.get('USE_SHORT_URL', True)

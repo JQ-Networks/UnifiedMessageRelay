@@ -7,7 +7,7 @@ from main.command import command_listener
 
 from main.utils import send_both_side
 
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
 global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))

@@ -4,7 +4,7 @@ import telegram
 import logging
 from telegram.ext import Filters, CommandHandler
 from bot_constant import FORWARD_LIST
-logger = logging.getLogger("CTBPlugin." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 
 logger.debug(__name__ + " loading")
 

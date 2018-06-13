@@ -3,7 +3,7 @@ import datetime
 import time
 import logging
 
-logger = logging.getLogger("CTBMain." + __name__)
+logger = logging.getLogger("CTB." + __name__)
 
 
 class FileDB:
