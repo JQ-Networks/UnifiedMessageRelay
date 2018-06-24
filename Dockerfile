@@ -9,7 +9,8 @@ RUN pip install --no-cache-dir pipenv &&\
     dpkg -i deb-multimedia-keyring_2016.8.1_all.deb &&\
     rm deb-multimedia-keyring_2016.8.1_all.deb &&\
     apt -y update && apt -y upgrade &&\
-    apt -y install ffmpeg
+    apt-get -y install aptitude &&\
+    aptitude -y install ffmpeg
 
 COPY Pipfile* ./
 RUN pipenv install -v
