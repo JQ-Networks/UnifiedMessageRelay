@@ -1,5 +1,11 @@
 # 更新日志
 
+## v3.4
+
+- ***以 MIT 协议发布 ***
+- Dockerfile：使用更轻量的 Alpine 镜像
+- Dockerfile：修复了不能正确安装 ffmpeg 的问题
+
 ## v3.3
 
 - 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
