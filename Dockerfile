@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 # setup requirements.
 RUN pip install --no-cache-dir pipenv &&\
     apk update && apk upgrade &&\
-    apk add ffmpeg
+    apk add zlib ffmpeg
 
 COPY Pipfile* ./
 RUN pipenv install -v
