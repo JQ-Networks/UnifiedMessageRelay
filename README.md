@@ -1,5 +1,5 @@
 # coolq-telegram-bot 
-![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
+![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
 Alternative Project: [coolq-telegram-bot-x](https://github.com/JogleLew/coolq-telegram-bot-x)
 
@@ -16,8 +16,8 @@ QQ:
 
 》》[中文 Readme](README-zh_CN.md)《《
 
-QQ & Telegram Relay Bot **v3.3**
-
+QQ & Telegram Relay Bot **v3.4**
+€
 QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram API based on [python_telegram_bot](https://python-telegram-bot.org)
 
 ## Recent Update
@@ -257,4 +257,3 @@ You can find out the usage by reading `plugins/_00x_xxxxx.py`
 2. Logs of python3 daemon.py run (Desensitization)
 3. Whether you are using Docker
 4. Which branch you are on (Dev of Master)
-

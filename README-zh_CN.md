@@ -1,7 +1,7 @@
 # coolq-telegram-bot 
-![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
+![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-QQ和Telegram的消息互转机器人 **v3.3**
+QQ和Telegram的消息互转机器人 **v3.4**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
@@ -129,7 +129,7 @@ pip3 install -r requirements.txt
 
 键值对的对应关系与  `bot_constant.py`  相同。
 
-如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
+如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接*（推荐）*为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
 
 ```bash
 $ ln -s bot_constant-json.py bot_constant.py
