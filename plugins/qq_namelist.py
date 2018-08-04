@@ -28,7 +28,7 @@ def reload_qq_namelist(forward_index: int):
         else:
             raise
     else:
-        logging.info('Successful update [%s] qq namelist' % gid_qq)
+        logger.info('Successful update [%s] qq namelist' % gid_qq)
 
 
 def reload_all_qq_namelist():
