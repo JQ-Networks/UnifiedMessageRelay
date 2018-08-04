@@ -7,14 +7,7 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 
 ## 最近更新
 
-### v3.3
-- 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
-- JSON配置文件现支持[可选配置](README-zh_CN.md#可选配置（JSON特有）)
-- 支持使用 docker-compose 编排服务，[阅读更多](docker-compose-zh_CN.md)
-- 回复开头为 “//” 的消息不会被转发
-- 部分细节优化
-- 管理功能仍在开发中
-- 添加了部分插件文档，位于 [docs/](docs/) 文件夹下。 (by @billchenchina )
+正在开发中...
 
 [查看更多](ChangeLog.md)
 
