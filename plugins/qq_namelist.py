@@ -1,20 +1,34 @@
 import logging
 
-import global_vars
+import cqhttp
 import telegram
+import traceback
+
+import global_vars
 from bot_constant import FORWARD_LIST
 from main.command import command_listener
-
 from main.utils import send_both_side
 
 logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
-global_vars.create_variable('group_members', [[]] * len(FORWARD_LIST))
+global_vars.group_members=[[]] * len(FORWARD_LIST)
 
 
 def reload_qq_namelist(forward_index: int):
-    global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(group_id=FORWARD_LIST[forward_index]['QQ'])
+    gid_qq = FORWARD_LIST[forward_index]['QQ']
+    logger.info("Try to update [%s] namelist" % gid_qq)
+    try:
+        global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(
+            group_id=gid_qq)
+    except cqhttp.Error as e:
+        if e.status_code == 200 and e.retcode == 102:
+            logger.error(
+                "Can't update namelist, retcode=102 \n For more information: https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/48")
+        else:
+            raise
+    else:
+        logger.info('Successful update [%s] qq namelist' % gid_qq)
 
 
 def reload_all_qq_namelist():
@@ -49,4 +63,8 @@ def update_namelist(forward_index: int,
                           tg_message_id)
 
 
-reload_all_qq_namelist()
+try:
+    reload_all_qq_namelist()
+except:
+    logger.critical("Can't update qq namelist, bot will stop.\n" + traceback.format_exc())
+    global_vars.daemon.stop()

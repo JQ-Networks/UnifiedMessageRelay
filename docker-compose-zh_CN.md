@@ -1,6 +1,6 @@
 # 简介
 
-*大家好，我是渣渣辉。这是你没有见过的船新版本。镜像回收，部署自由，来到就是爽到！只要配置好`.env`和`bot_constant.json`并将`bot_constant-json.py`重命名（或者直接配置`bot_constant.py`），点一下`docker-compose up`，只要几分钟，你就会跟我一样，爱上这款容器！今晚八点，是兄弟，跟我来[贪玩容器](www.docker.com)，准时开车！*
+*大家好，我是渣渣辉。这是你没有见过的船新版本。镜像回收，部署自由，来到就是爽到！只要配置好`.env`和`bot_constant.json`并将`bot_constant-json.py`重命名（或者直接配置`bot_constant.py`），点一下`docker-compose up`，只要几分钟，你就会跟我一样，爱上这款容器！今晚八点，是兄弟，跟我来[贪玩容器](https://www.docker.com)，准时开车！*
 
 # 说明
 

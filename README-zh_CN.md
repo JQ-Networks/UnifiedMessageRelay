@@ -1,20 +1,13 @@
 # coolq-telegram-bot 
-![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) ![](https://img.shields.io/badge/license-GPLv3-000000.svg?style=flat-square)
+![](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-QQ和Telegram的消息互转机器人 **v3.3**
+QQ和Telegram的消息互转机器人 **v3.4**
 
 QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram部分基于[python_telegram_bot](https://python-telegram-bot.org)
 
 ## 最近更新
 
-### v3.3
-- 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
-- JSON配置文件现支持[可选配置](README-zh_CN.md#可选配置（JSON特有）)
-- 支持使用 docker-compose 编排服务，[阅读更多](docker-compose-zh_CN.md)
-- 回复开头为 “//” 的消息不会被转发
-- 部分细节优化
-- 管理功能仍在开发中
-- 添加了部分插件文档，位于 [docs/](docs/) 文件夹下。 (by @billchenchina )
+正在开发中...
 
 [查看更多](ChangeLog.md)
 
@@ -129,7 +122,7 @@ pip3 install -r requirements.txt
 
 键值对的对应关系与  `bot_constant.py`  相同。
 
-如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
+如要使用JSON格式的配置文件，请在bot启动之前将 `bot_constant-json.py` 重命名或软链接*（推荐）*为 `bot_constant.py` 以启用JSON配置文件支持特性。默认读取 `bot_constant.json` 。
 
 ```bash
 $ ln -s bot_constant-json.py bot_constant.py
