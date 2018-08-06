@@ -153,7 +153,7 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     elif args.command == 'run':
         # Run as foreground mode
         logger.debug('Now running in debug mode...')
-        daemon.run(debug=True)
+        daemon.run(debug_mode=True)
 
 
 if __name__ == '__main__':
