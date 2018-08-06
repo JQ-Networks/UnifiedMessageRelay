@@ -37,11 +37,14 @@ def tg_drive_mode(bot: telegram.Bot,
         recall_message(forward_index, message)
 
     # don't forward this message
-    if (message.caption and message.caption.startswith('//')) or (
-            message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith(
-            '//')) or (
-            message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith(
-            '//')):
+    if (message.caption and message.caption.startswith('//')
+        or message.text and message.text.startswith('//')) \
+            or (message.reply_to_message
+                and message.reply_to_message.caption
+                and message.reply_to_message.caption.startswith('//')) \
+            or (message.reply_to_message
+                and message.reply_to_message.text
+                and message.reply_to_message.text.startswith('//')):
         logger.debug('Message ignored: matched comment pattern')
         raise DispatcherHandlerStop()
 
