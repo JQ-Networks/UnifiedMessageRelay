@@ -12,23 +12,28 @@ from main.utils import send_both_side
 logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
-global_vars.group_members=[[]] * len(FORWARD_LIST)
+global_vars.group_members = [[]] * len(FORWARD_LIST)
 
 
 def reload_qq_namelist(forward_index: int):
     gid_qq = FORWARD_LIST[forward_index]['QQ']
-    logger.info("Try to update [%s] namelist" % gid_qq)
+    logger.info("[%s]Try to update qq namelist" % gid_qq)
     try:
         global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(
             group_id=gid_qq)
     except cqhttp.Error as e:
+        # TODO: logging need test and improve
+        logger.debug(traceback.format_exc())
+        # you can add more error handel below here
         if e.status_code == 200 and e.retcode == 102:
-            logger.error(
-                "Can't update namelist, retcode=102 \n For more information: https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/48")
+            logger.error("""Can't update namelist, retcode=102
+            You may need to check cqhttp's logs in app/io.github.richardchien.coolqhttpapi/log/xxxxx.log
+            For more information: https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/48""")
+            raise
         else:
             raise
     else:
-        logger.info('Successful update [%s] qq namelist' % gid_qq)
+        logger.info('[%s]Successful update qq namelist' % gid_qq)
 
 
 def reload_all_qq_namelist():
@@ -51,9 +56,12 @@ def update_namelist(forward_index: int,
                     qq_discuss_id: int=None,
                     qq_user: int=None):
 
-    reload_qq_namelist(forward_index)
-
-    message = 'QQ name list reloaded.'
+    try:
+        reload_qq_namelist(forward_index)
+    except:
+        message = 'Fail to reload qq namelist'
+    else:
+        message = 'QQ name list reloaded.'
 
     return send_both_side(forward_index,
                           message,
@@ -66,5 +74,6 @@ def update_namelist(forward_index: int,
 try:
     reload_all_qq_namelist()
 except:
-    logger.critical("Can't update qq namelist, bot will stop.\n" + traceback.format_exc())
+    logger.critical(
+        "Can't update qq namelist, bot will stop.")
     global_vars.daemon.stop()
