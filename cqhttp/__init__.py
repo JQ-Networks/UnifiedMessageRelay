@@ -1,6 +1,9 @@
 import hmac
 from collections import defaultdict
 from functools import wraps
+import logging
+
+logger = logging.getLogger('CQHTTP')
 
 import requests
 
@@ -56,7 +59,7 @@ class _ApiClient(object):
 
 
 class CQHttp(_ApiClient):
-    def __init__(self, api_root=None, access_token=None, secret=None):
+    def __init__(self, api_root=None, access_token=None, secret=None, debug_mode=False):
         super().__init__(api_root, access_token)
         self._secret = secret
         self._handlers = defaultdict(dict)
@@ -66,6 +69,7 @@ class CQHttp(_ApiClient):
         self.on_message = self._deco_maker('message')
         self.on_event = self._deco_maker('event')
         self.on_request = self._deco_maker('request')
+        self.debug_mode = debug_mode
 
     def _deco_maker(self, post_type):
         def deco_decorator(*types, group=0):
@@ -94,6 +98,8 @@ class CQHttp(_ApiClient):
         if self._secret:
             # check signature
             if 'X-Signature' not in request.headers:
+                if self.debug_mode:
+                    logger.error('401: X-Signature not in headers')
                 abort(401)
 
             sec = self._secret
@@ -101,10 +107,14 @@ class CQHttp(_ApiClient):
                 sec = sec.encode('utf-8')
             sig = hmac.new(sec, request.body.read(), 'sha1').hexdigest()
             if request.headers['X-Signature'] != 'sha1=' + sig:
+                if self.debug_mode:
+                    logger.error('403: X-Signature not match')
                 abort(403)
 
         post_type = request.json.get('post_type')
         if post_type not in ('message', 'event', 'request'):
+            if self.debug_mode:
+                logger.error('400: Wrong post_type')
             abort(400)
 
         handler_key = None
@@ -114,12 +124,19 @@ class CQHttp(_ApiClient):
             if post_type == pk_pair[0]:
                 handler_key = request.json.get(pk_pair[1])
                 if not handler_key:
+                    if self.debug_mode:
+                        logger.error('400: handler_key is not set')
                     abort(400)
                 else:
                     break
 
         if not handler_key:
+            if self.debug_mode:
+                logger.error('400: handler_key is not set')
             abort(400)
+
+        if self.debug_mode:
+            logger.debug(f'Message received: {request.json}')
 
         for group in self._groups:
             handler = self._handlers[group][post_type].get(handler_key)
@@ -136,9 +153,13 @@ class CQHttp(_ApiClient):
         return ''
 
     def run(self, host=None, port=None, **kwargs):
+        if self.debug_mode:
+            logger.debug(f'Running on Host: {host}, Port {port}, kwargs: {kwargs}')
         self._app.run(host=host, port=port, **kwargs)
 
     def send(self, context, message, **kwargs):
+        if self.debug_mode:
+            logger.debug(f'Context: {context}, Message {message}, kwargs: {kwargs}')
         if context.get('group_id'):
             return self.send_group_msg(group_id=context['group_id'],
                                        message=message, **kwargs)

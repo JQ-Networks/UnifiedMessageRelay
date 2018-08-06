@@ -74,12 +74,13 @@ def error(bot, update, error):
 
 
 class MainProcess(Daemon):
-    def run(self):
+    def run(self, debug_mode):
         # TODO Use a variable to set where db file will save.
         global_vars.create_variable('mdb', MessageDB('message.db'))
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
-                        secret=SECRET)
+                        secret=SECRET,
+                        debug=debug_mode)
         global_vars.create_variable('callback_queue', queue.Queue())
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
@@ -144,15 +145,15 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     global_vars.daemon = daemon # made plugins can stop daemon.
     args = argP.parse_args()
     if args.command == 'start':
-        daemon.start()
+        daemon.start(debug=DEBUG_MODE)
     elif args.command == 'stop':
         daemon.stop()
     elif args.command == 'restart':
-        daemon.restart()
+        daemon.restart(debug=DEBUG_MODE)
     elif args.command == 'run':
         # Run as foreground mode
         logger.debug('Now running in debug mode...')
-        daemon.run()
+        daemon.run(debug=True)
 
 
 if __name__ == '__main__':
