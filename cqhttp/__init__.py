@@ -13,6 +13,18 @@ class Error(Exception):
         self.retcode = retcode
 
 
+class Error102(Error):
+    def __init__(self):
+        super().__init__(200, 102)
+
+
+def _error(status_code, retcode=None):
+    if status_code == 200 and retcode == 102:
+        return Error102()
+    else:
+        return Error(status_code, retcode)
+
+
 class _ApiClient(object):
     def __init__(self, api_root=None, access_token=None):
         self._url = api_root.rstrip('/') if api_root else None
@@ -38,9 +50,9 @@ class _ApiClient(object):
         if resp.ok:
             data = resp.json()
             if data.get('status') == 'failed':
-                raise Error(resp.status_code, data.get('retcode'))
+                raise _error(resp.status_code, data.get('retcode'))
             return data.get('data')
-        raise Error(resp.status_code)
+        raise _error(resp.status_code)
 
 
 class CQHttp(_ApiClient):

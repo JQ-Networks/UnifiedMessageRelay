@@ -21,17 +21,13 @@ def reload_qq_namelist(forward_index: int):
     try:
         global_vars.group_members[forward_index] = global_vars.qq_bot.get_group_member_list(
             group_id=gid_qq)
-    except cqhttp.Error as e:
+    except cqhttp.Error102 as e:
         # TODO: logging need test and improve
         logger.debug(traceback.format_exc())
         # you can add more error handel below here
-        if e.status_code == 200 and e.retcode == 102:
-            logger.error("""Can't update namelist, retcode=102
-            You may need to check cqhttp's logs in app/io.github.richardchien.coolqhttpapi/log/xxxxx.log
-            For more information: https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/48""")
-            raise
-        else:
-            raise
+        logger.error("""Can't update namelist, coolq error retcode=102
+        You may need to check cqhttp's logs in app/io.github.richardchien.coolqhttpapi/log/xxxxx.log
+        For more information: https://github.com/jqqqqqqqqqq/coolq-telegram-bot/issues/48""")
     else:
         logger.info('[%s]Successful update qq namelist' % gid_qq)
 
