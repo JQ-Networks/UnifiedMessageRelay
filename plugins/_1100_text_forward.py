@@ -2,9 +2,7 @@ import json
 import logging
 import os
 import traceback
-from configparser import ConfigParser
 from typing import Union
-from urllib.request import urlretrieve
 
 from telegram.ext import DispatcherHandlerStop
 import ffmpy
@@ -253,9 +251,10 @@ def tg_get_pic_url(file_id: str, pic_type: str, image_link: bool):
         return get_short_url(SERVER_PIC_URL + file_id + '.' + pic_type)
     return ''
 
+
 # endregion
 
-IMAGE_LINK_MODE = []  # pic_link_mode per group
+IMAGE_LINK_MODE = list()  # pic_link_mode per group
 
 for forward in FORWARD_LIST:  # initialize
     IMAGE_LINK_MODE.append(forward['IMAGE_LINK'])
@@ -264,12 +263,10 @@ for forward in FORWARD_LIST:  # initialize
 def photo_from_telegram(bot: telegram.Bot,
                         update: telegram.Update):
     """
-    if update.message:
-        message: telegram.Message = update.message
-        edited = False
-    else:
-        message: telegram.Message = update.edited_message
-        edited = True
+    handle photos sent from telegram
+    :param bot:
+    :param update:
+    :return:
     """
 
     message: telegram.Message = update.effective_message
@@ -277,14 +274,6 @@ def photo_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
-
-    if edited:
-        recall_message(forward_index, message)
-
-    # don't forward this message
-    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
-        logger.debug('Message ignored: matched comment pattern')
-        raise DispatcherHandlerStop()
 
     reply_entity = list()
 
@@ -343,14 +332,6 @@ def video_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
-
-    if edited:
-        recall_message(forward_index, message)
-
-    # don't forward this message
-    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
-        logger.debug('Message ignored: matched comment pattern')
-        raise DispatcherHandlerStop()
 
     reply_entity = list()
 
@@ -412,14 +393,6 @@ def document_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
-
-    if edited:
-        recall_message(forward_index, message)
-
-    # don't forward this message
-    if (message.caption and message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
-        logger.debug('Message ignored: matched comment pattern')
-        raise DispatcherHandlerStop()
 
     reply_entity = list()
 
@@ -508,7 +481,6 @@ def document_from_telegram(bot: telegram.Bot,
 
 
 def sticker_from_telegram(bot: telegram.Bot, update: telegram.Update):
-
     message: telegram.Message = update.effective_message
 
     tg_group_id = message.chat_id  # telegram group id
@@ -604,18 +576,10 @@ def text_from_telegram(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=tg_group_id)
-    
+
     if forward_index == -1:
         return ''
-    
-    if edited:
-        recall_message(forward_index, message)
 
-    # don't forward this message
-    if (message.text.startswith('//')) or (message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith('//')) or (message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith('//')):
-        logger.debug('Message ignored: matched comment pattern')
-        raise DispatcherHandlerStop()
-    
     reply_entity = list()
 
     reply_entity.append({
@@ -667,7 +631,7 @@ def handle_forward(context):
                                       qq_discuss_id=qq_discuss_id)
     if forward_index == -1:
         return ''
-    
+
     tg_message_id_list = send_from_qq_to_tg(forward_index, message=context['message'],
                                             qq_group_id=qq_group_id,
                                             qq_discuss_id=qq_discuss_id,
@@ -682,13 +646,13 @@ def handle_forward(context):
 
 @command_listener('image link on', 'lnkon', description='enable pic link mode, only available for Air users')
 def pic_link_on(forward_index: int,
-                tg_group_id: int=None,
-                tg_user: telegram.User=None,
-                tg_message_id: int=None,
-                tg_reply_to: telegram.Message=None,
-                qq_group_id: int=None,
-                qq_discuss_id: int=None,
-                qq_user: int=None):
+                tg_group_id: int = None,
+                tg_user: telegram.User = None,
+                tg_message_id: int = None,
+                tg_reply_to: telegram.Message = None,
+                qq_group_id: int = None,
+                qq_discuss_id: int = None,
+                qq_user: int = None):
     if global_vars.JQ_MODE:
         return
     IMAGE_LINK_MODE[forward_index] = True
@@ -704,13 +668,13 @@ def pic_link_on(forward_index: int,
 
 @command_listener('image link off', 'lnkoff', description='disable pic link mode, only available for Air users')
 def pic_link_off(forward_index: int,
-                 tg_group_id: int=None,
-                 tg_user: telegram.User=None,
-                 tg_message_id: int=None,
-                 tg_reply_to: telegram.Message=None,
-                 qq_group_id: int=None,
-                 qq_discuss_id: int=None,
-                 qq_user: int=None):
+                 tg_group_id: int = None,
+                 tg_user: telegram.User = None,
+                 tg_message_id: int = None,
+                 tg_reply_to: telegram.Message = None,
+                 qq_group_id: int = None,
+                 qq_discuss_id: int = None,
+                 qq_user: int = None):
     if global_vars.JQ_MODE:
         return
     IMAGE_LINK_MODE[forward_index] = False

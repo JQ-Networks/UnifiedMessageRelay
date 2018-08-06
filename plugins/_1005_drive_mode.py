@@ -8,7 +8,7 @@ from telegram.ext import MessageHandler, Filters
 from telegram.ext.dispatcher import DispatcherHandlerStop
 from telegram import TelegramError
 
-from main.utils import get_forward_index, send_both_side, get_plugin_priority
+from main.utils import get_forward_index, send_both_side, get_plugin_priority, recall_message
 
 logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
@@ -32,6 +32,18 @@ def tg_drive_mode(bot: telegram.Bot,
 
     tg_group_id = message.chat_id  # telegram group id
     forward_index = get_forward_index(tg_group_id=int(tg_group_id))
+
+    if edited:
+        recall_message(forward_index, message)
+
+    # don't forward this message
+    if (message.caption and message.caption.startswith('//')) or (
+            message.reply_to_message and message.reply_to_message.caption and message.reply_to_message.caption.startswith(
+            '//')) or (
+            message.reply_to_message and message.reply_to_message.text and message.reply_to_message.text.startswith(
+            '//')):
+        logger.debug('Message ignored: matched comment pattern')
+        raise DispatcherHandlerStop()
 
     # prevent message leak
     if forward_index == -1:
