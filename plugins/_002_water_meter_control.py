@@ -12,7 +12,7 @@ logger = logging.getLogger("CTB." + __name__)
 logger.debug(__name__ + " loading")
 
 
-global_vars.create_variable('filter_list', {'keywords': [], 'channels': [], 'user': []})
+global_vars.create_variable('filter_list', {'keywords': [], 'channels': [], 'users': []})
 
 
 def load_data():
