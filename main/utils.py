@@ -517,14 +517,14 @@ def send_from_qq_to_tg(forward_index: int,
                                                                          pic,
                                                                          caption=full_msg)
                 if 'filename' in result:
-                    global_vars.fdb.qq_update_fields(**result, fileid_tg=_msg.document.file_id)
+                    global_vars.fdb.qq_add_resource(**result, fileid_tg=_msg.document.file_id)
 
             else:  # jpg/png pictures send as photo
                 _msg: telegram.Message = global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'],
                                                                       pic,
                                                                       caption=full_msg)
                 if 'filename' in result:
-                    global_vars.fdb.qq_update_fields(**result, fileid_tg=_msg.photo[-1].file_id)
+                    global_vars.fdb.qq_add_resource(**result, fileid_tg=_msg.photo[-1].file_id)
 
         else:
             if qq_user:

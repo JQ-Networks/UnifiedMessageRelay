@@ -39,35 +39,12 @@ class FileDB:
             self.cursor.execute(f"create unique index fileid_index on {self.table_name}(fileid_tg);")
             self.conn.commit()
 
-    def add_qq_resource(self, filename: str, file_type: str, file_md5: str, size: int):
-        """
-
-        :param filename:
-        :param file_type:
-        :param file_md5:
-        :param size:
-        :return: successfully added
-        """
-        self.cursor.execute(f"select usage_count, fileid_tg, file_type from '{self.table_name}' where file_md5='{file_md5}'")
-        result = self.cursor.fetchall()
-        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
-        if result:
-            self.cursor.execute(
-                f"update '{self.table_name}' set last_usage_date=?, usage_count=? where file_md5=?;",
-                (timestamp, result[0][0]+1, file_md5))
-            self.conn.commit()
-            return {'file_id': result[0][1], 'file_type': result[0][2]}
-        else:
-
-            self.cursor.execute(f"insert into '{self.table_name}' "
-                                f"(download_date, filename, file_type, file_md5, fileid_tg, file_size,"
-                                f" last_usage_date, usage_count)"
-                                f"values (?, ?, ?, ?, ?, ?, ?, ?)",
-                                (timestamp, filename, file_type, file_md5, '', size, timestamp, 1))
-            self.conn.commit()
-            return False
-
     def get_filename_by_fileid(self, fileid_tg: str):
+        """
+        acquire filename by fileid
+        :param fileid_tg: telegram file id
+        :return: filename
+        """
         self.cursor.execute(f"select usage_count, filename from '{self.table_name}'"
                             f" where fileid_tg='{fileid_tg}'")
         result = self.cursor.fetchall()
@@ -81,6 +58,11 @@ class FileDB:
         return False
 
     def get_fileid_by_md5(self, file_md5):
+        """
+        acquire fileid by md5
+        :param file_md5: md5
+        :return: fileid
+        """
         self.cursor.execute(f"select usage_count, fileid_tg, file_type from '{self.table_name}' where file_md5='{file_md5}'")
         result = self.cursor.fetchall()
         if result:
@@ -92,7 +74,15 @@ class FileDB:
             return {'file_id': result[0][1], 'file_type': result[0][2]}
         return False
 
-    def qq_update_fields(self, filename: str, file_type: str, file_md5: str, file_size: int, fileid_tg):
+    def qq_add_resource(self, filename: str, file_type: str, file_md5: str, file_size: int, fileid_tg):
+        """
+        add resource received by qq
+        :param filename:
+        :param file_type:
+        :param file_md5:
+        :param file_size:
+        :param fileid_tg:
+        """
         timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
         self.cursor.execute(f"insert into '{self.table_name}' "
                             f"(download_date, filename, file_type, file_md5, fileid_tg, file_size,"
@@ -103,13 +93,12 @@ class FileDB:
 
     def tg_add_resource(self, fileid_tg: str, filename: str, file_type: str, file_md5: str, file_size: int):
         """
-
+        add resource acquired by telegram
         :param fileid_tg:
         :param filename:
         :param file_type:
         :param file_md5:
         :param file_size:
-        :return:
         """
         timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
         self.cursor.execute(f"insert into '{self.table_name}' "
@@ -121,6 +110,11 @@ class FileDB:
 
     @staticmethod
     def calculate_real_size():
+        """
+        calculate real size
+        real size is the size of the directory
+        :return: size in bytes
+        """
         real_size = 0
         for root, dirs, files in os.walk(CQ_IMAGE_ROOT):
             real_size += sum([os.path.getsize(os.path.join(root, name)) for name in files])
@@ -128,10 +122,9 @@ class FileDB:
 
     def calculate_db_size(self):
         """
-        calculate db size and real size
+        calculate db size
         db size is the sum of size in db
-        real size is the size of the directory
-        :return:
+        :return: size in bytes
         """
         self.cursor.execute(f"select sum(file_size) from {self.table_name}")
         db_size = self.cursor.fetchall()[0][0]
@@ -145,6 +138,10 @@ class FileDB:
         pass
 
     def purge_all(self):
+        """
+        remove old data and reconstruct db
+        :return:
+        """
         self.conn.close()
         os.remove(self.db_name)
         for i in os.listdir(CQ_IMAGE_ROOT):
