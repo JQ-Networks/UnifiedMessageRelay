@@ -22,15 +22,15 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 ## Recent Update
 
-### v3.3
+## v3.4
 
-- New configuration item `USE_SHORT_URL`: You can configure whether to use short links in the configuration file.
-- JSON configuration file now supports [optional configuration](README-zh_CN.md#%E5%8F%AF%E9%80%89%E9%85%8D%E7%BD%AEjson%E7%89%B9%E6%9C%89)
-- Support for using docker-compose orchestration services, [read more](docker-compose-zh_CN.md)
-- Messages beginning with "//" will not be forwarded
-- Partial details optimization
-- Management functions are still under development
-- Added some plugin documentation, located in the [docs/](docs/) folder. (by @billchenchina )
+- *** License changed to MIT ***
+- Dockerfile：use Alpine image
+- Dockerfile：fixed ffmpeg installation
+- Cache Management(partial)：use MD5 to identify file，send fileid instead of whole file
+- Code classification, optimization for recall and “//”
+- keyword filter changed to not forwarding single message, instead of enabling drive mode
+- drive mode now modifies title of groups
 
 [View More](ChangeLog.md)*(Chinese)*
 

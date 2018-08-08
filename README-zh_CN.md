@@ -7,7 +7,15 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 
 ## 最近更新
 
-正在开发中...
+## v3.4
+
+- ***以 MIT 协议发布 ***
+- Dockerfile：使用更轻量的 Alpine 镜像
+- Dockerfile：修复了不能正确安装 ffmpeg 的问题
+- 缓存管理（部分）：现在文件可以通过 MD5来判断是否存在，tg 侧发送已存在的图片将直接发送 fileid
+- 代码整理，优化撤回和 “//” 不发送的逻辑
+- 关键词触发改为单条不转发，而不是开启驾驶模式
+- 驾驶模式群标题修改
 
 [查看更多](ChangeLog.md)
 
