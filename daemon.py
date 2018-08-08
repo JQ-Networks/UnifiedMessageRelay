@@ -24,24 +24,6 @@ rootLogger.setLevel('DEBUG')
 # log main thread
 logger = logging.getLogger("CTB.Main")
 
-# log telegram Bot library
-# via https://pypi.python.org/pypi/python-telegram-bot#logging
-logger_telegram = logging.getLogger('telegram')
-# logger_telegram.setLevel(logging.DEBUG)
-
-
-def setup_rotate_handler(logPath: str):
-    'will save log file in logPath'
-    global rootLogger, logger_telegram
-    # rotate file handler: max size: 1MB, so always enable debug mode is ok
-    rotate_handler = RotatingFileHandler(
-        'bot.log', maxBytes=1048576, backupCount=3)
-    standardFormatter = logging.Formatter(
-        '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
-    rotate_handler.setFormatter(standardFormatter)
-    rootLogger.addHandler(rotate_handler)
-    logger_telegram.addHandler(rotate_handler)
-
 
 def log_except_hook(*exc_info):
     # root log hook
@@ -63,10 +45,41 @@ try:
     from cqhttp import CQHttp
     from main.DaemonClass import Daemon
     from main.message_persistence import MessageDB
+    from main.file_persistence import FileDB
 except ImportError as e:
     # logger.addHandler(logging.StreamHandler())
     logger.critical("Can't import [%s], please check it again." % e.name)
     exit(1)
+
+
+# log telegram Bot library
+# via https://pypi.python.org/pypi/python-telegram-bot#logging
+logger_telegram = logging.getLogger('telegram')
+# logger_telegram.setLevel(logging.DEBUG)
+
+logger_cqhttp = logging.getLogger('CQHTTP')
+if DEBUG_MODE:
+    logger_cqhttp.setLevel(logging.DEBUG)
+else:
+    rootLogger.setLevel(logging.WARNING)
+
+
+def setup_rotate_handler(logPath: str):
+    """
+    will save log file in logPath
+    :param logPath: path to save log
+    :return:
+    """
+    global rootLogger, logger_telegram
+    # rotate file handler: max size: 1MB, so always enable debug mode is ok
+    rotate_handler = RotatingFileHandler(
+        'bot.log', maxBytes=1048576, backupCount=3)
+    standardFormatter = logging.Formatter(
+        '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
+    rotate_handler.setFormatter(standardFormatter)
+    rootLogger.addHandler(rotate_handler)
+    logger_telegram.addHandler(rotate_handler)
+    logger_cqhttp.addHandler(rotate_handler)
 
 
 def error(bot, update, error):
@@ -77,10 +90,11 @@ class MainProcess(Daemon):
     def run(self, debug_mode):
         # TODO Use a variable to set where db file will save.
         global_vars.create_variable('mdb', MessageDB('message.db'))
+        global_vars.create_variable('fdb', FileDB('files.db'))
         qq_bot = CQHttp(api_root=API_ROOT,
                         access_token=ACCESS_TOKEN,
                         secret=SECRET,
-                        debug=debug_mode)
+                        debug_mode=debug_mode)
         global_vars.create_variable('callback_queue', queue.Queue())
         global_vars.qq_bot = qq_bot
         global_vars.tg_bot_id = int(TOKEN.split(':')[0])
@@ -145,11 +159,11 @@ run     - run as foreground Debug mode. every log will print to screen and log t
     global_vars.daemon = daemon # made plugins can stop daemon.
     args = argP.parse_args()
     if args.command == 'start':
-        daemon.start(debug=DEBUG_MODE)
+        daemon.start(debug_mode=DEBUG_MODE)
     elif args.command == 'stop':
         daemon.stop()
     elif args.command == 'restart':
-        daemon.restart(debug=DEBUG_MODE)
+        daemon.restart(debug_mode=DEBUG_MODE)
     elif args.command == 'run':
         # Run as foreground mode
         logger.debug('Now running in debug mode...')

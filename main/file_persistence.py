@@ -2,6 +2,10 @@ import sqlite3
 import datetime
 import time
 import logging
+import os
+from bot_constant import CQ_ROOT
+
+CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 
 logger = logging.getLogger("CTB." + __name__)
 
@@ -9,31 +13,111 @@ logger = logging.getLogger("CTB." + __name__)
 class FileDB:
     def __init__(self, db_name: str):
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
-        cursor = self.conn.cursor()
-        table_name_list = ['jpg_files', 'png_files', 'gif_files']
-        for table_name in table_name_list:
-            cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{table_name}';")
-            result = cursor.fetchall()
-            if result[0][0]:
-                pass
-            else:
-                """
-                FileDB contains:
-                 filename_qq: str
-                 filename_tg: str for gif, tg filename will be mp4 file instead
-                 size: int
-                 download_date: int
-                 last_usage_date: int
-                 usage_count: int
-                """
-                cursor.execute(f"create table {table_name} (download_date int primary key,"
-                               f"filename_qq text, filename_tg text, size int, last_usage_date int, usage_count int)")
-                self.conn.commit()
-        cursor.close()
+        self.cursor = self.conn.cursor()
 
-    def download_or_load_resource(self, url, file_name, file_type):
+        self.table_name = 'file_ids'
 
-        pass
+        self.cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{self.table_name}';")
+        result = self.cursor.fetchall()
+        if result[0][0]:
+            pass
+        else:
+            """
+            FileDB contains:
+             filename: str
+             file_type: str
+             file_md5: str
+             fileid_tg: str
+             size: str, bytes
+             last_usage_date: int, unix timestamp
+             usage_count: int
+            """
+            self.cursor.execute(f"create table {self.table_name} (download_date int primary key,"
+                                f"filename text, file_type text, file_md5 text, fileid_tg text, file_size int,"
+                                f" last_usage_date int, usage_count int)")
+            # self.cursor.execute(f"create unique index md5_index on {self.table_name}(file_md5);")
+            # self.cursor.execute(f"create unique index fileid_index on {self.table_name}(fileid_tg);")
+            self.conn.commit()
+
+    def add_qq_resource(self, filename: str, file_type: str, file_md5: str, size: int):
+        """
+
+        :param filename:
+        :param file_type:
+        :param file_md5:
+        :param size:
+        :return: successfully added
+        """
+        self.cursor.execute(f"select usage_count, fileid_tg, file_type from '{self.table_name}' where file_md5='{file_md5}'")
+        result = self.cursor.fetchall()
+        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        if result:
+            self.cursor.execute(
+                f"update '{self.table_name}' set last_usage_date=?, usage_count=? where file_md5=?;",
+                (timestamp, result[0][0]+1, file_md5))
+            self.conn.commit()
+            return {'file_id': result[0][1], 'file_type': result[0][2]}
+        else:
+
+            self.cursor.execute(f"insert into '{self.table_name}' "
+                                f"(download_date, filename, file_type, file_md5, fileid_tg, file_size,"
+                                f" last_usage_date, usage_count)"
+                                f"values (?, ?, ?, ?, ?, ?, ?, ?)",
+                                (timestamp, filename, file_type, file_md5, '', size, timestamp, 1))
+            self.conn.commit()
+            return False
+
+    def get_filename_by_fileid(self, fileid_tg: str):
+        self.cursor.execute(f"select usage_count, filename from '{self.table_name}'"
+                            f" where fileid_tg='{fileid_tg}'")
+        result = self.cursor.fetchall()
+        if result:
+            timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+            self.cursor.execute(
+                f"update '{self.table_name}' set last_usage_date=?, usage_count=? where fileid_tg=?;",
+                (timestamp, result[0][0]+1, fileid_tg))
+            self.conn.commit()
+            return result[0][1]
+        return False
+
+    def get_fileid_by_md5(self, file_md5):
+        self.cursor.execute(f"select usage_count, fileid_tg, file_type from '{self.table_name}' where file_md5='{file_md5}'")
+        result = self.cursor.fetchall()
+        if result:
+            timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+            self.cursor.execute(
+                f"update '{self.table_name}' set last_usage_date=?, usage_count=? where file_md5=?;",
+                (timestamp, result[0][0]+1, file_md5))
+            self.conn.commit()
+            return {'file_id': result[0][1], 'file_type': result[0][2]}
+        return False
+
+    def qq_update_fields(self, filename: str, file_type: str, file_md5: str, file_size: int, fileid_tg):
+        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        self.cursor.execute(f"insert into '{self.table_name}' "
+                            f"(download_date, filename, file_type, file_md5, fileid_tg, file_size,"
+                            f" last_usage_date, usage_count)"
+                            f"values (?, ?, ?, ?, ?, ?, ?, ?)",
+                            (timestamp, filename, file_type, file_md5, fileid_tg, file_size, timestamp, 1))
+        self.conn.commit()
+
+    def tg_add_resource(self, fileid_tg: str, filename: str, file_type: str, file_md5: str, file_size: int):
+        """
+
+        :param fileid_tg:
+        :param filename:
+        :param file_type:
+        :param file_md5:
+        :param file_size:
+        :return:
+        """
+        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
+        self.cursor.execute(f"insert into '{self.table_name}' "
+                            f"(download_date, filename, file_type, file_md5, fileid_tg, file_size,"
+                            f" last_usage_date, usage_count)"
+                            f"values (?, ?, ?, ?, ?, ?, ?, ?)",
+                            (timestamp, filename, file_type, file_md5, fileid_tg, file_size, timestamp, 1))
+        self.conn.commit()
 
     def calculate_size(self):
         """
@@ -64,84 +148,6 @@ class FileDB:
         :return:
         """
         pass
-
-    def append_message(self, qq_message_id: int,
-                       tg_message_id: int,
-                       forward_index: int,
-                       qq_number: int):
-        """
-        append qq message list to database
-        :param qq_message_id: QQ message id
-        :param tg_message_id: Telegram message id
-        :param forward_index: forward index
-        :param qq_number: If from QQ, then QQ sender's number. If from Telegram, then 0 (used for recall)
-        :return:
-        """
-        cursor = self.conn.cursor()
-        table_name = '_' + str(forward_index)
-        timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
-        logger.debug(f'append tg_msg_id:{tg_message_id}, qq_msg_id:{qq_message_id}, '
-                     f'qq_num:{qq_number}, time:{timestamp} to {table_name}')
-
-        # find if already exists
-        cursor.execute(f"select * from '{table_name}' where tg_message_id = ?", (tg_message_id,))
-        result = cursor.fetchall()
-        cursor.close()
-        cursor = self.conn.cursor()
-        if len(result):  # if exists, update record
-            cursor.execute(f"update '{table_name}' set qq_message_id=?, qq_number=?, timestamp=? where tg_message_id=?;",
-                           (qq_message_id, qq_number, timestamp, tg_message_id))
-        else:  # if not, create record
-            cursor.execute(f"insert into '{table_name}' (tg_message_id, qq_message_id, qq_number, timestamp)"
-                           f"values (?, ?, ?, ?)",
-                           (tg_message_id, qq_message_id, qq_number, timestamp))
-        self.conn.commit()
-        cursor.close()
-
-    def retrieve_message(self, tg_message_id: int,
-                         forward_index: int):
-        """
-        get specific record
-        :param tg_message_id:
-        :param forward_index:
-        :return:
-        """
-        cursor = self.conn.cursor()
-        table_name = '_' + str(forward_index)
-        cursor.execute(f"select * from '{table_name}' where tg_message_id = ?", (tg_message_id,))
-        result = cursor.fetchall()
-        cursor.close()
-        if len(result):
-            return result[0]
-        else:
-            return None
-
-    def delete_message(self, tg_message_id: int,
-                       forward_index: int):
-        """
-        delete record
-        :param tg_message_id:
-        :param forward_index:
-        :return:
-        """
-        cursor = self.conn.cursor()
-        table_name = '_' + str(forward_index)
-        cursor.execute(f"delete from {table_name} where tg_message_id=?;", (tg_message_id,))
-        self.conn.commit()
-        cursor.close()
-
-    def purge_message(self):
-        """
-        delete outdated records
-        :return:
-        """
-        cursor = self.conn.cursor()
-        for idx, forward in enumerate(FORWARD_LIST):
-            table_name = '_' + str(idx)
-            purge_time = int(time.mktime((datetime.datetime.now() - datetime.timedelta(weeks=2)).timetuple()))
-            cursor.execute(f"delete from {table_name} where timestamp < ?;", (purge_time,))
-            self.conn.commit()
-        cursor.close()
 
     def __del__(self):
         self.conn.close()

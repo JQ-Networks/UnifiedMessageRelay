@@ -10,8 +10,7 @@ import telegram
 
 import global_vars
 from bot_constant import *
-from main.cq_utils import (cq_download_pic, cq_location_regex, qq_emoji_list,
-                           qq_sface_list)
+from main.cq_utils import cq_get_fileid, cq_location_regex, qq_emoji_list, qq_sface_list
 
 logger = logging.getLogger("CTB."+__name__)
 
@@ -500,8 +499,11 @@ def send_from_qq_to_tg(forward_index: int,
             message_index_attribute = '(' + str(idx + 1) + \
                 '/' + str(message_count) + ')'
         if message_part.get('image'):
-            image_path = cq_download_pic(message_part)
-            pic = open(image_path, 'rb')
+            result = cq_get_fileid(message_part)
+            if 'filename' in result:
+                pic = open(os.path.join(CQ_IMAGE_ROOT, result['filename']), 'rb')
+            else:
+                pic = result['file_id']
 
             if message_part.get('text'):
                 full_msg = get_qq_name_encoded(qq_user, forward_index) + forward_from + '꞉ ' \
@@ -510,14 +512,19 @@ def send_from_qq_to_tg(forward_index: int,
                 full_msg = get_qq_name_encoded(
                     qq_user, forward_index) + forward_from + '꞉ ' + message_index_attribute
 
-            if image_path.lower().endswith('gif'):  # gif pictures send as document
+            if result['file_type'] == 'gif':  # gif pictures send as document
                 _msg: telegram.Message = global_vars.tg_bot.sendDocument(FORWARD_LIST[forward_index]['TG'],
                                                                          pic,
                                                                          caption=full_msg)
+                if 'filename' in result:
+                    global_vars.fdb.qq_update_fields(**result, fileid_tg=_msg.document.file_id)
+
             else:  # jpg/png pictures send as photo
                 _msg: telegram.Message = global_vars.tg_bot.sendPhoto(FORWARD_LIST[forward_index]['TG'],
                                                                       pic,
                                                                       caption=full_msg)
+                if 'filename' in result:
+                    global_vars.fdb.qq_update_fields(**result, fileid_tg=_msg.photo[-1].file_id)
 
         else:
             if qq_user:
@@ -582,22 +589,26 @@ def recall_message(forward_index: int,
     -4: message has expired two minutes
     0: success
     """
+    MESSAGE_EMPTY = -1
+    MESSAGE_NOT_FOUND = -2
+    MESSAGE_FROM_OTHER_QQ = -3
+    MESSAGE_EXPIRED = 4
     if not tg_message:
-        return -1
+        return MESSAGE_EMPTY
 
     tg_reply_id = tg_message.message_id
     saved_message = global_vars.mdb.retrieve_message(
         tg_reply_id, forward_index)
     global_vars.mdb.delete_message(tg_reply_id, forward_index)
     if not saved_message:
-        return -2
+        return MESSAGE_NOT_FOUND
 
     qq_number = saved_message[2]
     if qq_number:  # 0 means from tg, >0 means from qq
-        return -3
+        return MESSAGE_FROM_OTHER_QQ
     timestamp = tg_message.date
     if datetime.datetime.now() - timestamp > datetime.timedelta(minutes=2):
-        return -4
+        return MESSAGE_EXPIRED
     else:
         qq_message_id = saved_message[1]
         global_vars.qq_bot.delete_msg(message_id=qq_message_id)

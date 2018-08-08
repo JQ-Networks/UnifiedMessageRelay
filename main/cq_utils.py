@@ -4,8 +4,7 @@ import re
 import traceback
 from configparser import ConfigParser
 from urllib.request import urlretrieve
-
-from PIL import Image
+import global_vars
 
 from bot_constant import CQ_ROOT
 
@@ -14,7 +13,7 @@ CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, r'data/image')
 cq_location_regex = re.compile(
     r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
 
-logger = logging.getLogger("CTB."+__name__)
+logger = logging.getLogger("CTB." + __name__)
 
 qq_emoji_list = {  # created by JogleLew, optimizations are welcome
     0: u'\U0001F62E',
@@ -155,26 +154,6 @@ qq_sface_list = {
 }
 
 
-def create_jpg_image(path, name):
-    """
-    convert Telegram webp image to jpg image
-    :param path: save path
-    :param name: image name
-    """
-    im = Image.open(os.path.join(path, name)).convert("RGB")
-    im.save(os.path.join(path, name + ".jpg"), "JPEG")
-
-
-def create_png_image(path, name):
-    """
-    convert Telegram webp image to png image
-    :param path: save path
-    :param name: image name
-    """
-    im = Image.open(os.path.join(path, name)).convert("RGBA")
-    im.save(os.path.join(path, name + ".png"), "PNG")
-
-
 def cq_download_pic(cq_image):
     """
     download image by http_api image data
@@ -183,6 +162,7 @@ def cq_download_pic(cq_image):
     """
     try:
         path = os.path.join(CQ_IMAGE_ROOT, cq_image['image'])
+
         if os.path.exists(path):
             return path
         logger.debug(f'downloading file to {path}')
@@ -192,3 +172,24 @@ def cq_download_pic(cq_image):
     except:
         logger.error(cq_image)
         traceback.print_exc()
+
+
+def cq_get_fileid(cq_image):
+    """
+
+    :param cq_image:
+    :return:
+    """
+    cqimg = os.path.join(CQ_IMAGE_ROOT, cq_image['image'] + '.cqimg')
+    parser = ConfigParser()
+    parser.read(cqimg)
+    file_type = cq_image['image'][33:]
+    file_id = global_vars.fdb.get_fileid_by_md5(parser['image']['md5'])
+    if file_id:  # file_id contains file_id and file_type
+        return file_id
+    else:
+        cq_download_pic(cq_image)
+        return {'filename': cq_image['image'],
+                'file_type': file_type,
+                'file_md5': parser['image']['md5'],
+                'file_size': int(parser['image']['size'])}

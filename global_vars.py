@@ -1,12 +1,15 @@
 import sys
 from main.command import Command
 from main.DaemonClass import Daemon
+from main.message_persistence import MessageDB
+from main.file_persistence import FileDB
 import telegram
 
 daemon: Daemon = None
 qq_bot = None
 dp = None
-mdb = None
+mdb: MessageDB = None
+fdb: FileDB = None
 tg_bot: telegram.Bot = None
 tg_bot_id: int = None
 command_list = []
