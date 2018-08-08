@@ -14,7 +14,7 @@ class FileDB:
     def __init__(self, db_name: str):
         self.conn = sqlite3.connect(db_name, check_same_thread=False)
         self.cursor = self.conn.cursor()
-
+        self.db_name = db_name
         self.table_name = 'file_ids'
 
         self.cursor.execute(f"SELECT count(*) FROM sqlite_master WHERE type='table' AND name='{self.table_name}';")
@@ -35,8 +35,8 @@ class FileDB:
             self.cursor.execute(f"create table {self.table_name} (download_date int primary key,"
                                 f"filename text, file_type text, file_md5 text, fileid_tg text, file_size int,"
                                 f" last_usage_date int, usage_count int)")
-            # self.cursor.execute(f"create unique index md5_index on {self.table_name}(file_md5);")
-            # self.cursor.execute(f"create unique index fileid_index on {self.table_name}(fileid_tg);")
+            self.cursor.execute(f"create unique index md5_index on {self.table_name}(file_md5);")
+            self.cursor.execute(f"create unique index fileid_index on {self.table_name}(fileid_tg);")
             self.conn.commit()
 
     def add_qq_resource(self, filename: str, file_type: str, file_md5: str, size: int):
@@ -119,14 +119,23 @@ class FileDB:
                             (timestamp, filename, file_type, file_md5, fileid_tg, file_size, timestamp, 1))
         self.conn.commit()
 
-    def calculate_size(self):
+    @staticmethod
+    def calculate_real_size():
+        real_size = 0
+        for root, dirs, files in os.walk(CQ_IMAGE_ROOT):
+            real_size += sum([os.path.getsize(os.path.join(root, name)) for name in files])
+        return real_size
+
+    def calculate_db_size(self):
         """
         calculate db size and real size
         db size is the sum of size in db
         real size is the size of the directory
         :return:
         """
-        pass
+        self.cursor.execute(f"select sum(file_size) from {self.table_name}")
+        db_size = self.cursor.fetchall()[0][0]
+        return db_size
 
     def purge_half(self):
         """
@@ -135,19 +144,52 @@ class FileDB:
         """
         pass
 
+    def purge_all(self):
+        self.conn.close()
+        os.remove(self.db_name)
+        for i in os.listdir(CQ_IMAGE_ROOT):
+            path_file = os.path.join(CQ_IMAGE_ROOT, i)
+            if os.path.isfile(path_file):
+                os.remove(path_file)
+        self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(f"create table {self.table_name} (download_date int primary key,"
+                            f"filename text, file_type text, file_md5 text, fileid_tg text, file_size int,"
+                            f" last_usage_date int, usage_count int)")
+        self.cursor.execute(f"create unique index md5_index on {self.table_name}(file_md5);")
+        self.cursor.execute(f"create unique index fileid_index on {self.table_name}(fileid_tg);")
+        self.conn.commit()
+
     def purge_one_time(self):
         """
         purge one time usage file
-        :return:
+        :return: purged size
         """
-        pass
+        purged_size = 0
+        self.cursor.execute(f"select download_date, filename, file_size from {self.table_name} where usage_count=1")
+        data = self.cursor.fetchall()
+        for entry in data:
+            self.cursor.execute(f"delete from {self.table_name} where download_date=?", (str(entry[0]),))
+            if os.path.exists(entry[1]):
+                os.remove(os.path.join(CQ_IMAGE_ROOT, entry[1]))
+                purged_size += entry[2]
+        self.conn.commit()
+        return purged_size
 
     def sync_cache(self):
         """
-        sync cache status with db
-        :return:
+        sync cache status with db, this will remove file records from db
+        :return: size reduced
         """
-        pass
+        size_reduced = 0
+        self.cursor.execute(f"select download_date, filename, file_size from {self.table_name}")
+        data = self.cursor.fetchall()
+        for entry in data:
+            if not os.path.exists(os.path.join(CQ_IMAGE_ROOT, entry[1])):
+                self.cursor.execute(f"delete from {self.table_name} where download_date=?", (str(entry[0]),))
+                size_reduced += entry[2]
+        self.conn.commit()
+        return size_reduced
 
     def __del__(self):
         self.conn.close()
