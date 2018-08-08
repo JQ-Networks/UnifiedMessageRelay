@@ -17,29 +17,6 @@ logger = logging.getLogger("CTB."+__name__)
 CQ_IMAGE_ROOT = os.path.join(CQ_ROOT, 'data/image')
 
 
-class FileDownloader(threading.Thread):
-    def __init__(self, url, path, requests_kwargs={}, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.url = url
-        self.path = path
-        self.requests_kwargs = requests_kwargs
-
-    def run(self):
-        try:
-            self.download()
-        except:
-            logger.error("[FileDownloader]Catch exception on downloading.")
-            traceback.print_exc()
-
-    def download(self):
-        if os.path.exists(self.path):
-            print("[FileDownloader]", "Exists", self.path)
-            return
-        r = requests.get(self.url, **self.requests_kwargs)
-        with open(self.path, 'wb') as f:
-            f.write(r.content)
-
-
 # Message attributing functions
 # Below this line is the user name processing function used by mybot.py
 
