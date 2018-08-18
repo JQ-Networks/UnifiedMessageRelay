@@ -14,11 +14,11 @@ olefile = "==0.45.1"
 pycurl = "==7.43.0"
 python-telegram-bot = "==10.0.2"
 requests = "==2.18.4"
-"urllib3" = {extras = ["socks"]}
+"urllib3" = "*"
 coloredlogs = "==9.0"
 ffmpy = "==0.2.2"
 log_calls = "==0.3.2"
-Pillow = "==4.3.0"
+Pillow = "*"
 
 [dev-packages]
 pylint = "*"
