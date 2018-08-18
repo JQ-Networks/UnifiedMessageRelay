@@ -107,7 +107,7 @@ def tg_get_file(file_id: str, mp4: bool=False):
     elif file_type == 'WEBP':
         new_name = file_id + '.png'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
-        image.save(new_name_full, 'PNG')
+        image.convert('RGBA').save(new_name_full, 'PNG')
         os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'png', md5sum(new_name_full), file_size)
