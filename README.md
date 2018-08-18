@@ -22,6 +22,11 @@ QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 
 ## Recent Update
 
+## v3.4.1
+
+- Fix Stickers forward issue
+- Dockerfile: add libwebp
+
 ## v3.4
 
 - *** License changed to MIT ***

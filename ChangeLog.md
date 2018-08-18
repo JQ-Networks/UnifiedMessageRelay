@@ -1,5 +1,10 @@
 # 更新日志
 
+## v3.4.1 _（HotFix）_
+
+- 修复了 `main.tg_utils` 无法将 Webp 转换为 PNG 的问题
+- Dockerfile：添加了 libwebp 依赖
+
 ## v3.4
 
 - ***以 MIT 协议发布 ***

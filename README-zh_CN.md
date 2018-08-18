@@ -7,6 +7,11 @@ QQ部分基于[酷Q HTTP API](https://github.com/richardchien/coolq-http-api)，
 
 ## 最近更新
 
+## v3.4.1
+
+- 修复了无法将 Webp 转换为 PNG 的问题，现在可以正常转发 Telegram Stickers 了
+- Dockerfile：添加了 libwebp 依赖
+
 ## v3.4
 
 - ***以 MIT 协议发布 ***
