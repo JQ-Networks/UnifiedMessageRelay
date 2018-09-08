@@ -10,7 +10,7 @@ class Daemon:
 
     def __init__(self, pidfile):
         self.pidfile = pidfile
-        signal.signal(signal.SIGTERM,self.stop)
+        signal.signal(signal.SIGTERM, self.stop)
 
     def daemonize(self):
         """Deamonize class. UNIX double fork mechanism."""

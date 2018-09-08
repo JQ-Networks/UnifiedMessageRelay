@@ -22,7 +22,7 @@ Pillow = "*"
 
 [dev-packages]
 pylint = "*"
-"autopep8" = "*"
+yapf = "*"
 
 [requires]
 python_version = "3.6"
