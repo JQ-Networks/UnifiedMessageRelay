@@ -30,20 +30,20 @@ $ vim .env
 
 参数和配置
 
-名称 | 值示例 | 描述
+名称 | 描述 | 值示例 
 ---------:|:----------:|:---------
-`CQHTTP_ACCESS_TOKEN` |` sPg3x3nxgR3JkWnf7N7R9pfsxj4Fg9LfRJPhbVnKFCvdT44xvxkhCwdwr9PCsJXp` | [cq-http-api](https://cqhttp.cc/) 的 access_token，作用参见  <br /> tips:可以使用`pwgen -Bsv1 64`来生成
-`CQHTTP_SECRET`| `gd7rnWTmhjcx3JmkJ9WhmpwkwH9XpHbgR3VfMpz4FX73ThFtPWPhChTTdjvJPmkf `| [cq-http-api](https://cqhttp.cc/) 的 secret，作用参见 [cq-http-api](https://cqhttp.cc/) <br /> tips:可以使用`pwgen -Bsv1 64`来生成
-`CQHTTP_PORT`  | `5700` | [cq-http-api](https://cqhttp.cc/) 的 api 端口
-`CQHTTP_POST_URL`| `http://ctb:8080/` |[cq-http-api](https://cqhttp.cc/) 上报URL
-`CQHTTP_POST_MESSAGE_FORMAT`|`array` | 报文格式
-`COOLQ_ACCOUNT` |  `000000000`  | QQ机器人的QQ号。
-`CQ_DATA_PATH` | `/home/user/coolq` | 宿主机上用于存放酷Q数据文件的目录，如不存在则容器无法启动。<br />注意：**运行于容器内部的Bot只能通过`/home/user/coolq/`访问Coolq数据，配置Bot配置文件时应维持`CQ_ROOT`的默认值。**
-`CQ_DATA_PATH` | `~/coolq-data` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq) 数据卷
-`CTB_JSON_SETTINGS_PATH`|  `/home/user/coolq/bot_constant.json`   | coolq-telegram-bot 配置路径
-`VNC_PORT` | `8081` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC端口，请结合宿主机实际环境设置。
-`VNC_PASSWD` | `Mn6fFtsh` |[docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC密码
-
+`CQHTTP_ACCESS_TOKEN`  | [cq-http-api](https://cqhttp.cc/) 的 access_token，作用参见  <br /> tips:可以使用`pwgen -Bsv1 64`来生成|` sPg3x3nxgR3JkWnf7N7R9pfsxj4Fg9LfRJPhbVnKFCvdT44xvxkhCwdwr9PCsJXp`
+`CQHTTP_SECRET`| [cq-http-api](https://cqhttp.cc/) 的 secret，作用参见 [cq-http-api](https://cqhttp.cc/) <br /> tips:可以使用`pwgen -Bsv1 64`来生成| `gd7rnWTmhjcx3JmkJ9WhmpwkwH9XpHbgR3VfMpz4FX73ThFtPWPhChTTdjvJPmkf `
+`CQHTTP_PORT` | [cq-http-api](https://cqhttp.cc/) 的 api 端口 | `5700` 
+`CQHTTP_POST_URL`|[cq-http-api](https://cqhttp.cc/) 上报URL| `http://ctb:8080/` 
+`CQHTTP_POST_MESSAGE_FORMAT`| 报文格式|`array` 
+`COOLQ_ACCOUNT`   | QQ机器人的QQ号|  `000000000`
+`CQ_DATA_PATH`  | 宿主机上用于存放酷Q数据文件的目录，如不存在则容器无法启动。<br />注意：**运行于容器内部的Bot只能通过`/home/user/coolq/`访问Coolq数据，配置Bot配置文件时应维持`CQ_ROOT`的默认值。**| `/home/user/coolq`
+`CQ_DATA_PATH` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq) 数据卷
+`CTB_JSON_SETTINGS_PATH`|  coolq-telegram-bot 配置路径| `~/coolq-data`  `/home/user/coolq/bot_constant.json` 
+`VNC_PORT` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC端口，请结合宿主机实际环境设置。| `8081` 
+`VNC_PASSWD` |[docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC密码| `Mn6fFtsh` 
+`NGX_PORT` | nginx对外端口 |`80`
  
 
 ### 2、配置 bot_constant
