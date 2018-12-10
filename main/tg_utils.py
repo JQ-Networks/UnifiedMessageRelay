@@ -2,7 +2,6 @@ import hashlib
 from functools import partial
 from PIL import Image
 import os
-import shutil
 import ffmpy
 import requests
 import json
