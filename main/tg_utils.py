@@ -2,6 +2,7 @@ import hashlib
 from functools import partial
 from PIL import Image
 import os
+import shutil
 import ffmpy
 import requests
 import json
@@ -89,19 +90,22 @@ def tg_get_file(file_id: str, mp4: bool=False):
     if file_type == 'JPEG':
         new_name = file_id + '.jpg'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
-        os.rename(filename, new_name_full)
+        shutil.copy(filename, new_name_full)
+        os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'jpg', md5sum(new_name_full), file_size)
     elif file_type == 'PNG':
         new_name = file_id + '.png'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
-        os.rename(filename, new_name_full)
+        shutil.copy(filename, new_name_full)
+        os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'png', md5sum(new_name_full), file_size)
     elif file_type == 'GIF':
         new_name = file_id + '.gif'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
-        os.rename(filename, new_name_full)
+        shutil.copy(filename, new_name_full)
+        os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'gif', md5sum(new_name_full), file_size)
     elif file_type == 'WEBP':
