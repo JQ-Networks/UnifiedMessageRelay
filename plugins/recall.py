@@ -26,7 +26,7 @@ def recall(tg_group_id: int,
     elif result == -2:
         text = 'Message not recallable.'
     elif result == -3:
-        text = 'Recalling messages from other QQ users is not supported.',
+        text = 'Recalling messages from other QQ users is not supported.'
     elif result == -4:
         text = 'Message sent more than two minutes ago. Recalling failed.'
     else:
