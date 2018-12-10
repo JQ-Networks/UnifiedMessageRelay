@@ -92,4 +92,4 @@ $ sudo docker-compose logs
 ### 备注
 1. 机器人QQ号如果登不上。可能需要开启设备锁，验证后即可自动登录
 2. 找[BotFather](https://telegram.me/botfather)申请bot，获取token，要开启组权限
-3. 拿到token后 ，将bot加到组里，访问https://api.telegram.org/bot\<YourBOTToken\>/getUpdates 来获取groupid userid等需要用到的数据
+3. 拿到token后 ，将bot加到组里，访问https://api.telegram.org/bot<YourBOTToken>/getUpdates 来获取groupid userid等需要用到的数据
