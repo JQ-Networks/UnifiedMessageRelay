@@ -167,7 +167,12 @@ def cq_download_pic(cq_image):
             return path
         logger.debug(f'downloading file to {path}')
 
-        urlretrieve(cq_image['url'], path)
+        for _ in range(5):
+            try:
+                urlretrieve(cq_image['url'], path)
+                break
+            except:
+                pass
         return path
     except:
         logger.error(cq_image)

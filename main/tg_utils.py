@@ -8,6 +8,7 @@ import json
 import global_vars
 import logging
 from telegram import TelegramError
+import platform
 
 from bot_constant import CQ_ROOT, USE_SHORT_URL, SERVER_PIC_URL
 
@@ -71,11 +72,17 @@ def tg_get_file(file_id: str, mp4: bool=False):
         mp4_input = filename
         new_name = file_id + '.gif'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
+        tmp_path = '/tmp/palettegen.png'
+        if platform.system() == 'Windows':
+            tmp_path = './tmp/palettegen.png'
+            if not os.path.exists('./tmp'):
+                os.mkdir('./tmp')
+
         ff = ffmpy.FFmpeg(inputs={mp4_input: None},
-                          outputs={'/tmp/palettegen.png': '-vf palettegen'},
+                          outputs={tmp_path: '-vf palettegen'},
                           global_options=('-y'))
         ff.run()
-        ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
+        ff = ffmpy.FFmpeg(inputs={mp4_input: None, tmp_path: None},
                           outputs={new_name_full: '-filter_complex paletteuse'},
                           global_options=('-y'))
         ff.run()
