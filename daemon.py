@@ -73,7 +73,7 @@ def setup_rotate_handler(logPath: str):
     global rootLogger, logger_telegram
     # rotate file handler: max size: 1MB, so always enable debug mode is ok
     rotate_handler = RotatingFileHandler(
-        'bot.log', maxBytes=1048576, backupCount=3)
+        'bot.log', maxBytes=1048576, backupCount=3, encoding='utf-8')
     standardFormatter = logging.Formatter(
         '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
     rotate_handler.setFormatter(standardFormatter)
