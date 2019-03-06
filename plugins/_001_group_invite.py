@@ -56,7 +56,7 @@ def event_group_request(context):
     if sub_type == 'add':  # others want to join this group
         message = user_name + " 想申请加入 " + group_name + '\n 验证消息：' + qq_message
     else:
-        message = user_name + " 邀请 Bot 加入 " + group_name + qq_message
+        message = user_name + " 邀请 Bot 加入 " + group_name + '\n 验证消息：' + qq_message
 
     accept_token = context.get('flag')
 
@@ -103,7 +103,7 @@ def group_request_callback(bot: telegram.Bot,
             edited_message = {
                 'chat_id': chat_id,
                 'message_id': message_id,
-                'text': query.message.text + '\n' + user_name + 'declined'
+                'text': query.message.text + '\n' + user_name + ' declined.'
             }
             bot.editMessageText(**edited_message)
     else:
@@ -116,11 +116,12 @@ def group_request_callback(bot: telegram.Bot,
             edited_message = {
                 'chat_id': chat_id,
                 'message_id': message_id,
-                'text': query.message.text + '\n' + user_name + 'accepted'
+                'text': query.message.text + '\n' + user_name + ' accepted.'
             }
             bot.edit_message_text(**edited_message)
 
     del global_vars.group_requests[token]
+
 
 global_vars.dp.add_handler(CallbackQueryHandler(callback=group_request_callback),
                            get_plugin_priority(__name__))
