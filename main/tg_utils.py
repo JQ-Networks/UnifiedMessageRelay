@@ -8,6 +8,7 @@ import json
 import global_vars
 import logging
 from telegram import TelegramError
+import platform
 
 from bot_constant import CQ_ROOT, USE_SHORT_URL, SERVER_PIC_URL
 
@@ -71,11 +72,17 @@ def tg_get_file(file_id: str, mp4: bool=False):
         mp4_input = filename
         new_name = file_id + '.gif'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
+        tmp_path = '/tmp/palettegen.png'
+        if platform.system() == 'Windows':
+            tmp_path = './tmp/palettegen.png'
+            if not os.path.exists('./tmp'):
+                os.mkdir('./tmp')
+
         ff = ffmpy.FFmpeg(inputs={mp4_input: None},
-                          outputs={'/tmp/palettegen.png': '-vf palettegen'},
+                          outputs={tmp_path: '-vf palettegen'},
                           global_options=('-y'))
         ff.run()
-        ff = ffmpy.FFmpeg(inputs={mp4_input: None, '/tmp/palettegen.png': None},
+        ff = ffmpy.FFmpeg(inputs={mp4_input: None, tmp_path: None},
                           outputs={new_name_full: '-filter_complex paletteuse'},
                           global_options=('-y'))
         ff.run()
@@ -87,18 +94,21 @@ def tg_get_file(file_id: str, mp4: bool=False):
     image = Image.open(filename)
     file_type = image.format
     if file_type == 'JPEG':
+        image.close()
         new_name = file_id + '.jpg'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
         os.rename(filename, new_name_full)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'jpg', md5sum(new_name_full), file_size)
     elif file_type == 'PNG':
+        image.close()
         new_name = file_id + '.png'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
         os.rename(filename, new_name_full)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'png', md5sum(new_name_full), file_size)
     elif file_type == 'GIF':
+        image.close()
         new_name = file_id + '.gif'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
         os.rename(filename, new_name_full)
@@ -108,6 +118,7 @@ def tg_get_file(file_id: str, mp4: bool=False):
         new_name = file_id + '.png'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
         image.convert('RGBA').save(new_name_full, 'PNG')
+        image.close()
         os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'png', md5sum(new_name_full), file_size)
@@ -116,7 +127,9 @@ def tg_get_file(file_id: str, mp4: bool=False):
         new_name = file_id + '.jpg'
         new_name_full = os.path.join(CQ_IMAGE_ROOT, new_name)
         image.save(new_name_full, 'JPEG')
+        image.close()
         os.remove(filename)
         file_size = os.path.getsize(new_name_full)
         global_vars.fdb.tg_add_resource(file_id, new_name, 'jpg', md5sum(new_name_full), file_size)
     return new_name
+
