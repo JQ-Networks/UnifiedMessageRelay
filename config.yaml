@@ -1,0 +1,10 @@
+ForwardList:
+  Accounts:
+    QQ: 643503161
+    Telegram: 12345678
+  Topology:
+    - From: QQ
+      FromChat: 123123123
+      To: Telegram
+      ToChat: 31231212344
+      Type: AcceptReply  # OneWay, BiDirection, AcceptReply

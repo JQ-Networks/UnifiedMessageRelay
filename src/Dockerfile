@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir pipenv &&\
 COPY Pipfile* ./
 RUN pipenv install -v
 
-COPY . .
+COPY .. .
 
 EXPOSE 8080
 

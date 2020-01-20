@@ -1,7 +1,7 @@
 import logging
 from functools import wraps
 
-import global_vars
+from Obsoleted import global_vars
 
 logger = logging.getLogger("CTB." + __name__)
 

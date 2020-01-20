@@ -103,12 +103,12 @@ bot.log
 bot.log*
 nohup.out
 special_sticker_list.py
-nouse.py
+src/nouse.py
 
 .DS_Store
 .idea
 .vscode
 
 # ignore config file
-bot_constant.py
+Obsoleted/bot_constant.py
 bot_constant.json
