@@ -1,5 +1,7 @@
 import threading
-from Lib.aiocqhttp import CQHttp, ApiError, MessageSegment
+import asyncio
+import janus
+from aiocqhttp import CQHttp, ApiError, MessageSegment
 from Core.UnifiedMessage import UnifiedMessage
 from Core import CTBDriver
 
@@ -15,7 +17,8 @@ bot = CQHttp(api_root='http://127.0.0.1:5700/',
 async def handle_msg(context):
     # 下面这句等价于 bot.send_private_msg(user_id=context['user_id'], message='你好呀，下面一条是你刚刚发的：')
     try:
-        message = UnifiedMessage('QQ', context.get('group_id'), context.get('user_id'), '', context.get('raw_message'), '')
+        message = UnifiedMessage('QQ', context.get('group_id'), context.get('user_id'), '', context.get('raw_message'),
+                                 '')
         await CTBDriver.receive(message)
     except ApiError:
         pass
@@ -33,13 +36,26 @@ async def send(to_chat: int, messsage: UnifiedMessage):
     context['group_id'] = to_chat
     await bot.send(context, context['message'])
 
+
 CTBDriver.sender['QQ'] = send
 
 
+async def async_coro(async_q):
+    while True:
+        to_chat, message = await async_q.get()
+        await send(to_chat, message)
+        async_q.task_done()
+
+
 def run():
+    loop = asyncio.get_event_loop()
+    queue = janus.Queue(loop=loop)
+    CTBDriver.janus_queue['QQ'] = queue
+    loop.create_task(async_coro(queue.async_q))
     bot.run(host='172.17.0.1', port=8080)
 
 
-t = threading.Thread(target=run)
-CTBDriver.threads.append(t)
-t.start()
+CTBDriver.set_run_blocking(run)
+# t = threading.Thread(target=run)
+# CTBDriver.threads.append(t)
+# t.start()

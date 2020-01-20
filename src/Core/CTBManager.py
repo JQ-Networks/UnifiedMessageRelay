@@ -11,6 +11,7 @@ import importlib
 import os
 import pathlib
 import threading
+import time
 
 from Utils import Helper
 
@@ -118,6 +119,10 @@ class CTBManager:
                 CTBDispatcher.graph[i['From']] = dict()
             if i['FromChat'] not in CTBDispatcher.graph[i['From']]:
                 CTBDispatcher.graph[i['From']][i['FromChat']] = list()
+            if i['To'] not in CTBDispatcher.graph:
+                CTBDispatcher.graph[i['To']] = dict()
+            if i['ToChat'] not in CTBDispatcher.graph[i['To']]:
+                CTBDispatcher.graph[i['To']][i['ToChat']] = list()
             action_type = CTBDispatcher.ActionType.All
             CTBDispatcher.graph[i['From']][i['FromChat']].append(
                 CTBDispatcher.Action(i['To'], i['ToChat'], action_type))
@@ -138,6 +143,8 @@ class CTBManager:
     def run(self):
         self.load_drivers()
         self.build_graph()
+        time.sleep(1)
+        self.CTBDriver.run()
         for i in self.CTBDriver.threads:
             i.join()
         pass

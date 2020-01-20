@@ -1,8 +1,9 @@
 from typing import Dict, List
 from enum import Enum
+import asyncio
 from .UnifiedMessage import UnifiedMessage
 from dataclasses import dataclass
-from .CTBDriver import sender
+from .CTBDriver import sender, janus_queue
 
 
 class ActionType(Enum):
@@ -32,4 +33,7 @@ async def dispatch(message: UnifiedMessage):
         # TODO plugin logic
         if action.action_type == ActionType.Reply:
             continue
-        await sender[action.to_platform](action.to_chat, message)
+        # asyncio.ensure_future(sender[action.to_platform](action.to_chat, message), loop=event_loop[action.to_platform])
+        await janus_queue[action.to_platform].async_q.put((action.to_chat, message))
+        # await event_loop[action.to_platform].create_task(sender[action.to_platform](action.to_chat, message))
+        # await sender[action.to_platform](action.to_chat, message)
