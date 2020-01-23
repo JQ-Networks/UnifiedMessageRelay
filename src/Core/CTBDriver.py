@@ -1,19 +1,23 @@
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, DefaultDict
+from threading import Thread
 import janus
-from .UnifiedMessage import UnifiedMessage
+from .CTBType import UnifiedMessage
+from collections import defaultdict
 
-sender = dict()
-controller = dict()
-threads = list()
-janus_queue: Dict[str, janus.Queue] = dict()
-run: Callable
+# region Driver API lookup table
+api_lookup: DefaultDict[str, Dict[str, callable]] = defaultdict(dict)
+threads: List[Thread] = list()
+# endregion
 
+# launch dispatcher
 from .CTBDispatcher import dispatch
 
 
+# region API declaration
 async def receive(messsage: UnifiedMessage):
     """
     handler for received message
+    this function should be called from driver
     :return:
     """
     await dispatch(messsage)
@@ -22,6 +26,7 @@ async def receive(messsage: UnifiedMessage):
 async def send(to_chat: int, messsage: UnifiedMessage):
     """
     function prototype for send new message
+    this function should be implemented in driver, sync or async
     :return:
     """
     pass
@@ -34,19 +39,6 @@ async def control():
     """
     pass
 
+# endregion
 
-from . import CTBManager
-CONFIG = CTBManager.CONFIG
-
-
-def load_drivers():
-    """
-    load all drivers
-    :return: None
-    """
-    import Driver
-
-
-def set_run_blocking(_run):
-    global run
-    run = _run
+import Driver

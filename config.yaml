@@ -7,4 +7,19 @@ ForwardList:
       FromChat: 123123123
       To: Telegram
       ToChat: 31231212344
-      Type: AcceptReply  # OneWay, BiDirection, AcceptReply
+      ForwardType: ReplyOnly
+Driver:
+  QQ:
+    APIRoot: http://127.0.0.1:5700/
+    ListenIP: 172.17.0.1
+    ListenPort: 8080
+    Token: very
+    Secret: long
+  Telegram:
+    BotToken: asdasdsadsadsadsad
+# OneWay:
+# Forward from "FromChat" to "ToChat"
+# BiDirection:
+# Forward from "FromChat" to "ToChat" and vise versa
+# ReplyOnly:
+# Forward from "FromChat" to "ToChat", ignoring message without "reply_to"

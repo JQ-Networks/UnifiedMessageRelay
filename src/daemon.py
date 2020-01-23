@@ -7,8 +7,7 @@ from Core.CTBManager import CTBManager
 
 class MainProcess(Daemon):
     def run(self, debug_mode):
-        manager = CTBManager()
-        manager.run()
+        CTBManager.run()
 
 
 def main():

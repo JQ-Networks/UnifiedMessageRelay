@@ -17,7 +17,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+
 lib64/
 parts/
 sdist/
@@ -112,3 +112,4 @@ src/nouse.py
 # ignore config file
 Obsoleted/bot_constant.py
 bot_constant.json
+src/Future
