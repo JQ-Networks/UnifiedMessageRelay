@@ -1,1 +1,1 @@
-__all__ = ['aiocqhttp', 'DaemonClass']
+__all__ = ['DaemonClass']

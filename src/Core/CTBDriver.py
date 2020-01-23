@@ -10,6 +10,7 @@ threads: List[Thread] = list()
 # endregion
 
 # launch dispatcher
+# dispatcher should be launched after declaration of api_lookup
 from .CTBDispatcher import dispatch
 
 

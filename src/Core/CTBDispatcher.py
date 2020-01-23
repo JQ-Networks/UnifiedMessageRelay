@@ -19,7 +19,6 @@ queue_graph: DefaultDict[str, DefaultDict[int, Union[None, Queue]]] = defaultdic
     lambda: defaultdict(lambda: None))  # worker queue graph
 thread_graph: DefaultDict[str, DefaultDict[int, Union[None, Thread]]] = defaultdict(
     lambda: defaultdict(lambda: None))  # worker thread graph
-graph_ready = False
 
 
 def generate_worker(to_platform: str, to_chat: int):
@@ -102,12 +101,9 @@ for i in config['ForwardList']['Topology']:
             t.start()
     else:
         logger.warning(f'Unrecognized ForwardType in config: "{i["ForwardType"]}", ignoring')
-graph_ready = True
 
 
 async def dispatch(message: UnifiedMessage):
-    if not graph_ready:  # wait for initialization
-        return
 
     if message.forward_attrs.from_chat not in action_graph[message.forward_attrs.from_platform]:
         logger.debug(
