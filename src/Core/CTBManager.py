@@ -6,6 +6,7 @@ from . import CTBLogging
 from . import CTBConfig
 from . import CTBDriver
 
+from time import sleep
 logger = CTBLogging.getLogger('Manager')
 
 
@@ -28,7 +29,7 @@ class CTBManager:
     def run():
         # init drivers for different platform
         CTBManager.check_drivers()
-
+        sleep(2)
         # init plugin hooks
         CTBManager.load_plugins()
         for i in CTBDriver.threads:

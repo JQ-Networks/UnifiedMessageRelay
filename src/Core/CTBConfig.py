@@ -16,6 +16,7 @@ try:
     attributes = [
         'ForwardList',  # Directed graph contains forward relationships
         'Driver',       # configs for each driver
+        'DataRoot',     # file root for images
     ]
     check_attribute(config, attributes, logger)
 

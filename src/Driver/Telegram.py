@@ -2,15 +2,18 @@ import threading
 import logging
 import asyncio
 import janus
+from typing import Dict
 from aiogram import Bot, Dispatcher, executor, types
-from Core.CTBType import UnifiedMessage
+from aiogram.types import ContentType
+from Core.CTBType import UnifiedMessage, MessageEntity
 from Core import CTBDriver
 from Core import CTBLogging
 from Core import CTBConfig
-from Util.Helper import check_attribute, janus_queue_put_sync
+from Util.Helper import check_attribute
+from Core.CTBFileDL import get_image
 import datetime
-launch_time = datetime.datetime.now()
 
+launch_time = datetime.datetime.now()
 
 NAME = 'Telegram'
 
@@ -25,25 +28,141 @@ config = CTBConfig.config['Driver']['Telegram']
 check_attribute(config, attributes, logger)
 bot: Bot
 loop: asyncio.AbstractEventLoop
+image_file_id: Dict[str, str] = dict()  # mapping from filename to existing file id
 
 
-async def send(to_chat: int, messsage: UnifiedMessage):
+async def send(to_chat: int, message: UnifiedMessage):
     """
     decorator for send new message
     :return:
     """
-    asyncio.run_coroutine_threadsafe(_send(to_chat, messsage), loop)
+    asyncio.run_coroutine_threadsafe(_send(to_chat, message), loop)
 
 
-async def _send(to_chat: int, messsage: UnifiedMessage):
+async def _send(to_chat: int, message: UnifiedMessage):
     """
     decorator for send new message
     :return:
     """
     await bot.send_chat_action(to_chat, types.chat.ChatActions.TYPING)
-    await bot.send_message(to_chat, messsage.forward_attrs.from_user + ':' + messsage.message)
+    text = message.forward_attrs.from_user + ': '
+
+    for m in message.message:
+        text += htmlify(m)
+
+    if message.image:
+        if message.image in image_file_id:
+            logger.debug(f'file id for {message.image} found, sending file id')
+            await bot.send_photo(to_chat, image_file_id[message.image], caption=text,
+                                 parse_mode=types.message.ParseMode.HTML)
+        else:
+            logger.debug(f'file id for {message.image} not found, sending image file')
+            tg_message = await bot.send_photo(to_chat, types.input_file.InputFile(message.image), caption=text,
+                                              parse_mode=types.message.ParseMode.HTML)
+            image_file_id[message.image] = tg_message.photo[-1].file_id
+    else:
+        await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML)
+
 
 CTBDriver.api_lookup['Telegram']['send'] = send
+
+
+def encode_html(encode_string: str) -> str:
+    """
+    used for telegram parse_mode=HTML
+    :param encode_string: string to encode
+    :return: encoded string, is encoded
+    """
+    return encode_string.strip().replace('<', '&lt;').replace('>', '&gt;')
+
+
+def htmlify(segment: MessageEntity):
+    entity_type = segment.entity_type
+    encoded_text = encode_html(segment.text)
+    if entity_type == 'bold':
+        return '<b>' + encoded_text + '</b>'
+    elif entity_type == 'italic':
+        return '<i>' + encoded_text + '</i>'
+    elif entity_type == 'underline':
+        return '<u>' + encoded_text + '</u>'
+    elif entity_type == 'strikethrough':
+        return '<s>' + encoded_text + '</s>'
+    elif entity_type == 'monospace':
+        if '\n' in encoded_text:
+            return '<pre>' + encoded_text + '</pre>'
+        else:
+            return '<code>' + encoded_text + '</code>'
+    elif entity_type == 'link':
+        return '<a href=' + segment.link + '>' + encoded_text + '</i>'
+    else:
+        return encoded_text
+
+
+def parse_entity(message: types.Message):
+    message_list = list()
+    if message.text:
+        text = message.text
+    elif message.caption:
+        text = message.caption
+    else:
+        return message_list  # return an empty list
+    if message.entities:
+        entities = message.entities
+    elif message.caption_entities:
+        entities = message.caption_entities
+    else:
+        message_list.append(MessageEntity(text=text))
+        return message_list
+
+    offset = 0
+    length = len(text)
+    for index, entity in enumerate(entities):
+        if entity.offset > offset:
+            message_list.append(MessageEntity(text=text[offset: entity.offset]))
+        start = entity.offset
+        offset = entity.offset + entity.length
+        # entity overlapping not supported
+        if entity.type == 'text_link':
+            message_list.append(MessageEntity(text=text[start:offset], entity_type='url', link=entity.url))
+        else:
+            entity_map = {
+                'mention':       'bold',
+                'hashtag':       '',
+                'cashtag':       '',
+                'bot_command':   '',
+                'url':           'url',
+                'email':         '',
+                'phone_number':  '',
+                'bold':          'bold',
+                'italic':        'italic',
+                'underline':     'underline',
+                'strikethrough': 'strikethrough',
+                'code':          'monospace',
+                'pre':           'monospace',
+                'text_mention':  ''
+            }
+            message_list.append(MessageEntity(text=text[start:offset], entity_type=entity_map[entity.type]))
+    if offset < length:
+        message_list.append(MessageEntity(text=text[offset: length]))
+    return message_list
+
+
+async def tg_get_image(file_id, changes=True, format='jpg'):
+    """
+
+    :param file_id:
+    :param changes: if the file id for the same file changes across time
+    :param format:
+    :return:
+    """
+    file = await bot.get_file(file_id)
+    url = f'https://api.telegram.org/file/bot{config["BotToken"]}/{file.file_path}'
+    if changes:
+        perm_id = file_id[-52:]
+    else:
+        perm_id = file_id
+    file_path = await get_image(url, file_id=perm_id, format=format)
+    return file_path
 
 
 def run():
@@ -53,7 +172,8 @@ def run():
     bot = Bot(token=config['BotToken'])
     dp = Dispatcher(bot)
 
-    @dp.message_handler()
+    @dp.message_handler(content_types=ContentType.ANY)
+    @dp.edited_message_handler(content_types=ContentType.ANY)
     async def handle_msg(message: types.Message):
         from_user = message.from_user
         reply_to = ''
@@ -65,10 +185,30 @@ def run():
             forward_from = message.from_user.full_name
         elif message.forward_from_chat and message.forward_from_chat.type == types.chat.ChatType.CHANNEL:
             forward_from = message.forward_from_chat.title
-        # message = UnifiedMessage('Telegram', message.chat.id, message.from_user.full_name, '', message.text, '')
-        unified_message = UnifiedMessage(message=message.text, from_platform='Telegram', from_chat=message.chat.id,
-                                         from_user=from_user.full_name, forward_from=forward_from, reply_to=reply_to)
-        await CTBDriver.receive(unified_message)
+
+        unified_message = UnifiedMessage(from_platform='Telegram',
+                                         from_chat=message.chat.id,
+                                         from_user=from_user.full_name,
+                                         forward_from=forward_from,
+                                         reply_to=reply_to)
+        if message.content_type == ContentType.TEXT:
+            unified_message.message = parse_entity(message)
+            await CTBDriver.receive(unified_message)
+        elif message.content_type == ContentType.PHOTO:
+            file_path = await tg_get_image(message.photo[-1].file_id)
+            unified_message.image = file_path
+            unified_message.message = parse_entity(message)
+            await CTBDriver.receive(unified_message)
+        elif message.content_type == ContentType.STICKER:
+            file_path = await tg_get_image(message.sticker.file_id, changes=False, format='png')
+            unified_message.image = file_path
+            await CTBDriver.receive(unified_message)
+        elif message.content_type == ContentType.ANIMATION:
+            unified_message.message = [MessageEntity(text='[Animation, currently not supported]')]
+            await CTBDriver.receive(unified_message)
+        else:
+            unified_message.message = [MessageEntity(text='[Unsupported message]')]
+            await CTBDriver.receive(unified_message)
 
     executor.start_polling(dp, skip_updates=True, loop=loop)
 

@@ -1,3 +1,4 @@
+aiohttp
 aiogram
 aiocqhttp
 janus

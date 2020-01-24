@@ -1,22 +1,29 @@
 ForwardList:
   Accounts:
-    QQ: 643503161
-    Telegram: 12345678
+    QQ; 12213312
+    Telegram: 12321312
   Topology:
     - From: QQ
-      FromChat: 123123123
+      FromChat: 1123131231
       To: Telegram
       ToChat: 31231212344
       ForwardType: ReplyOnly
 Driver:
   QQ:
+    Account: 643503161
     APIRoot: http://127.0.0.1:5700/
     ListenIP: 172.17.0.1
     ListenPort: 8080
     Token: very
     Secret: long
+    IsPro: yes
+    ChatList:
+      1123131231: group       # lower case
+      1234423423: private
+      213124432432: discuss
   Telegram:
     BotToken: asdasdsadsadsadsad
+DataRoot: /root/coolq/data/image
 # OneWay:
 # Forward from "FromChat" to "ToChat"
 # BiDirection:
