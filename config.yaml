@@ -1,6 +1,6 @@
 ForwardList:
   Accounts:
-    QQ; 12213312
+    QQ: 12213312
     Telegram: 12321312
   Topology:
     - From: QQ
@@ -8,6 +8,12 @@ ForwardList:
       To: Telegram
       ToChat: 31231212344
       ForwardType: ReplyOnly
+      # OneWay:
+      # Forward from "FromChat" to "ToChat"
+      # BiDirection:
+      # Forward from "FromChat" to "ToChat" and vise versa
+      # ReplyOnly:
+      # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
 Driver:
   QQ:
     Account: 643503161
@@ -24,9 +30,5 @@ Driver:
   Telegram:
     BotToken: asdasdsadsadsadsad
 DataRoot: /root/coolq/data/image
-# OneWay:
-# Forward from "FromChat" to "ToChat"
-# BiDirection:
-# Forward from "FromChat" to "ToChat" and vise versa
-# ReplyOnly:
-# Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
+CommandStart: "!!"
+

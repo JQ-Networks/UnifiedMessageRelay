@@ -1,12 +1,33 @@
-from typing import Callable, Dict, List, DefaultDict
+from typing import Callable, Dict, List, DefaultDict, Union
 from threading import Thread
 import janus
 from .CTBType import UnifiedMessage
+from . import CTBLogging
 from collections import defaultdict
 
+logger = CTBLogging.getLogger('Driver')
+
 # region Driver API lookup table
-api_lookup: DefaultDict[str, Dict[str, callable]] = defaultdict(dict)
+api_lookup_table: DefaultDict[str, Dict[str, Callable]] = defaultdict(dict)
 threads: List[Thread] = list()
+
+
+# endregion
+
+# region Driver API for other modules
+def api_lookup(driver: str, api: str) -> Union[None, Callable]:
+    if driver not in api_lookup_table:
+        logger.error(f'driver "{driver}" is not registered')
+        return None
+    if api not in api_lookup_table[driver]:
+        logger.error(f'api "{api}" in {driver} is not registered')
+        return None
+    return api_lookup_table[driver][api]
+
+
+def api_register(driver: str, api: str, func: Callable):
+    api_lookup_table[driver][api] = func
+
 # endregion
 
 # launch dispatcher
@@ -14,7 +35,7 @@ threads: List[Thread] = list()
 from .CTBDispatcher import dispatch
 
 
-# region API declaration
+# region Driver API declaration for SubDriver call
 async def receive(messsage: UnifiedMessage):
     """
     handler for received message
@@ -24,22 +45,7 @@ async def receive(messsage: UnifiedMessage):
     await dispatch(messsage)
 
 
-async def send(to_chat: int, messsage: UnifiedMessage):
-    """
-    function prototype for send new message
-    this function should be implemented in driver, sync or async
-    :return:
-    """
-    pass
-
-
-async def control():
-    """
-    function prototype for administrative control
-    :return:
-    """
-    pass
-
 # endregion
+
 
 import Driver

@@ -1,7 +1,5 @@
 import threading
-import logging
 import asyncio
-import janus
 from typing import Dict
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType
@@ -45,7 +43,10 @@ async def _send(to_chat: int, message: UnifiedMessage):
     :return:
     """
     await bot.send_chat_action(to_chat, types.chat.ChatActions.TYPING)
-    text = message.forward_attrs.from_user + ': '
+    if message.forward_attrs.from_user:
+        text = message.forward_attrs.from_user + ': '
+    else:
+        text = ''
 
     for m in message.message:
         text += htmlify(m)
@@ -64,7 +65,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
         await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML)
 
 
-CTBDriver.api_lookup['Telegram']['send'] = send
+CTBDriver.api_register('Telegram', 'send', send)
 
 
 def encode_html(encode_string: str) -> str:

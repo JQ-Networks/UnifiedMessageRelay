@@ -87,7 +87,8 @@ async def _send(to_chat: int, message: UnifiedMessage):
     if message.image:
         image_name = os.path.basename(message.image)
         context['message'].append(MessageSegment.image(image_name))
-    context['message'].append(MessageSegment.text(message.forward_attrs.from_user + ': '))
+    if message.forward_attrs.from_user:
+        context['message'].append(MessageSegment.text(message.forward_attrs.from_user + ': '))
     for m in message.message:
         context['message'].append(MessageSegment.text(m.text + ' '))
         if m.link:
@@ -97,7 +98,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     await bot.send(context, context['message'])
 
 
-CTBDriver.api_lookup['QQ']['send'] = send
+CTBDriver.api_register('QQ', 'send', send)
 
 
 ##### Utilities #####
@@ -400,6 +401,7 @@ async def parse_message(chat_id, chat_type, username, message):
 
     message_list.append(unified_message)
     return message_list
+
 
 ##### Janus queue for async loop #####
 async def async_coro(async_q):

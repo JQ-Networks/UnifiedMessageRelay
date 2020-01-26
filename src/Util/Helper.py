@@ -1,4 +1,4 @@
-from typing import List, Union, Dict
+from typing import List, Union, Dict, Callable
 import logging
 from janus import Queue
 
@@ -19,21 +19,11 @@ def check_attribute(config: Dict, attributes: List[str], logger: logging.Logger)
     return None
 
 
-def check_api(api_lookup, driver_platform, api_name, logger: logging.Logger):
-    if driver_platform not in api_lookup:
-        logger.error(f'driver for {driver_platform} not exists')
-        return False
-    if api_name not in api_lookup[driver_platform]:
-        logger.error(f'api "{api_name}" for {driver_platform} not exists')
-        return False
-    return True
-
-
 # async put new task to janus queue
-async def janus_queue_put_async(_janus_queue: Queue, func: callable, *args, **kwargs):
+async def janus_queue_put_async(_janus_queue: Queue, func: Callable, *args, **kwargs):
     await _janus_queue.async_q.put((func, args, kwargs))
 
 
 # sync put new task to janus queue
-def janus_queue_put_sync(_janus_queue: Queue, func: callable, *args, **kwargs):
+def janus_queue_put_sync(_janus_queue: Queue, func: Callable, *args, **kwargs):
     _janus_queue.sync_q.put((func, args, kwargs))

@@ -5,6 +5,7 @@ Controller of the whole program
 from . import CTBLogging
 from . import CTBConfig
 from . import CTBDriver
+from . import CTBCommand
 
 from time import sleep
 logger = CTBLogging.getLogger('Manager')
@@ -15,7 +16,7 @@ class CTBManager:
     def check_drivers():
         required_drivers = set(CTBConfig.config['ForwardList']['Accounts'])
         for driver in required_drivers:
-            if driver not in CTBDriver.api_lookup:
+            if driver not in CTBDriver.api_lookup_table:
                 logger.error(f'Error: driver for {driver} is not registered')
                 exit(-1)
 

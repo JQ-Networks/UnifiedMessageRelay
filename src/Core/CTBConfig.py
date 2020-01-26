@@ -14,9 +14,10 @@ try:
 
     # test attributes
     attributes = [
-        'ForwardList',  # Directed graph contains forward relationships
-        'Driver',       # configs for each driver
-        'DataRoot',     # file root for images
+        'ForwardList',   # directed graph contains forward relationships
+        'Driver',        # configs for each driver
+        'DataRoot',      # file root for images
+        'CommandStart',  # command hint format, e.g. "/" for /start, /stop type of commands
     ]
     check_attribute(config, attributes, logger)
 

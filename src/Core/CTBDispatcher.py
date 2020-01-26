@@ -1,12 +1,13 @@
-from typing import Union, List, DefaultDict
+from typing import Union, List, DefaultDict, Tuple
 import asyncio
 from collections import defaultdict
 from janus import Queue
-from .CTBType import UnifiedMessage, Action, ActionType
+from .CTBType import UnifiedMessage, Action, ActionType, MessageHook
 from . import CTBLogging
 from .CTBDriver import api_lookup
 from .CTBConfig import config
-from Util.Helper import janus_queue_put_async, check_attribute, check_api
+from .CTBMessageHook import message_hook_src, message_hook_full
+from Util.Helper import janus_queue_put_async, check_attribute
 from threading import Thread
 
 logger = CTBLogging.getLogger('Dispatcher')
@@ -20,6 +21,8 @@ queue_graph: DefaultDict[str, DefaultDict[int, Union[None, Queue]]] = defaultdic
 thread_graph: DefaultDict[str, DefaultDict[int, Union[None, Thread]]] = defaultdict(
     lambda: defaultdict(lambda: None))  # worker thread graph
 
+
+##### initialize workers #####
 
 def generate_worker(to_platform: str, to_chat: int):
     def worker():
@@ -95,28 +98,48 @@ for i in config['ForwardList']['Topology']:
         action_graph[i['From']][i['FromChat']].append(
             Action(i['To'], i['ToChat'], action_type))
         # init worker
-        if i['From'] not in thread_graph and i['FromChat'] not in thread_graph[i['To']]:
-            t = generate_worker(i['From'], i['FromChat'])
-            thread_graph[i['From']][i['FromChat']] = t
+        if i['To'] not in thread_graph and i['ToChat'] not in thread_graph[i['To']]:
+            t = generate_worker(i['To'], i['ToChat'])
+            thread_graph[i['To']][i['ToChat']] = t
             t.start()
     else:
         logger.warning(f'Unrecognized ForwardType in config: "{i["ForwardType"]}", ignoring')
 
 
-async def dispatch(message: UnifiedMessage):
+##### core dispatcher #####
 
+async def dispatch(message: UnifiedMessage):
     if message.forward_attrs.from_chat not in action_graph[message.forward_attrs.from_platform]:
         logger.debug(
             f'ignoring unrelated message from {message.forward_attrs.from_platform}: {message.forward_attrs.from_chat}')
 
+    # hook for matching source only
+    for hook in message_hook_src:
+        if (not hook.src_driver or hook.src_driver == message.forward_attrs.from_platform) and \
+                (not hook.src_chat or hook.src_chat == message.forward_attrs.from_chat):
+            if await hook.hook_function(message):
+                return
+
     for action in action_graph[message.forward_attrs.from_platform][message.forward_attrs.from_chat]:
-        # TODO plugin logic
+
+        # hook for matching all four attributes
+        for hook in message_hook_full:
+            if (not hook.src_driver or hook.src_driver == message.forward_attrs.from_platform) and \
+                    (not hook.src_chat or hook.src_chat == message.forward_attrs.from_chat) and \
+                    (not hook.dst_driver or hook.dst_driver == action.to_platform) and \
+                    (not hook.dst_chat or hook.dst_chat == action.to_chat):
+                if hook.hook_function(action.to_platform, action.to_chat, message):
+                    continue
+
+        # basic message filtering
         if action.action_type == ActionType.Reply and not message.forward_attrs.reply_to:
             continue
-        # TODO should control action be dispatched here?
-        if not check_api(api_lookup, action.to_platform, 'send', logger):
+
+        # check api registration
+        api_send = api_lookup(action.to_platform, 'send')
+        if not api_send:
             continue
 
         await janus_queue_put_async(queue_graph[action.to_platform][action.to_chat],
-                                    api_lookup[action.to_platform]['send'], action.to_chat, message)
+                                    api_send, action.to_chat, message)
         logger.debug(f'added new task to ({action.to_platform}, {action.to_chat})')

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Callable
 from enum import Enum
 
 
@@ -84,3 +84,22 @@ class Action:
     to_platform: str
     to_chat: int
     action_type: ActionType  # All, Reply
+
+
+@dataclass
+class MessageHook:
+    src_driver: str
+    src_chat: int
+    dst_driver: str
+    dst_chat: int
+    hook_function: Callable
+
+
+@dataclass
+class Command:
+    platform: str
+    command_function: Callable
+
+    def __init__(self, platform='', command_function=None):
+        self.platform = platform
+        self.command_function = command_function
