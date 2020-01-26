@@ -5,7 +5,7 @@ from Core.CTBCommand import register_command
 from Core.CTBDriver import api_lookup
 
 
-@register_command(cmd='id', platform='Telegram')
+@register_command(cmd='id', platform='Telegram', description='get Telegram group id')
 async def command(forward_attrs: ForwardAttributes, args: List):
     """
     Prototype of command

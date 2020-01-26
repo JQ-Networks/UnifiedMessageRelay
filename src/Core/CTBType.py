@@ -98,8 +98,10 @@ class MessageHook:
 @dataclass
 class Command:
     platform: str
+    description: str
     command_function: Callable
 
-    def __init__(self, platform='', command_function=None):
+    def __init__(self, platform='', description='', command_function=None):
         self.platform = platform
+        self.description = description
         self.command_function = command_function

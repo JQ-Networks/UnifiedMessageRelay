@@ -1,6 +1,10 @@
-from Core import CTBLogging
 import asyncio
+from typing import List
+from Core import CTBLogging
 from Driver import QQ
+from Core.CTBDriver import api_lookup
+from Core.CTBType import ForwardAttributes, UnifiedMessage, MessageEntity
+from Core.CTBCommand import register_command
 
 logger = CTBLogging.getLogger('CTBPlugins.QQ-init')
 
@@ -22,3 +26,21 @@ async def update_name_list():
 
 
 asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
+
+
+@register_command(cmd='name', description='update QQ nicknames')
+async def reload_name_list(forward_attrs: ForwardAttributes, args: List):
+    if args:  # args should be empty
+        return
+
+    asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
+
+    send = api_lookup(forward_attrs.from_platform, 'send')
+    if not send:
+        return
+    message = UnifiedMessage()
+    message.message.append(MessageEntity(text='QQ nicknames updated'))
+    if asyncio.iscoroutinefunction(send):
+        await send(forward_attrs.from_chat, message)
+    else:
+        send(forward_attrs.from_chat, message)

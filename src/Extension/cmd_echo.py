@@ -5,7 +5,7 @@ from Core.CTBCommand import register_command
 from Core.CTBDriver import api_lookup
 
 
-@register_command('echo')
+@register_command(cmd='echo', description='reply every word you sent')
 async def command(forward_attrs: ForwardAttributes, args: List):
     """
     Prototype of command
@@ -13,7 +13,7 @@ async def command(forward_attrs: ForwardAttributes, args: List):
     :param args:
     :return:
     """
-    if not args:  # test empty
+    if not args:  # args should not be empty
         return
 
     send = api_lookup(forward_attrs.from_platform, 'send')

@@ -74,7 +74,7 @@ def encode_html(encode_string: str) -> str:
     :param encode_string: string to encode
     :return: encoded string, is encoded
     """
-    return encode_string.strip().replace('<', '&lt;').replace('>', '&gt;')
+    return encode_string.replace('<', '&lt;').replace('>', '&gt;')
 
 
 def htmlify(segment: MessageEntity):
