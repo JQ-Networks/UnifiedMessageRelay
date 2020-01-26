@@ -1,7 +1,7 @@
 # Message Hook
 
 ```python
-from Core.CTBType import UnifiedMessage
+from Core.UMRType import UnifiedMessage
 async def message_hook_func(dst_driver: str, dst_chat: int,
                             message: UnifiedMessage) -> bool:
     """

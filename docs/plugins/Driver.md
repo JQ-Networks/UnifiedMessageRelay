@@ -1,5 +1,5 @@
 ```python
-from Core.CTBType import UnifiedMessage
+from Core.UMRType import UnifiedMessage
 async def send(to_chat: int, messsage: UnifiedMessage):
     """
     function prototype for send new message

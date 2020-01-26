@@ -3,9 +3,9 @@
 ```python
 from typing import List
 from asyncio import iscoroutinefunction
-from Core.CTBType import ForwardAttributes, UnifiedMessage, MessageEntity
-from Core.CTBCommand import register_command
-from Core.CTBDriver import api_lookup
+from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
+from Core.UMRCommand import register_command
+from Core.UMRDriver import api_lookup
 @register_command('echo')
 async def command(forward_attrs: ForwardAttributes, args: List):
     """

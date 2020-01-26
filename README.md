@@ -1,10 +1,11 @@
-# coolq-telegram-bot
+# UnifiedMessageRelay
 
-![shields](https://img.shields.io/badge/python-3.6%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+![shields](https://img.shields.io/badge/python-3.7%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 
-Alternative Project: [coolq-telegram-bot-x](https://github.com/JogleLew/coolq-telegram-bot-x)
-
-coolq-telegram-bot-x is written in C++ and is still under construction, but it needs no Python environment at all. The difference is that **THIS REPO** is on the fast ring, and it intends for feature developments, and **coolq-telegram-bot-x** intends for higher performance, but until now it has fewer features.
+UnifiedMessageRelay is a framework for the purpose of bringing messages from different chat platform together. With UnifiedMessageRelay,
+user no longer need to view messages on different platform, or different groups. UnifiedMessageRelay brings powerful
+ message forwarding functionality and flexible plugin API to meet your custom need. A driver API specification is also
+ provided, so one can compose their own backend driver, and the framework will load and utilize the driver automatically.
 
 ## Demo
 
@@ -18,30 +19,11 @@ QQ:
 
 》》[中文 Readme](docs/README-zh_CN.md)《《
 
-QQ & Telegram Relay Bot **v3.4**
-€
-QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)，Telegram API based on [python_telegram_bot](https://python-telegram-bot.org)
 
-## Recent Update
+## Supported platforms
 
-## v3.4.1
-
-- Fix Stickers forward issue
-- Dockerfile: add libwebp
-
-## v3.4
-
-- *** License changed to MIT ***
-- Dockerfile：use Alpine image
-- Dockerfile：fixed ffmpeg installation
-- Cache Management(partial)：use MD5 to identify file，send fileid instead of whole file
-- Code classification, optimization for recall and “//”
-- keyword filter changed to not forwarding single message, instead of enabling drive mode
-- drive mode now modifies title of groups
-
-[View More](ChangeLog.md)*(Chinese)*
-
-----------------------------
+- QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
+- Telegram API based on [aiogram](https://aiogram.dev)
 
 ## Features
 
@@ -160,12 +142,12 @@ If you want to use JSON, please copy or soft-link `bot_constant-json.py` to `bot
 ln -s bot_constant-json.py bot_constant.py
 ```
 
-if you want to load external settings file, use `CTB_JSON_SETTINGS_PATH`
+if you want to load external settings file, use `UMR_JSON_SETTINGS_PATH`
 
 Example:
 
 ```shell
-export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
+export UMR_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
 
 `tools/bot_constant-py2json.py` provides  convertion from `bot_constant.py` to `bot_constant.json`

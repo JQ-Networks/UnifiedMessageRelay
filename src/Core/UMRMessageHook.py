@@ -1,8 +1,8 @@
 from typing import List, Callable
-from .CTBType import MessageHook
-from . import CTBLogging
+from .UMRType import MessageHook
+from . import UMRLogging
 
-logger = CTBLogging.getLogger('MessageHook')
+logger = UMRLogging.getLogger('MessageHook')
 
 message_hook_full: List[MessageHook] = list()  # src_driver, src_group, dst_driver, dst_group, hook
 message_hook_src: List[MessageHook] = list()

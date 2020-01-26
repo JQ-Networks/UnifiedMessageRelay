@@ -1,11 +1,11 @@
 from typing import Callable, Dict, List, DefaultDict, Union
 from threading import Thread
 import janus
-from .CTBType import UnifiedMessage
-from . import CTBLogging
+from .UMRType import UnifiedMessage
+from . import UMRLogging
 from collections import defaultdict
 
-logger = CTBLogging.getLogger('Driver')
+logger = UMRLogging.getLogger('Driver')
 
 # region Driver API lookup table
 api_lookup_table: DefaultDict[str, Dict[str, Callable]] = defaultdict(dict)
@@ -32,7 +32,7 @@ def api_register(driver: str, api: str, func: Callable):
 
 # launch dispatcher
 # dispatcher should be launched after declaration of api_lookup
-from .CTBDispatcher import dispatch
+from .UMRDispatcher import dispatch
 
 
 # region Driver API declaration for SubDriver call

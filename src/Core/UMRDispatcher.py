@@ -2,15 +2,15 @@ from typing import Union, List, DefaultDict, Tuple
 import asyncio
 from collections import defaultdict
 from janus import Queue
-from .CTBType import UnifiedMessage, Action, ActionType, MessageHook
-from . import CTBLogging
-from .CTBDriver import api_lookup
-from .CTBConfig import config
-from .CTBMessageHook import message_hook_src, message_hook_full
+from .UMRType import UnifiedMessage, Action, ActionType, MessageHook
+from . import UMRLogging
+from .UMRDriver import api_lookup
+from .UMRConfig import config
+from .UMRMessageHook import message_hook_src, message_hook_full
 from Util.Helper import janus_queue_put_async, check_attribute
 from threading import Thread
 
-logger = CTBLogging.getLogger('Dispatcher')
+logger = UMRLogging.getLogger('Dispatcher')
 
 # forward graph
 

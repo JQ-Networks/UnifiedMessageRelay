@@ -149,11 +149,11 @@ ln -s bot_constant-json.py bot_constant.py
 
 #### 加载外部配置文件（JSON特有）
 
-如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `CTB_JSON_SETTINGS_PATH`
+如要加载外部配置文件，请将外部配置文件的路径添加至环境变量 `UMR_JSON_SETTINGS_PATH`
 例：
 
 ```shell
-export CTB_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
+export UMR_JSON_SETTINGS_PATH="/home/user/bot_constant.json"
 ```
 
 如果配置文件发生了改变，重启Bot即可生效。

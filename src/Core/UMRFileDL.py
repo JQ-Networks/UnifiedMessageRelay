@@ -1,17 +1,17 @@
 from typing import Dict
 import aiohttp
-from . import CTBConfig
+from . import UMRConfig
 from PIL import Image
 from io import BytesIO
-from . import CTBLogging
+from . import UMRLogging
 import os
 from uuid import uuid4
 
-download_dir = CTBConfig.config['DataRoot']
+download_dir = UMRConfig.config['DataRoot']
 
 cache: Dict[str, str] = dict()  # Dict[url, file_name]
 
-logger = CTBLogging.getLogger('FileDL')
+logger = UMRLogging.getLogger('FileDL')
 
 
 async def get_image(url, file_id='', format='jpg'):

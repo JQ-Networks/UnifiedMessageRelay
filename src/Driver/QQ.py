@@ -3,23 +3,23 @@ import threading
 import asyncio
 import janus
 from aiocqhttp import CQHttp, MessageSegment
-from Core.CTBType import UnifiedMessage, MessageEntity
-from Core import CTBDriver
-from Core import CTBLogging
+from Core.UMRType import UnifiedMessage, MessageEntity
+from Core import UMRDriver
+from Core import UMRLogging
 from Util.Helper import check_attribute
-from Core import CTBConfig
+from Core import UMRConfig
 import re
-from Core.CTBFileDL import get_image
+from Core.UMRFileDL import get_image
 import os
 
 NAME = 'QQ'
 
-logger = CTBLogging.getLogger('CTBDriver.QQ')
+logger = UMRLogging.getLogger('UMRDriver.QQ')
 
 loop: asyncio.AbstractEventLoop
 queue: janus.Queue
 
-config: Dict = CTBConfig.config['Driver']['QQ']
+config: Dict = UMRConfig.config['Driver']['QQ']
 
 attributes = [
     'Account',
@@ -59,7 +59,7 @@ async def handle_msg(context):
 
     unified_message_list = await dissemble_message(context)
     for message in unified_message_list:
-        await CTBDriver.receive(message)
+        await UMRDriver.receive(message)
     return {}  # 返回给 HTTP API 插件，走快速回复途径
 
 
@@ -98,7 +98,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     await bot.send(context, context['message'])
 
 
-CTBDriver.api_register('QQ', 'send', send)
+UMRDriver.api_register('QQ', 'send', send)
 
 
 ##### Utilities #####
@@ -433,5 +433,5 @@ def run():
 
 
 t = threading.Thread(target=run)
-CTBDriver.threads.append(t)
+UMRDriver.threads.append(t)
 t.start()

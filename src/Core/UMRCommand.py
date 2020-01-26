@@ -1,15 +1,15 @@
 from typing import Dict, List, Union
 from asyncio import iscoroutinefunction
-from . import CTBConfig
-from . import CTBLogging
-from .CTBType import UnifiedMessage, Command, ForwardAttributes, MessageEntity
-from .CTBMessageHook import register_hook
-from .CTBDriver import api_lookup
+from . import UMRConfig
+from . import UMRLogging
+from .UMRType import UnifiedMessage, Command, ForwardAttributes, MessageEntity
+from .UMRMessageHook import register_hook
+from .UMRDriver import api_lookup
 
-logger = CTBLogging.getLogger('Command')
+logger = UMRLogging.getLogger('Command')
 
 command_map: Dict[str, Command] = dict()
-command_start: str = CTBConfig.config['CommandStart']
+command_start: str = UMRConfig.config['CommandStart']
 
 
 @register_hook()

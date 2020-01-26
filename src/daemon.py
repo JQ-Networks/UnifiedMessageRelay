@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 import argparse
 from Lib.DaemonClass import Daemon
-from Core.CTBManager import CTBManager
+from Core.UMRManager import UMRManager
 
 
 class MainProcess(Daemon):
     def run(self, debug_mode):
-        CTBManager.run()
+        UMRManager.run()
 
 
 def main():

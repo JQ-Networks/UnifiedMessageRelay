@@ -1,12 +1,12 @@
 import asyncio
 from typing import List
-from Core import CTBLogging
+from Core import UMRLogging
 from Driver import QQ
-from Core.CTBDriver import api_lookup
-from Core.CTBType import ForwardAttributes, UnifiedMessage, MessageEntity
-from Core.CTBCommand import register_command
+from Core.UMRDriver import api_lookup
+from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
+from Core.UMRCommand import register_command
 
-logger = CTBLogging.getLogger('CTBPlugins.QQ-init')
+logger = UMRLogging.getLogger('UMRPlugins.QQ-init')
 
 
 async def update_name_list():

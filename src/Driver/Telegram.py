@@ -3,12 +3,12 @@ import asyncio
 from typing import Dict
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType
-from Core.CTBType import UnifiedMessage, MessageEntity
-from Core import CTBDriver
-from Core import CTBLogging
-from Core import CTBConfig
+from Core.UMRType import UnifiedMessage, MessageEntity
+from Core import UMRDriver
+from Core import UMRLogging
+from Core import UMRConfig
 from Util.Helper import check_attribute
-from Core.CTBFileDL import get_image
+from Core.UMRFileDL import get_image
 import datetime
 
 launch_time = datetime.datetime.now()
@@ -17,12 +17,12 @@ NAME = 'Telegram'
 
 # Initialize bot and dispatcher
 
-logger = CTBLogging.getLogger('CTBDriver.Telegram')
+logger = UMRLogging.getLogger('UMRDriver.Telegram')
 
 attributes = [
     'BotToken'
 ]
-config = CTBConfig.config['Driver']['Telegram']
+config = UMRConfig.config['Driver']['Telegram']
 check_attribute(config, attributes, logger)
 bot: Bot
 loop: asyncio.AbstractEventLoop
@@ -65,7 +65,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
         await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML)
 
 
-CTBDriver.api_register('Telegram', 'send', send)
+UMRDriver.api_register('Telegram', 'send', send)
 
 
 def encode_html(encode_string: str) -> str:
@@ -194,26 +194,26 @@ def run():
                                          reply_to=reply_to)
         if message.content_type == ContentType.TEXT:
             unified_message.message = parse_entity(message)
-            await CTBDriver.receive(unified_message)
+            await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.PHOTO:
             file_path = await tg_get_image(message.photo[-1].file_id)
             unified_message.image = file_path
             unified_message.message = parse_entity(message)
-            await CTBDriver.receive(unified_message)
+            await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.STICKER:
             file_path = await tg_get_image(message.sticker.file_id, changes=False, format='png')
             unified_message.image = file_path
-            await CTBDriver.receive(unified_message)
+            await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.ANIMATION:
             unified_message.message = [MessageEntity(text='[Animation, currently not supported]')]
-            await CTBDriver.receive(unified_message)
+            await UMRDriver.receive(unified_message)
         else:
             unified_message.message = [MessageEntity(text='[Unsupported message]')]
-            await CTBDriver.receive(unified_message)
+            await UMRDriver.receive(unified_message)
 
     executor.start_polling(dp, skip_updates=True, loop=loop)
 
 
 t = threading.Thread(target=run)
-CTBDriver.threads.append(t)
+UMRDriver.threads.append(t)
 t.start()

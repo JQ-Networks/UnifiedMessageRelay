@@ -39,7 +39,7 @@ vim .env
 `COOLQ_ACCOUNT`   | QQ机器人的QQ号|  `000000000`
 `CQ_DATA_PATH`  | 宿主机上用于存放酷Q数据文件的目录，如不存在则容器无法启动。<br />注意：**运行于容器内部的Bot只能通过`/home/user/coolq/`访问Coolq数据，配置Bot配置文件时应维持`CQ_ROOT`的默认值。**| `/home/user/coolq`
 `CQ_DATA_PATH` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq) 数据卷
-`CTB_JSON_SETTINGS_PATH`|  coolq-telegram-bot 配置路径| `~/coolq-data`  `/home/user/coolq/bot_constant.json`
+`UMR_JSON_SETTINGS_PATH`|  coolq-telegram-bot 配置路径| `~/coolq-data`  `/home/user/coolq/bot_constant.json`
 `VNC_PORT` | [docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC端口，请结合宿主机实际环境设置。| `8081`
 `VNC_PASSWD` |[docker-wine-coolq](https://github.com/CoolQ/docker-wine-coolq)VNC密码| `Mn6fFtsh`
 `NGX_PORT` | nginx对外端口 |`80`
