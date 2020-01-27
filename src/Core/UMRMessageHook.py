@@ -1,4 +1,4 @@
-from typing import List, Callable
+from typing import List, Callable, Union
 from .UMRType import MessageHook
 from . import UMRLogging
 
@@ -8,7 +8,8 @@ message_hook_full: List[MessageHook] = list()  # src_driver, src_group, dst_driv
 message_hook_src: List[MessageHook] = list()
 
 
-def register_hook(src_driver: str = '', src_chat: int = 0, dst_driver: str = '', dst_chat: int = 0) -> Callable:
+def register_hook(src_driver: Union[str, List[str]] = '', src_chat: Union[int, List[int]] = 0,
+                  dst_driver: Union[str, List[str]] = '', dst_chat: Union[int, List[int]] = 0) -> Callable:
     """
     message hook registration
     :param src_driver: driver name
@@ -26,6 +27,5 @@ def register_hook(src_driver: str = '', src_chat: int = 0, dst_driver: str = '',
         return original_func
 
     return deco
-
 
 # There are two types of hook definitions, see MessageHook.md

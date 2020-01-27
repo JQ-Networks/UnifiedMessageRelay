@@ -37,9 +37,12 @@ async def get_image(url, file_id='', format='jpg'):
         logger.debug('download started')
         async with session.get(url) as response:
             logger.debug('download finished')
-            img: Image = Image.open(BytesIO(await response.read()))
-            if format.lower().startswith('jpg') and img.mode != 'RGB':
-                img = img.convert('RGB')
+            try:
+                img: Image = Image.open(BytesIO(await response.read()))
+                if format.lower().startswith('jpg') and img.mode != 'RGB':
+                    img = img.convert('RGB')
+            except OSError as e:
+                logger.warning(f'Cannot convert {url}. It might be .tgs file which is not supported at this time.')
             file_name = str(uuid4()) + '.' + format
             file_full_path = os.path.join(download_dir, file_name)
             img.save(file_full_path)

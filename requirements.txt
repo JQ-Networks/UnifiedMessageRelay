@@ -1,14 +1,6 @@
-aiohttp
 aiogram
 aiocqhttp
 janus
-bottle>=0.12.16
-certifi>=2019.11.28
-cqhttp==1.2.3
 Pillow>=5.4.1
-python-telegram-bot==12.3.0
-requests>=2.22.0
-urllib3>=1.25.8
-urllib3[socks]
 coloredlogs>=10.0
 ffmpy>=0.2.2

@@ -18,6 +18,7 @@ NAME = 'Telegram'
 # Initialize bot and dispatcher
 
 logger = UMRLogging.getLogger('UMRDriver.Telegram')
+logger.debug('Started initialization for Telegram')
 
 attributes = [
     'BotToken'
@@ -34,7 +35,7 @@ async def send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
-    asyncio.run_coroutine_threadsafe(_send(to_chat, message), loop)
+    return asyncio.run_coroutine_threadsafe(_send(to_chat, message), loop)
 
 
 async def _send(to_chat: int, message: UnifiedMessage):
@@ -44,25 +45,34 @@ async def _send(to_chat: int, message: UnifiedMessage):
     """
     await bot.send_chat_action(to_chat, types.chat.ChatActions.TYPING)
     if message.forward_attrs.from_user:
-        text = message.forward_attrs.from_user + ': '
+        text = '<b>' + message.forward_attrs.from_user + '</b>: '
     else:
         text = ''
 
     for m in message.message:
         text += htmlify(m)
 
+    if message.send_action.message_id:
+        reply_to_message_id = message.send_action.message_id
+    else:
+        reply_to_message_id = None
+
     if message.image:
         if message.image in image_file_id:
             logger.debug(f'file id for {message.image} found, sending file id')
-            await bot.send_photo(to_chat, image_file_id[message.image], caption=text,
-                                 parse_mode=types.message.ParseMode.HTML)
+            tg_message = await bot.send_photo(to_chat, image_file_id[message.image], caption=text,
+                                              parse_mode=types.message.ParseMode.HTML,
+                                              reply_to_message_id=reply_to_message_id)
         else:
             logger.debug(f'file id for {message.image} not found, sending image file')
             tg_message = await bot.send_photo(to_chat, types.input_file.InputFile(message.image), caption=text,
-                                              parse_mode=types.message.ParseMode.HTML)
+                                              parse_mode=types.message.ParseMode.HTML,
+                                              reply_to_message_id=reply_to_message_id)
             image_file_id[message.image] = tg_message.photo[-1].file_id
     else:
-        await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML)
+        tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
+                                            reply_to_message_id=reply_to_message_id)
+    return tg_message.message_id
 
 
 UMRDriver.api_register('Telegram', 'send', send)
@@ -177,21 +187,27 @@ def run():
     @dp.edited_message_handler(content_types=ContentType.ANY)
     async def handle_msg(message: types.Message):
         from_user = message.from_user
-        reply_to = ''
+        reply_to_user = ''
+        reply_to_message_id = 0
         if message.reply_to_message:
-            reply_to_user = message.reply_to_message.from_user
-            reply_to = reply_to_user.full_name
-        forward_from = ''
+            reply_to_user = message.reply_to_message.from_user.full_name
+            reply_to_message_id = message.reply_to_message.message_id
+        forward_from_user = ''
+        forward_from_chat = 0
         if message.forward_from:
-            forward_from = message.from_user.full_name
+            forward_from_user = message.from_user.full_name
+            forward_from_chat = message.forward_from_chat.id
         elif message.forward_from_chat and message.forward_from_chat.type == types.chat.ChatType.CHANNEL:
-            forward_from = message.forward_from_chat.title
+            forward_from_user = message.forward_from_chat.title  # use user name to store channel title
 
         unified_message = UnifiedMessage(from_platform='Telegram',
                                          from_chat=message.chat.id,
                                          from_user=from_user.full_name,
-                                         forward_from=forward_from,
-                                         reply_to=reply_to)
+                                         from_message_id=message.message_id,
+                                         forward_from_user=forward_from_user,
+                                         forward_from_chat=forward_from_chat,
+                                         reply_to_user=reply_to_user,
+                                         reply_to_message_id=reply_to_message_id)
         if message.content_type == ContentType.TEXT:
             unified_message.message = parse_entity(message)
             await UMRDriver.receive(unified_message)
@@ -217,3 +233,5 @@ def run():
 t = threading.Thread(target=run)
 UMRDriver.threads.append(t)
 t.start()
+
+logger.debug('Finished initialization for Telegram')

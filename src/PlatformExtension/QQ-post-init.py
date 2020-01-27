@@ -5,6 +5,7 @@ from Driver import QQ
 from Core.UMRDriver import api_lookup
 from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
 from Core.UMRCommand import register_command
+from time import sleep
 
 logger = UMRLogging.getLogger('UMRPlugins.QQ-init')
 
@@ -24,6 +25,13 @@ async def update_name_list():
         logger.error(e)
         logger.error('Update name list failed! Please restart the bot or try update name list later.')
 
+    logger.info('QQ name list initialized')
+
+# while True:
+#     if hasattr(QQ, 'loop'):
+#         break
+#     else:
+#         sleep(1)
 
 asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
 

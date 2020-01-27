@@ -1,3 +1,8 @@
+from . import UMRLogging
+
+logger = UMRLogging.getLogger('Plugin')
+
+
 def load_extensions():
     import Extension
 

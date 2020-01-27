@@ -15,9 +15,9 @@ import os
 NAME = 'QQ'
 
 logger = UMRLogging.getLogger('UMRDriver.QQ')
+logger.debug('Started initialization for QQ')
 
 loop: asyncio.AbstractEventLoop
-queue: janus.Queue
 
 config: Dict = UMRConfig.config['Driver']['QQ']
 
@@ -63,13 +63,13 @@ async def handle_msg(context):
     return {}  # 返回给 HTTP API 插件，走快速回复途径
 
 
-async def send(to_chat: int, messsage: UnifiedMessage):
+async def send(to_chat: int, messsage: UnifiedMessage) -> asyncio.Future:
     """
     decorator for send new message
     :return:
     """
     logger.debug('sending message')
-    asyncio.run_coroutine_threadsafe(_send(to_chat, messsage), loop)
+    return asyncio.run_coroutine_threadsafe(_send(to_chat, messsage), loop)
 
 
 async def _send(to_chat: int, message: UnifiedMessage):
@@ -89,13 +89,17 @@ async def _send(to_chat: int, message: UnifiedMessage):
         context['message'].append(MessageSegment.image(image_name))
     if message.forward_attrs.from_user:
         context['message'].append(MessageSegment.text(message.forward_attrs.from_user + ': '))
+    if message.send_action.user_id:
+        context['message'].append(MessageSegment.at(message.send_action.user_id))
+        context['message'].append(MessageSegment.text(' '))
     for m in message.message:
         context['message'].append(MessageSegment.text(m.text + ' '))
         if m.link:
             context['message'].append(MessageSegment.text(m.link) + ' ')
     context[f'{_group_type}_id'] = to_chat
     logger.debug('finished processing message, ready to send')
-    await bot.send(context, context['message'])
+    result = await bot.send(context, context['message'])
+    return result.get('message_id')
 
 
 UMRDriver.api_register('QQ', 'send', send)
@@ -131,23 +135,26 @@ async def dissemble_message(context):
     chat_id = context.get(f'{context.get("message_type")}_id')
     user_id = context.get('user_id')
     chat_type = context.get('message_type')
+    message_id = context.get('message_id')
     username = await get_username(user_id, chat_id, chat_type)
     message: List[Dict] = context['message']
 
-    unified_message = await parse_special_message(chat_id, username, message)
+    unified_message = await parse_special_message(chat_id, username, message_id, user_id, message)
     if unified_message:
         return [unified_message]
-    unified_message_list = await parse_message(chat_id, chat_type, username, message)
+    unified_message_list = await parse_message(chat_id, chat_type, username, message_id, user_id, message)
     return unified_message_list
 
 
-async def parse_special_message(chat_id, username, message):
+async def parse_special_message(chat_id: int, username: str, message_id: int, user_id: int,
+                                message: List[Dict[str, Dict[str, str]]]):
     if len(message) > 1:
         return None
     message = message[0]
     message_type = message['type']
     message = message['data']
-    unified_message = UnifiedMessage(from_platform='QQ', from_chat=chat_id, from_user=username)
+    unified_message = UnifiedMessage(from_platform='QQ', from_chat=chat_id, from_user=username, from_user_id=user_id,
+                                     from_message_id=message_id)
     if message_type == 'share':
         unified_message.message = [
             MessageEntity(text='Shared '),
@@ -361,9 +368,14 @@ qq_sface_list = {
 }
 
 
-async def parse_message(chat_id, chat_type, username, message):
+async def parse_message(chat_id: int, chat_type: str, username: str, message_id: int, user_id: int,
+                        message: List[Dict[str, Dict[str, str]]]):
     message_list = list()
-    unified_message = UnifiedMessage(from_platform='QQ', from_chat=chat_id, from_user=username)
+    unified_message = UnifiedMessage(from_platform='QQ',
+                                     from_chat=chat_id,
+                                     from_user=username,
+                                     from_user_id=user_id,
+                                     from_message_id=message_id)
     for m in message:
         message_type = m['type']
         m = m['data']
@@ -371,13 +383,17 @@ async def parse_message(chat_id, chat_type, username, message):
             # message not empty or contained a image, append to list
             if unified_message.message or unified_message.image:
                 message_list.append(unified_message)
-                unified_message = UnifiedMessage(from_platform='QQ', from_chat=chat_id, from_user=username)
-            file_dir = await get_image(m['url'])
-            if file_dir:
-                unified_message.image = file_dir
-            else:
-                unified_message.message.append(MessageEntity(text='[Image not found]'))
-                logger.warning(f'URL downlaod failed: {m["url"]}')
+                unified_message = UnifiedMessage(from_platform='QQ',
+                                                 from_chat=chat_id,
+                                                 from_user=username,
+                                                 from_user_id=user_id,
+                                                 from_message_id=message_id)
+                file_dir = await get_image(m['url'])
+                if file_dir:
+                    unified_message.image = file_dir
+                else:
+                    unified_message.message.append(MessageEntity(text='[Image not found]'))
+                    logger.warning(f'URL downlaod failed: {m["url"]}')
 
         elif message_type == 'text':
             unified_message.message.append(MessageEntity(text=m['text']))
@@ -399,24 +415,8 @@ async def parse_message(chat_id, chat_type, username, message):
         else:
             logger.debug('Unhandled message type: ' + str(m))
 
-    message_list.append(unified_message)
-    return message_list
-
-
-##### Janus queue for async loop #####
-async def async_coro(async_q):
-    """
-    Asnyc queue for incoming async call
-    :param async_q:
-    :return:
-    """
-    while True:
-        func, args, kwargs = await async_q.get()
-        if asyncio.iscoroutinefunction(func):
-            await func(*args, **kwargs)
-        else:
-            func(*args, **kwargs)
-        async_q.task_done()
+        message_list.append(unified_message)
+        return message_list
 
 
 def do_nothing():
@@ -424,14 +424,15 @@ def do_nothing():
 
 
 def run():
-    global queue, loop
+    global loop
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    queue = janus.Queue(loop=loop)
-    loop.create_task(async_coro(queue.async_q))
+    logger.debug('Starting Quart server')
     bot.run(host=config.get('ListenIP'), port=config.get('ListenPort'), loop=loop, shutdown_trigger=do_nothing)
 
 
 t = threading.Thread(target=run)
 UMRDriver.threads.append(t)
 t.start()
+
+logger.debug('Finished initialization for QQ')

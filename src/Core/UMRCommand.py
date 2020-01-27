@@ -28,7 +28,7 @@ async def command_dispatcher(message: UnifiedMessage):
     logger.debug(f'dispatching command: "{cmd}" with args: "{" ".join(args)}"')
     if cmd in command_map:
         # check if platform matches
-        if command_map[cmd].platform and command_map[cmd].platform != message.forward_attrs.from_platform:
+        if command_map[cmd].platform and message.forward_attrs.from_platform not in command_map[cmd].platform:
             return False
 
         await command_map[cmd].command_function(message.forward_attrs, args)
@@ -46,7 +46,7 @@ def assemble_message(message: UnifiedMessage) -> str:
     return ''.join(map(lambda x: x.text, message.message))
 
 
-def register_command(cmd: Union[str, List[str]] = '', description: str = '', platform: str = ''):
+def register_command(cmd: Union[str, List[str]] = '', description: str = '', platform: Union[str, List[str]] = ''):
     """
     register command
     :param cmd: command keyword, must not be null
@@ -88,7 +88,7 @@ async def command(forward_attrs: ForwardAttributes, args: List):
     help_text = 'Available commands in this group:'
     message.message.append(MessageEntity(text=help_text))
     for cmd, cmd_obj in command_map.items():
-        if cmd_obj.platform and cmd_obj.platform != forward_attrs.from_platform:
+        if cmd_obj.platform and forward_attrs.from_platform not in cmd_obj.platform:
             continue
         message.message.append(MessageEntity(text='\n' + cmd + ': ', entity_type='bold'))
         message.message.append(MessageEntity(text=cmd_obj.description))
