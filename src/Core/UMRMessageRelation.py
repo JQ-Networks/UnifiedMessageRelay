@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Tuple, Union
+from typing import List, Dict
 from . import UMRLogging
 from .UMRType import GroupID, MessageID, DestinationMessageID
 
@@ -46,3 +46,8 @@ def get_message_id(src_platform: str, src_chat_id: int, message_id: int, dst_pla
     """
     return message_mapping.get(MessageID(platform=src_platform, chat_id=src_chat_id, message_id=message_id),
                                dict()).get(GroupID(platform=dst_platform, chat_id=dst_chat_id))
+
+
+def get_relation_dict(src_platform: str, src_chat_id: int, message_id: int) -> Dict[MessageID, DestinationMessageID]:
+    return message_mapping.get(MessageID(platform=src_platform, chat_id=src_chat_id, message_id=message_id),
+                               dict())

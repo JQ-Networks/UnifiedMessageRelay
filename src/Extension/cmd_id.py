@@ -1,27 +1,18 @@
 from typing import List
 from asyncio import iscoroutinefunction
-from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
-from Core.UMRCommand import register_command
-from Core.UMRDriver import api_lookup
+from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity
+from Core.UMRCommand import register_command, quick_reply
 
 
 @register_command(cmd='id', platform='Telegram', description='get Telegram group id')
-async def command(forward_attrs: ForwardAttributes, args: List):
+async def command(chat_attrs: ChatAttribute, args: List):
     """
     Prototype of command
-    :param forward_attrs:
+    :param chat_attrs:
     :param args:
     :return:
     """
     if args:  # args should be empty
         return
 
-    send = api_lookup(forward_attrs.from_platform, 'send')
-    if not send:
-        return
-    message = UnifiedMessage()
-    message.message.append(MessageEntity(text='chat_id: ' + str(forward_attrs.from_chat)))
-    if iscoroutinefunction(send):
-        await send(forward_attrs.from_chat, message)
-    else:
-        send(forward_attrs.from_chat, message)
+    await quick_reply(chat_attrs, 'chat_id: ' + str(chat_attrs.chat_id))

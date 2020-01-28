@@ -4,7 +4,7 @@ from collections import defaultdict
 from janus import Queue
 from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, SendAction, DestinationMessageID
 from . import UMRLogging
-from .UMRDriver import api_lookup
+from .UMRDriver import api_lookup, api_call
 from .UMRConfig import config
 from .UMRMessageRelation import set_message_id, get_message_id
 from .UMRMessageHook import message_hook_src, message_hook_full
@@ -55,71 +55,66 @@ for i in config['ForwardList']['Topology']:
 ##### core dispatcher #####
 
 async def dispatch(message: UnifiedMessage):
-    if message.forward_attrs.from_chat not in action_graph[message.forward_attrs.from_platform]:
+    if message.chat_attrs.chat_id not in action_graph[message.chat_attrs.platform]:
         logger.debug(
-            f'ignoring unrelated message from {message.forward_attrs.from_platform}: {message.forward_attrs.from_chat}')
+            f'ignoring unrelated message from {message.chat_attrs.platform}: {message.chat_attrs.chat_id}')
 
     # hook for matching source only
     for hook in message_hook_src:
-        if (not hook.src_driver or message.forward_attrs.from_platform in hook.src_driver) and \
-                (not hook.src_chat or message.forward_attrs.from_chat in hook.src_chat):
+        if (not hook.src_driver or message.chat_attrs.platform in hook.src_driver) and \
+                (not hook.src_chat or message.chat_attrs.chat_id in hook.src_chat):
             if await hook.hook_function(message):
                 return
 
-    message_id_list: List = list()  # list of List[platform, chat_id, message_id]
+    message_id_list: List[DestinationMessageID] = list()  # list of List[platform, chat_id, message_id]
 
-    for action in action_graph[message.forward_attrs.from_platform][message.forward_attrs.from_chat]:
+    for action in action_graph[message.chat_attrs.platform][message.chat_attrs.chat_id]:
 
         # hook for matching all four attributes
         for hook in message_hook_full:
-            if (not hook.src_driver or message.forward_attrs.from_platform in hook.src_driver) and \
-                    (not hook.src_chat or message.forward_attrs.from_chat in hook.src_chat) and \
+            if (not hook.src_driver or message.chat_attrs.platform in hook.src_driver) and \
+                    (not hook.src_chat or message.chat_attrs.chat_id in hook.src_chat) and \
                     (not hook.dst_driver or action.to_platform in hook.dst_driver) and \
                     (not hook.dst_chat or action.to_chat in hook.dst_chat):
                 if hook.hook_function(action.to_platform, action.to_chat, message):
                     continue
 
         # basic message filtering
-        if action.action_type == ForwardActionType.Reply and not message.forward_attrs.reply_to_user:
+        if action.action_type == ForwardActionType.Reply and not message.chat_attrs.reply_to:
             continue
 
         # check api registration
-        api_send = api_lookup(action.to_platform, 'send')
-        if not api_send:
+        if not api_lookup(action.to_platform, 'send'):
             continue
 
-        reply_message_id = get_message_id(src_platform=message.forward_attrs.from_platform,
-                                          src_chat_id=message.forward_attrs.from_chat,
-                                          message_id=message.forward_attrs.reply_to_message_id,
-                                          dst_platform=action.to_platform,
-                                          dst_chat_id=action.to_chat)
+        if message.chat_attrs.reply_to:
+            reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
+                                              src_chat_id=message.chat_attrs.chat_id,
+                                              message_id=message.chat_attrs.reply_to.message_id,
+                                              dst_platform=action.to_platform,
+                                              dst_chat_id=action.to_chat)
 
-        if reply_message_id:
-            message.send_action = SendAction(message_id=reply_message_id.message_id, user_id=reply_message_id.user_id)
+            if reply_message_id:
+                message.send_action = SendAction(message_id=reply_message_id.message_id, user_id=reply_message_id.user_id)
 
-        if asyncio.iscoroutinefunction(api_send):
-            future = await api_send(action.to_chat, message)  # return a Future
-            message_id_list.append(future)
-        else:
-            message_id = api_send(action.to_chat, message)
-            message_id_list.append(message_id)
-
-        for idx in range(len(message_id_list)):
-            if isinstance(message_id_list[idx], int):
-                message_id_list[idx] = DestinationMessageID(platform=action.to_platform,
-                                                            chat_id=action.to_chat,
-                                                            message_id=message_id_list[idx],
-                                                            user_id=message.forward_attrs.from_user_id)
-            else:
-                message_id_list[idx] = DestinationMessageID(platform=action.to_platform,
-                                                            chat_id=action.to_chat,
-                                                            message_id=message_id_list[idx].result(),
-                                                            user_id=message.forward_attrs.from_user_id)
-
-        message_id_list.append(DestinationMessageID(platform=message.forward_attrs.from_platform,
-                                                    chat_id=message.forward_attrs.from_chat,
-                                                    message_id=message.forward_attrs.from_message_id,
-                                                    user_id=message.forward_attrs.from_user_id))
-        set_message_id(message_id_list)
+        message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
+        message_id_list.append(
+            DestinationMessageID(platform=action.to_platform,
+                                 chat_id=action.to_chat,
+                                 message_id=message_id,
+                                 user_id=message.chat_attrs.user_id)
+        )
 
         logger.debug(f'added new task to ({action.to_platform}, {action.to_chat})')
+
+    for idx in range(len(message_id_list)):
+        if isinstance(message_id_list[idx], int):
+            continue
+        else:
+            message_id_list[idx].message_id = message_id_list[idx].message_id.result()
+
+    message_id_list.append(DestinationMessageID(platform=message.chat_attrs.platform,
+                                                chat_id=message.chat_attrs.chat_id,
+                                                message_id=message.chat_attrs.message_id,
+                                                user_id=message.chat_attrs.user_id))
+    set_message_id(message_id_list)

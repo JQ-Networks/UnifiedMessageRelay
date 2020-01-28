@@ -4,6 +4,7 @@ import janus
 from .UMRType import UnifiedMessage
 from . import UMRLogging
 from collections import defaultdict
+from asyncio import iscoroutinefunction
 
 logger = UMRLogging.getLogger('Driver')
 
@@ -20,13 +21,32 @@ def api_lookup(driver: str, api: str) -> Union[None, Callable]:
         logger.error(f'driver "{driver}" is not registered')
         return None
     if api not in api_lookup_table[driver]:
-        logger.error(f'api "{api}" in {driver} is not registered')
+        logger.warn(f'api "{api}" in {driver} is not registered')
         return None
     return api_lookup_table[driver][api]
 
 
 def api_register(driver: str, api: str, func: Callable):
     api_lookup_table[driver][api] = func
+
+
+async def api_call(platform: str, api_name: str, *args, **kwargs):
+    """
+    fast api call
+    :param platform: driver platform
+    :param api_name: name of the api
+    :param args: positional args to pass
+    :param kwargs: keyword args to pass
+    :return: None for API not found, api result for successful calling
+    """
+    func = api_lookup(platform, api_name)
+    if not func:
+        return
+
+    if iscoroutinefunction(func):
+        return await func(*args, **kwargs)
+    else:
+        return func(*args, **kwargs)
 
 # endregion
 

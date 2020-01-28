@@ -1,5 +1,7 @@
 aiogram
 aiocqhttp
+tgs
+imageio
 janus
 Pillow>=5.4.1
 coloredlogs>=10.0

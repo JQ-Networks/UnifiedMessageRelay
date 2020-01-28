@@ -6,52 +6,59 @@ Command module allows simple interaction between users and plugins.
 
 ```python
 from typing import List
-from asyncio import iscoroutinefunction
-from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
-from Core.UMRCommand import register_command
-from Core.UMRDriver import api_lookup
-@register_command(cmd='echo', platform='', description='The human nature')
-async def command(forward_attrs: ForwardAttributes, args: List):
+from Core.UMRType import ChatAttribute, ChatType, Privilege
+from Core.UMRCommand import register_command, quick_reply
+
+
+@register_command(cmd='echo', description='reply every word you sent')
+async def command(chat_attrs: ChatAttribute, args: List):
     """
     Prototype of command
-    :param forward_attrs:
+    :param chat_attrs:
     :param args:
     :return:
     """
-    if not args:  # test empty
-        return 
-    
-    send = api_lookup(forward_attrs.from_platform, 'send')
-    if not send:
+    if not args:  # args should not be empty
         return
-    message = UnifiedMessage()
-    message.message.append(MessageEntity(text=' '.join(args)))
-    if iscoroutinefunction(send):
-        await send(forward_attrs.from_chat, message)
-    else:
-        send(forward_attrs.from_chat, message)
+
+    await quick_reply(chat_attrs, ' '.join(args))
+
 ```
+
+The example above provides basic reply function: it replies whenever you send !!echo with some arguments.
 
 ## Details
 
 ### register_command
+A complete version of `register_command`
 ```python
-@register_command(cmd='echo', platform='', description='The human nature')
+from Core.UMRType import ChatAttribute, ChatType, Privilege
+from Core.UMRCommand import register_command, quick_reply
+from typing import List
 
-@register_command(cmd=['echo', 'repeat'], platform=['QQ', 'Telegram'], description='The human nature')
-```
-
-It has three args:
-- cmd: str or List\[str\], depends on how many aliases for the same command.
-- platform: str or List\[str\], only command from these platform will be handled. Leave empty for match all.
-- description: str, something that will show up in `!!help`.
-
-### function prototype
-```python
-async def command(forward_attrs: ForwardAttributes, args: List):
+@register_command(cmd=['cmd1', 'cmd2', ...], platform=['QQ', 'Telegram', ...],
+ description='Your description goes here', chat_type=ChatType.PRIVATE_CHAT, privilege=Privilege.BOT_ADMIN)
+async def command(chat_attrs: ChatAttribute, args: List):
     pass
 ```
 
-It has two args:
-- forward_attrs: see [Types](Types.md) for details
-- args: list of str, extracted from the rest of the command
+#### Args:
+- cmd: str or List\[str\], depends on how many aliases for the same command.
+- platform: str or List\[str\], only command from these platform will be handled. Leave empty for match all.
+- description: str, something that will show up in `!!help`.
+- chat_type: the chat requirement of this message, possible values listed in `UMRTypes.ChatType`
+- privilege: the privilege requirement of this command, possible values listed in `UMRTypes.Privilege`
+
+### function prototype
+```python
+async def command(chat_attrs: ForwardAttributes, args: List):
+    pass
+```
+
+#### Args:
+- chat_attrs: `UMRTypes.ChatAttribute`
+- args: list of str, extracted from the rest of the command split by spaces 
+
+#### Return:
+
+Not required

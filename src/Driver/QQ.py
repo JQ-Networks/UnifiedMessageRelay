@@ -9,7 +9,7 @@ from Core import UMRLogging
 from Util.Helper import check_attribute
 from Core import UMRConfig
 import re
-from Core.UMRFileDL import get_image
+from Core.UMRFile import get_image
 import os
 
 NAME = 'QQ'
@@ -42,9 +42,9 @@ bot = CQHttp(api_root=config.get('APIRoot'),
 group_list: Dict[int, Dict[int, Dict]] = dict()  # Dict[group_id, Dict[member_id, member_info]]
 # see https://cqhttp.cc/docs/4.13/#/API?id=响应数据23
 
-group_type: Dict[int, str] = config.get('ChatList')
-is_coolq_pro = config.get('IsPro', False)
-stranger_list: Dict[int, str] = dict()
+chat_type: Dict[int, str] = config.get('ChatList')  # todo initialization on startup
+is_coolq_pro = config.get('IsPro', False)  # todo initialization on startup
+stranger_list: Dict[int, str] = dict()  # todo initialization on startup
 
 
 ##### Define send and receive #####
@@ -52,8 +52,14 @@ stranger_list: Dict[int, str] = dict()
 @bot.on_message()
 # 上面这句等价于 @bot.on('message')
 async def handle_msg(context):
+    message_type = context.get("message_type")
+    chat_id = context.get(f'{message_type}_id')
+    if message_type in ('group', 'discuss'):
+        chat_id = - chat_id
+    if chat_id not in chat_type:
+        chat_type[chat_id] = message_type
     group_id = context.get('group_id')
-    if group_type.get(group_id) != context.get('message_type'):  # filter unknown group chat
+    if chat_type.get(group_id) != context.get('message_type'):  # filter unknown group chat
         logger.debug(f'ignored unknown source: {context.get("message_type")}: {group_id}')
         return {}
 
@@ -78,7 +84,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     :return:
     """
     context = dict()
-    _group_type = group_type.get(to_chat)
+    _group_type = chat_type.get(to_chat)
     if not _group_type:
         logger.warning(f'Sending to undefined group or chat {to_chat}')
         return
@@ -87,8 +93,8 @@ async def _send(to_chat: int, message: UnifiedMessage):
     if message.image:
         image_name = os.path.basename(message.image)
         context['message'].append(MessageSegment.image(image_name))
-    if message.forward_attrs.from_user:
-        context['message'].append(MessageSegment.text(message.forward_attrs.from_user + ': '))
+    if message.chat_attrs.name:
+        context['message'].append(MessageSegment.text(message.chat_attrs.name + ': '))
     if message.send_action.user_id:
         context['message'].append(MessageSegment.at(message.send_action.user_id))
         context['message'].append(MessageSegment.text(' '))
@@ -153,8 +159,8 @@ async def parse_special_message(chat_id: int, username: str, message_id: int, us
     message = message[0]
     message_type = message['type']
     message = message['data']
-    unified_message = UnifiedMessage(from_platform='QQ', from_chat=chat_id, from_user=username, from_user_id=user_id,
-                                     from_message_id=message_id)
+    unified_message = UnifiedMessage(platform='QQ', chat_id=chat_id, name=username, user_id=user_id,
+                                     message_id=message_id)
     if message_type == 'share':
         unified_message.message = [
             MessageEntity(text='Shared '),
@@ -371,11 +377,11 @@ qq_sface_list = {
 async def parse_message(chat_id: int, chat_type: str, username: str, message_id: int, user_id: int,
                         message: List[Dict[str, Dict[str, str]]]):
     message_list = list()
-    unified_message = UnifiedMessage(from_platform='QQ',
-                                     from_chat=chat_id,
-                                     from_user=username,
-                                     from_user_id=user_id,
-                                     from_message_id=message_id)
+    unified_message = UnifiedMessage(platform='QQ',
+                                     chat_id=chat_id,
+                                     name=username,
+                                     user_id=user_id,
+                                     message_id=message_id)
     for m in message:
         message_type = m['type']
         m = m['data']
@@ -383,11 +389,11 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
             # message not empty or contained a image, append to list
             if unified_message.message or unified_message.image:
                 message_list.append(unified_message)
-                unified_message = UnifiedMessage(from_platform='QQ',
-                                                 from_chat=chat_id,
-                                                 from_user=username,
-                                                 from_user_id=user_id,
-                                                 from_message_id=message_id)
+                unified_message = UnifiedMessage(platform='QQ',
+                                                 chat_id=chat_id,
+                                                 name=username,
+                                                 user_id=user_id,
+                                                 message_id=message_id)
                 file_dir = await get_image(m['url'])
                 if file_dir:
                     unified_message.image = file_dir

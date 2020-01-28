@@ -1,8 +1,9 @@
 # Driver
 
-## API 
+## API
 Driver should implement the following API
 
+### Send
 ```python
 import asyncio
 from Core.UMRType import UnifiedMessage
@@ -29,9 +30,20 @@ def send(to_chat: int, messsage: UnifiedMessage) -> int:
     pass
 ```
 
+### IsAdmin
+
+TODO
+### IsOwner
+
+TODO
+
+------
+
+These functions should be registered to driver's API lookup table, see any existing driver for example.
+
 Driver must make sure that this function can be called directly from other events loop or threads.
 
-## Income message
+## Inbound message
 Driver should also implement the following handler, e.g. QQ:
 
 ```python
@@ -54,17 +66,7 @@ What is important about this code snippet is `await UMRDriver.receive(message)`.
   
 ## Calling driver
 
-Due to the limitation of async, calling send is verbose and there is nothing I can do about it. One approach is to drop 
-support for synced driver, but this is not decided yet.
-
 ```python
-send = api_lookup(forward_attrs.from_platform, 'send')
-if not send:
-    return
-message = UnifiedMessage()
-message.message.append(MessageEntity(text=' '.join(args)))
-if iscoroutinefunction(send):
-    await send(forward_attrs.from_chat, message)
-else:
-    send(forward_attrs.from_chat, message)
+from Core.UMRDriver import api_call
+result = api_call(chat_attrs.from_platform, 'api name', *args, **kwargs)
 ```

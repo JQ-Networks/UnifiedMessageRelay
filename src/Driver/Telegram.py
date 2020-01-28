@@ -3,12 +3,12 @@ import asyncio
 from typing import Dict
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType
-from Core.UMRType import UnifiedMessage, MessageEntity
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute
 from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
 from Util.Helper import check_attribute
-from Core.UMRFileDL import get_image
+from Core.UMRFile import get_image
 import datetime
 
 launch_time = datetime.datetime.now()
@@ -44,8 +44,8 @@ async def _send(to_chat: int, message: UnifiedMessage):
     :return:
     """
     await bot.send_chat_action(to_chat, types.chat.ChatActions.TYPING)
-    if message.forward_attrs.from_user:
-        text = '<b>' + message.forward_attrs.from_user + '</b>: '
+    if message.chat_attrs.name:
+        text = '<b>' + message.chat_attrs.name + '</b>: '
     else:
         text = ''
 
@@ -176,6 +176,47 @@ async def tg_get_image(file_id, changes=True, format='jpg'):
     return file_path
 
 
+def get_chat_attributes(message: types.Message, chat_attrs: ChatAttribute):
+    if message.forward_from_chat:  # forward from channel or user's private chat
+        if message.forward_from_chat.title:
+            name = message.forward_from_chat.title
+            chat_id = message.forward_from_chat.id
+            user_id = 0
+            message_id = message.forward_from_message_id
+        else:
+            name = message.forward_from_chat.full_name
+            chat_id = message.forward_from_chat.id
+            user_id = message.forward_from_chat.id
+            message_id = 0
+        # private message does not have message_id, and channel message does not have user_id
+        chat_attrs.forward_from = ChatAttribute(platform='Telegram',
+                                                chat_id=chat_id,
+                                                user_id=user_id,
+                                                name=name,
+                                                message_id=message_id)
+
+    if message.forward_sender_name:
+        chat_attrs.forward_from = ChatAttribute(platform='Telegram',
+                                                name=message.forward_sender_name)
+
+    if message.forward_from:  # forward from user (group message)
+        name = message.forward_from.full_name
+        user_id = message.forward_from.id
+        # forward message does not have message_id and chat_id
+        chat_attrs.forward_from = ChatAttribute(platform='Telegram',
+                                                chat_id=0,
+                                                user_id=user_id,
+                                                name=name)
+
+    if message.reply_to_message:
+        chat_attrs.reply_to = ChatAttribute(platform='Telegram',
+                                            chat_id=message.reply_to_message.chat.id,
+                                            name=message.reply_to_message.from_user.full_name,
+                                            user_id=message.reply_to_message.from_user.id,
+                                            message_id=message.reply_to_message.message_id)
+        get_chat_attributes(message.reply_to_message, chat_attrs.reply_to)
+
+
 def run():
     global bot, dp, loop
     loop = asyncio.new_event_loop()
@@ -187,27 +228,15 @@ def run():
     @dp.edited_message_handler(content_types=ContentType.ANY)
     async def handle_msg(message: types.Message):
         from_user = message.from_user
-        reply_to_user = ''
-        reply_to_message_id = 0
-        if message.reply_to_message:
-            reply_to_user = message.reply_to_message.from_user.full_name
-            reply_to_message_id = message.reply_to_message.message_id
-        forward_from_user = ''
-        forward_from_chat = 0
-        if message.forward_from:
-            forward_from_user = message.from_user.full_name
-            forward_from_chat = message.forward_from_chat.id
-        elif message.forward_from_chat and message.forward_from_chat.type == types.chat.ChatType.CHANNEL:
-            forward_from_user = message.forward_from_chat.title  # use user name to store channel title
 
-        unified_message = UnifiedMessage(from_platform='Telegram',
-                                         from_chat=message.chat.id,
-                                         from_user=from_user.full_name,
-                                         from_message_id=message.message_id,
-                                         forward_from_user=forward_from_user,
-                                         forward_from_chat=forward_from_chat,
-                                         reply_to_user=reply_to_user,
-                                         reply_to_message_id=reply_to_message_id)
+        unified_message = UnifiedMessage(platform='Telegram',
+                                         chat_id=message.chat.id,
+                                         name=from_user.full_name,
+                                         user_id=from_user.id,
+                                         message_id=message.message_id)
+
+        get_chat_attributes(message, unified_message.chat_attrs)
+
         if message.content_type == ContentType.TEXT:
             unified_message.message = parse_entity(message)
             await UMRDriver.receive(unified_message)

@@ -30,7 +30,7 @@ async def message_hook_func(message: UnifiedMessage) -> bool:
     pass
 ```
 
-`@register_hook` has four arguments:
+#### Args:
  - `src_driver`: str or List[str], the source driver
  - `src_chat`: int or List[int], the source chat id
  - `dst_driver`: str or List[str], the destination driver
@@ -40,7 +40,6 @@ async def message_hook_func(message: UnifiedMessage) -> bool:
  
  `async def message_hook_func(message: UnifiedMessage) -> bool:`
  
- The reason is intuitive: for directed graph forwarding, there could be one to many forwards, and the message hook will
-  be call multiple times if matches. As a result, a source based hook is provided and it only matches once per source. If
-  the plugin doesn't care the destination, then leave dst_\* blank for single time match. If destination is what you care
-   about and you wish to be called once per destination hit, then write down any of the dst_\*.
+ Because if dst_\* are specified, the message will be matched on each ForwardAction, 
+ that could be multiple matches per forwarded message. 
+ If not, it will be matched base on source.

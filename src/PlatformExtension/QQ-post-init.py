@@ -2,10 +2,8 @@ import asyncio
 from typing import List
 from Core import UMRLogging
 from Driver import QQ
-from Core.UMRDriver import api_lookup
-from Core.UMRType import ForwardAttributes, UnifiedMessage, MessageEntity
-from Core.UMRCommand import register_command
-from time import sleep
+from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity
+from Core.UMRCommand import register_command, quick_reply
 
 logger = UMRLogging.getLogger('UMRPlugins.QQ-init')
 
@@ -37,18 +35,10 @@ asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
 
 
 @register_command(cmd='name', description='update QQ nicknames')
-async def reload_name_list(forward_attrs: ForwardAttributes, args: List):
+async def reload_name_list(chat_attrs: ChatAttribute, args: List):
     if args:  # args should be empty
         return
 
     asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
+    await quick_reply(chat_attrs, 'QQ nicknames updated')
 
-    send = api_lookup(forward_attrs.from_platform, 'send')
-    if not send:
-        return
-    message = UnifiedMessage()
-    message.message.append(MessageEntity(text='QQ nicknames updated'))
-    if asyncio.iscoroutinefunction(send):
-        await send(forward_attrs.from_chat, message)
-    else:
-        send(forward_attrs.from_chat, message)

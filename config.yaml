@@ -31,4 +31,11 @@ Driver:
     BotToken: asdasdsadsadsadsad
 DataRoot: /root/coolq/data/image
 CommandStart: "!!"
+BotAdmin:
+  QQ:
+    - 123456789
+    - 987654321
+  Telegram:
+    - 213442352354534534
+    - 345235345345345345
 
