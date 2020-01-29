@@ -56,7 +56,7 @@ async def handle_msg(context):
     chat_id = context.get(f'{message_type}_id')
     if message_type in ('group', 'discuss'):
         chat_id = -chat_id
-        context[f'{message_type}_id'] = -chat_id
+        context[f'{message_type}_id'] = chat_id
     if chat_id not in chat_type:
         chat_type[chat_id] = message_type
 
@@ -66,6 +66,7 @@ async def handle_msg(context):
     return {}  # 返回给 HTTP API 插件，走快速回复途径
 
 
+@UMRDriver.api_register('QQ', 'send')
 async def send(to_chat: int, messsage: UnifiedMessage) -> asyncio.Future:
     """
     decorator for send new message
@@ -81,7 +82,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     :return:
     """
     context = dict()
-    _group_type = chat_type.get(to_chat)
+    _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
     if not _group_type:
         logger.warning(f'Sending to undefined group or chat {to_chat}')
         return
@@ -90,8 +91,18 @@ async def _send(to_chat: int, message: UnifiedMessage):
     if message.image:
         image_name = os.path.basename(message.image)
         context['message'].append(MessageSegment.image(image_name))
+
+    # name logic
     if message.chat_attrs.name:
-        context['message'].append(MessageSegment.text(message.chat_attrs.name + ': '))
+        context['message'].append(MessageSegment.text(message.chat_attrs.name))
+    if message.chat_attrs.reply_to:
+        context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
+    if message.chat_attrs.forward_from:
+        context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
+    if message.chat_attrs.name:
+        context['message'].append(MessageSegment.text(': '))
+
+    # at user
     if message.send_action.user_id:
         context['message'].append(MessageSegment.at(message.send_action.user_id))
         context['message'].append(MessageSegment.text(' '))
@@ -103,9 +114,6 @@ async def _send(to_chat: int, message: UnifiedMessage):
     logger.debug('finished processing message, ready to send')
     result = await bot.send(context, context['message'])
     return result.get('message_id')
-
-
-UMRDriver.api_register('QQ', 'send', send)
 
 
 ##### Utilities #####
@@ -420,6 +428,20 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
 
         message_list.append(unified_message)
         return message_list
+
+
+@UMRDriver.api_register('QQ', 'is_group_admin')
+async def is_group_admin(chat_id: int, user_id: int):
+    if chat_id not in group_list:
+        return False
+    return group_list[chat_id][user_id]['role'] in ('owner', 'admin')
+
+
+@UMRDriver.api_register('QQ', 'is_group_owner')
+async def is_group_owner(chat_id: int, user_id: int):
+    if chat_id not in group_list:
+        return False
+    return group_list[chat_id][user_id]['role'] == 'owner'
 
 
 def do_nothing():

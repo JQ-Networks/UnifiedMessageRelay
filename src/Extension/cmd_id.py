@@ -1,6 +1,5 @@
 from typing import List
-from asyncio import iscoroutinefunction
-from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity
+from Core.UMRType import ChatAttribute
 from Core.UMRCommand import register_command, quick_reply
 
 

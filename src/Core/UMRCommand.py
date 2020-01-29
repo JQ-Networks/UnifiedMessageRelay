@@ -5,7 +5,7 @@ from . import UMRLogging
 from .UMRType import UnifiedMessage, Command, ChatAttribute, MessageEntity, ChatType, Privilege, SendAction
 from .UMRMessageHook import register_hook
 from .UMRDriver import api_call, api_lookup
-from .UMRAdmin import is_bot_admin
+from .UMRAdmin import is_bot_admin, is_group_admin, is_group_owner
 from Util.Helper import assemble_message
 
 logger = UMRLogging.getLogger('Command')
@@ -14,18 +14,15 @@ command_map: Dict[str, Command] = dict()
 command_start: str = UMRConfig.config['CommandStart']
 
 
-async def unauthorized(platform, chat_id, required_privilege):
-    if not api_lookup(platform, 'send'):
-        return
-    message = UnifiedMessage()
+async def unauthorized(chat_attrs: ChatAttribute, required_privilege: Privilege):
     privilege_names = {
         Privilege.GROUP_ADMIN: 'Group Admin',
         Privilege.GROUP_OWNER: 'Group Owner',
         Privilege.BOT_ADMIN:   'Bot Admin'
     }
-    message.message.append(MessageEntity(text=f'Unauthorized command, requires {privilege_names[required_privilege]}'))
 
-    await api_call(platform, 'send', chat_id, message)
+    error_message = f'Unauthorized command, requires {privilege_names[required_privilege]}'
+    await quick_reply(chat_attrs, error_message)
 
 
 @register_hook()
@@ -57,14 +54,19 @@ async def command_dispatcher(message: UnifiedMessage):
         # filter privilege
         if command_map[cmd].privilege:
             if command_map[cmd].privilege == Privilege.BOT_ADMIN:
-                if not is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id):
-                    await unauthorized(message.chat_attrs.platform, message.chat_attrs.chat_id,
-                                       command_map[cmd].privilege)
+                if not await is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id):
+                    await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
             elif command_map[cmd].privilege == Privilege.GROUP_OWNER:
-                pass  # TODO driver API implementation
+                if not await is_group_owner(platform=message.chat_attrs.platform, chat_id=message.chat_attrs.chat_id,
+                                            user_id=message.chat_attrs.user_id):
+                    await unauthorized(message.chat_attrs, command_map[cmd].privilege)
+                    return True
             elif command_map[cmd].privilege == Privilege.GROUP_ADMIN:
-                pass
+                if not await is_group_admin(platform=message.chat_attrs.platform, chat_id=message.chat_attrs.chat_id,
+                                            user_id=message.chat_attrs.user_id):
+                    await unauthorized(message.chat_attrs, command_map[cmd].privilege)
+                    return True
 
         await command_map[cmd].command_function(message.chat_attrs, args)
         return True

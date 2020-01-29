@@ -26,8 +26,11 @@ def api_lookup(driver: str, api: str) -> Union[None, Callable]:
     return api_lookup_table[driver][api]
 
 
-def api_register(driver: str, api: str, func: Callable):
-    api_lookup_table[driver][api] = func
+def api_register(driver: str, api: str):
+    def deco(func):
+        api_lookup_table[driver][api] = func
+        return func
+    return deco
 
 
 async def api_call(platform: str, api_name: str, *args, **kwargs):
@@ -38,6 +41,7 @@ async def api_call(platform: str, api_name: str, *args, **kwargs):
     :param args: positional args to pass
     :param kwargs: keyword args to pass
     :return: None for API not found, api result for successful calling
+    api result can be any or asyncio.Future, for Future type use result.result() to get the actual result
     """
     func = api_lookup(platform, api_name)
     if not func:

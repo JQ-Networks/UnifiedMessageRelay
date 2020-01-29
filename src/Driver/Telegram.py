@@ -30,6 +30,7 @@ loop: asyncio.AbstractEventLoop
 image_file_id: Dict[str, str] = dict()  # mapping from filename to existing file id
 
 
+@UMRDriver.api_register('Telegram', 'send')
 async def send(to_chat: int, message: UnifiedMessage):
     """
     decorator for send new message
@@ -55,7 +56,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     if message.send_action.message_id:
         reply_to_message_id = message.send_action.message_id
     else:
-        reply_to_message_id = None
+        reply_to_message_id = None  # TODO support cross platform reply in the future
 
     if message.image:
         if message.image in image_file_id:
@@ -78,9 +79,6 @@ async def _send(to_chat: int, message: UnifiedMessage):
         tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
                                             reply_to_message_id=reply_to_message_id)
     return tg_message.message_id
-
-
-UMRDriver.api_register('Telegram', 'send', send)
 
 
 def encode_html(encode_string: str) -> str:
@@ -217,6 +215,24 @@ def get_chat_attributes(message: types.Message, chat_attrs: ChatAttribute):
                                             user_id=message.reply_to_message.from_user.id,
                                             message_id=message.reply_to_message.message_id)
         get_chat_attributes(message.reply_to_message, chat_attrs.reply_to)
+
+
+@UMRDriver.api_register('Telegram', 'is_group_admin')
+async def is_group_admin(chat_id: int, user_id: int):
+    member = await bot.get_chat_member(chat_id, user_id)
+    if member:
+        if member.status in ('creator', 'administrator'):
+            return True
+    return False
+
+
+@UMRDriver.api_register('Telegram', 'is_group_owner')
+async def is_group_owner(chat_id: int, user_id: int):
+    member = await bot.get_chat_member(chat_id, user_id)
+    if member:
+        if member.status == 'creator':
+            return True
+    return False
 
 
 def run():
