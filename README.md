@@ -17,9 +17,6 @@ QQ:
 
 ![QQ](image/qq.png)
 
-》》[中文 Readme](docs/README-zh_CN.md)《《
-
-
 ## Supported platforms
 
 - QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
@@ -36,7 +33,9 @@ Limited support for Coolq Air, will update once my Coolq Pro license expires.
 - [coolq/wine-coolq](https://hub.docker.com/r/coolq/wine-coolq/)  *Official Coolq Docker*
 - [richardchien/cqhttp](https://cqhttp.cc/docs/4.13/#/Docker) *richardchien's Coolq Docker, with Coolq http api*
 
-The following steps will be based on the *richardchien's Coolq Docker*. Assume `$HOME` is `/root`.
+The following steps will be based on the *richardchien's Coolq Docker*. Assume `$HOME` is `/root`. Due
+ to these dockers are still using old Ubuntu image, python 3.7 is not available in docker. Please run docker 
+ and mount data volume, and then run the bot on host os.
 
 ### Install CoolQ Docker
 
