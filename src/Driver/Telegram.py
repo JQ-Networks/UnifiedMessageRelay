@@ -65,9 +65,14 @@ async def _send(to_chat: int, message: UnifiedMessage):
                                               reply_to_message_id=reply_to_message_id)
         else:
             logger.debug(f'file id for {message.image} not found, sending image file')
-            tg_message = await bot.send_photo(to_chat, types.input_file.InputFile(message.image), caption=text,
-                                              parse_mode=types.message.ParseMode.HTML,
-                                              reply_to_message_id=reply_to_message_id)
+            if message.image.endswith('gif'):
+                tg_message = await bot.send_animation(to_chat, types.input_file.InputFile(message.image), caption=text,
+                                                      parse_mode=types.message.ParseMode.HTML,
+                                                      reply_to_message_id=reply_to_message_id)
+            else:
+                tg_message = await bot.send_photo(to_chat, types.input_file.InputFile(message.image), caption=text,
+                                                  parse_mode=types.message.ParseMode.HTML,
+                                                  reply_to_message_id=reply_to_message_id)
             image_file_id[message.image] = tg_message.photo[-1].file_id
     else:
         tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
@@ -158,7 +163,7 @@ def parse_entity(message: types.Message):
     return message_list
 
 
-async def tg_get_image(file_id, changes=True, format='jpg'):
+async def tg_get_image(file_id):
     """
 
     :param file_id:
@@ -168,11 +173,8 @@ async def tg_get_image(file_id, changes=True, format='jpg'):
     """
     file = await bot.get_file(file_id)
     url = f'https://api.telegram.org/file/bot{config["BotToken"]}/{file.file_path}'
-    if changes:
-        perm_id = file_id[-52:]
-    else:
-        perm_id = file_id
-    file_path = await get_image(url, file_id=perm_id, format=format)
+    perm_id = file_id[-52:]
+    file_path = await get_image(url, file_id=perm_id)
     return file_path
 
 
@@ -246,11 +248,12 @@ def run():
             unified_message.message = parse_entity(message)
             await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.STICKER:
-            file_path = await tg_get_image(message.sticker.file_id, changes=False, format='png')
+            file_path = await tg_get_image(message.sticker.file_id)
             unified_message.image = file_path
             await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.ANIMATION:
-            unified_message.message = [MessageEntity(text='[Animation, currently not supported]')]
+            file_path = await tg_get_image(message.animation.file_id)
+            unified_message.image = file_path
             await UMRDriver.receive(unified_message)
         else:
             unified_message.message = [MessageEntity(text='[Unsupported message]')]

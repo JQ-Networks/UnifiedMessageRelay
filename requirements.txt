@@ -1,8 +1,11 @@
 aiogram
+aiohttp
 aiocqhttp
 tgs
 imageio
 janus
-Pillow>=5.4.1
-coloredlogs>=10.0
-ffmpy>=0.2.2
+filetype
+cairosvg
+Pillow
+coloredlogs
+ffmpy

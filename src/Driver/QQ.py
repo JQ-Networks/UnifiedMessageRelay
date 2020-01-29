@@ -55,13 +55,10 @@ async def handle_msg(context):
     message_type = context.get("message_type")
     chat_id = context.get(f'{message_type}_id')
     if message_type in ('group', 'discuss'):
-        chat_id = - chat_id
+        chat_id = -chat_id
+        context[f'{message_type}_id'] = -chat_id
     if chat_id not in chat_type:
         chat_type[chat_id] = message_type
-    group_id = context.get('group_id')
-    if chat_type.get(group_id) != context.get('message_type'):  # filter unknown group chat
-        logger.debug(f'ignored unknown source: {context.get("message_type")}: {group_id}')
-        return {}
 
     unified_message_list = await dissemble_message(context)
     for message in unified_message_list:
@@ -102,7 +99,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
         context['message'].append(MessageSegment.text(m.text + ' '))
         if m.link:
             context['message'].append(MessageSegment.text(m.link) + ' ')
-    context[f'{_group_type}_id'] = to_chat
+    context[f'{_group_type}_id'] = abs(to_chat)
     logger.debug('finished processing message, ready to send')
     result = await bot.send(context, context['message'])
     return result.get('message_id')
@@ -113,7 +110,7 @@ UMRDriver.api_register('QQ', 'send', send)
 
 ##### Utilities #####
 
-async def get_username(user_id, chat_id, chat_type):
+async def get_username(user_id, chat_id, chat_type: str):
     if user_id == config['Account']:
         return 'bot'
     if chat_type == 'group':
@@ -394,12 +391,12 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
                                                  name=username,
                                                  user_id=user_id,
                                                  message_id=message_id)
-                file_dir = await get_image(m['url'])
-                if file_dir:
-                    unified_message.image = file_dir
-                else:
-                    unified_message.message.append(MessageEntity(text='[Image not found]'))
-                    logger.warning(f'URL downlaod failed: {m["url"]}')
+            file_dir = await get_image(m['url'])
+            if file_dir:
+                unified_message.image = file_dir
+            else:
+                unified_message.message.append(MessageEntity(text='[Image not found]'))
+                logger.warning(f'URL downlaod failed: {m["url"]}')
 
         elif message_type == 'text':
             unified_message.message.append(MessageEntity(text=m['text']))

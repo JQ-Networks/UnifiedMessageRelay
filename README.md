@@ -181,6 +181,22 @@ Send `!!id` in Telegram groups to view Telegram Group ID.
 
 Send `!!name` to update qq name list manually
 
+### Delete QQ Message
+
+Reply to the message you want to delete with `!!del` (message must be sent by bot)
+
+### add telegram blocked keyword
+
+Message containing these keyword will not be forwarded to any other chat
+
+Send `!!bk` and keywords separated by space
+
+### add telegram blocked channel
+
+Message originated from these channel will not be forwarded to any other chat
+
+Reply forwarded channel message with `!!bc`
+
 # Issue Format
 
 ## Check these before opening an issue
