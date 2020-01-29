@@ -8,10 +8,19 @@ from .UMRDriver import api_lookup, api_call
 from .UMRConfig import config
 from .UMRMessageRelation import set_message_id, get_message_id
 from .UMRMessageHook import message_hook_src, message_hook_full
-from Util.Helper import janus_queue_put_async, check_attribute
-from threading import Thread
+from Util.Helper import check_attribute
+from copy import deepcopy
 
 logger = UMRLogging.getLogger('Dispatcher')
+
+attributes = [
+    'Accounts',
+    'Topology'
+]
+
+check_attribute(config['ForwardList'], attributes, logger)
+# bot accounts for each platform
+bot_accounts = config['ForwardList']['Accounts']
 
 # forward graph
 
@@ -94,15 +103,31 @@ async def dispatch(message: UnifiedMessage):
                                               dst_platform=action.to_platform,
                                               dst_chat_id=action.to_chat)
 
+            # reply to real user on the other side
             if reply_message_id:
-                message.send_action = SendAction(message_id=reply_message_id.message_id, user_id=reply_message_id.user_id)
+                message.send_action = SendAction(message_id=reply_message_id.message_id,
+                                                 user_id=reply_message_id.user_id)
+
+            # filter duplicate reply (the fact that user is actually replying to bot)
+            reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
+                                              src_chat_id=message.chat_attrs.chat_id,
+                                              message_id=message.chat_attrs.reply_to.message_id,
+                                              dst_platform=message.chat_attrs.platform,
+                                              dst_chat_id=message.chat_attrs.chat_id)
+
+            if reply_message_id and reply_message_id.user_id == bot_accounts[message.chat_attrs.platform]:
+                message.chat_attrs.reply_to = None
 
         message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
+        if action.to_platform == message.chat_attrs.platform:
+            user_id = message.chat_attrs.user_id
+        else:
+            user_id = bot_accounts[action.to_platform]
         message_id_list.append(
             DestinationMessageID(platform=action.to_platform,
                                  chat_id=action.to_chat,
                                  message_id=message_id,
-                                 user_id=message.chat_attrs.user_id)
+                                 user_id=user_id)
         )
 
         logger.debug(f'added new task to ({action.to_platform}, {action.to_chat})')

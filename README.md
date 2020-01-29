@@ -90,41 +90,48 @@ Copy config.yaml to `~/.umr`
 
 Example config
 ```yaml
-ForwardList:  # This section is for main framework
+ForwardList:
   Accounts:
-    QQ: 12213312  # Your QQ account number
-    Telegram: 12321312  # Your Telegram bot chat id (the number before ':' in bot token)
+    QQ: 12213312  # your QQ bot account number
+    Telegram: 12321312  # your telegram bot chat id
   Topology:
-    - From: QQ  # Case sensitive
-      FromChat: 1123131231
+    - From: QQ
+      FromChat: -1123131231  # use negative number for group/discuss, positive for private chat
       To: Telegram
-      ToChat: 31231212344
-      ForwardType: ReplyOnly  # Case sensitive
+      ToChat: -31231212344  # telegram chat id, use !!id to show
+      ForwardType: ReplyOnly
       # OneWay:
       # Forward from "FromChat" to "ToChat"
       # BiDirection:
       # Forward from "FromChat" to "ToChat" and vise versa
       # ReplyOnly:
-      # Forward from "FromChat" to "ToChat", ignoring message without "reply to someone", requires driver support
-Driver:  # This section is for drivers
+      # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
+Driver:
   QQ:
-    Account: 643503161  # Your QQ account number
+    Account: 643503161
     APIRoot: http://127.0.0.1:5700/
     ListenIP: 172.17.0.1
     ListenPort: 8080
     Token: very
     Secret: long
-    IsPro: yes
+    IsPro: yes    # currently coolq air is not supported, image sending is unavailable
     ChatList:
-      1123131231: group       # Lower case
-      1234423423: private     # Currently private chat is not supported
-      213124432432: discuss
+      -1123131231: group       # group/discuss should be negative, type is lower case
+      1234423423: private
+      -213124432432: discuss
   Telegram:
-    BotToken: asdasdsadsadsadsad  # Your Telegram bot token
+    BotToken: asdasdsadsadsadsad
+DataRoot: /root/coolq/data/image
+CommandStart: "!!"
+BotAdmin:
+  QQ:
+    - 123456789
+    - 987654321
+  Telegram:
+    - 213442352354534534
+    - 345235345345345345
 
-# Other miscellaneous configurations
-DataRoot: /root/coolq/data/image  # coolq image root
-CommandStart: "!!"  # command activation prefix
+
 ```
 
 ## Start the bot

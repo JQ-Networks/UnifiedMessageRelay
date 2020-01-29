@@ -3,7 +3,7 @@ from Core.UMRType import ChatAttribute
 from Core.UMRCommand import register_command, quick_reply
 
 
-@register_command(cmd='id', platform='Telegram', description='get Telegram group id')
+@register_command(cmd='id', description='get group id')
 async def command(chat_attrs: ChatAttribute, args: List):
     """
     Prototype of command
