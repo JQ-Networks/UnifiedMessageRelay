@@ -1,5 +1,16 @@
 # 更新日志
 
+## v4.0 完整重构，架构修改
+
+- 完全支持 `async`
+- 新增逻辑
+    - UnifiedMessage 逻辑：消息抽象为通用消息
+    - Driver 逻辑：后端驱动实现指定 API 即可添加支持
+    - Dispatch 逻辑：统一的消息路由处理
+    - Command 逻辑：统一的命令管理
+    - Plugin 逻辑：消息过滤，Driver功能扩栈，命令注册等
+- 更多功能有待开发
+
 ## v3.4.1 _（HotFix）_
 
 - 修复了 `main.tg_utils` 无法将 Webp 转换为 PNG 的问题
@@ -19,7 +30,7 @@
 
 - 新配置项`USE_SHORT_URL`：可以在配置文件中配置是否使用短链接。
 - JSON配置文件现支持[**可选配置**](README-zh_CN.md#%E5%8F%AF%E9%80%89%E9%85%8D%E7%BD%AEjson%E7%89%B9%E6%9C%89)
-- 支持使用 docker-compose 编排服务，[*阅读更多*](docker-compose-zh_CN.md)
+- 支持使用 docker-compose 编排服务，[*阅读更多*](docs/Obsoleted/docker-compose-zh_CN.md)
 - 回复开头为 “//” 的消息不会被转发
 - 部分细节优化
 - 管理功能仍在开发中

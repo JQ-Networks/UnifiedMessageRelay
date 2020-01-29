@@ -1,0 +1,41 @@
+ForwardList:
+  Accounts:
+    QQ: 12213312  # your QQ bot account number
+    Telegram: 12321312  # your telegram bot chat id
+  Topology:
+    - From: QQ
+      FromChat: -1123131231  # use negative number for group/discuss, positive for private chat
+      To: Telegram
+      ToChat: -31231212344  # telegram chat id, use !!id to show
+      ForwardType: ReplyOnly
+      # OneWay:
+      # Forward from "FromChat" to "ToChat"
+      # BiDirection:
+      # Forward from "FromChat" to "ToChat" and vise versa
+      # ReplyOnly:
+      # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
+Driver:
+  QQ:
+    Account: 643503161
+    APIRoot: http://127.0.0.1:5700/
+    ListenIP: 172.17.0.1
+    ListenPort: 8080
+    Token: very
+    Secret: long
+    IsPro: yes    # currently coolq air is not supported, image sending is unavailable
+    ChatList:
+      -1123131231: group       # group/discuss should be negative, type is lower case
+      1234423423: private
+      -213124432432: discuss
+  Telegram:
+    BotToken: asdasdsadsadsadsad
+DataRoot: /root/coolq/data/image
+CommandStart: "!!"
+BotAdmin:
+  QQ:
+    - 123456789
+    - 987654321
+  Telegram:
+    - 213442352354534534
+    - 345235345345345345
+
