@@ -9,7 +9,7 @@ from .UMRConfig import config
 from .UMRMessageRelation import set_message_id, get_message_id, get_relation_dict
 from .UMRMessageHook import message_hook_src, message_hook_full
 from Util.Helper import check_attribute
-from copy import deepcopy
+from .UMRFile import get_image
 
 logger = UMRLogging.getLogger('Dispatcher')
 
@@ -109,6 +109,8 @@ async def dispatch_reply(message: UnifiedMessage):
             message.chat_attrs.reply_to = None
             message.send_action = SendAction(message_id=reply_message_id.source.message_id,
                                              user_id=reply_message_id.source.user_id)
+            if message.image.startswith('http'):
+                message.image = await get_image(message.image, message.file_id)
             message_id = await api_call(reply_message_id.source.platform, 'send',
                                         reply_message_id.source.chat_id, message)
             message_id_list.append(
@@ -149,6 +151,8 @@ async def dispatch_default(message: UnifiedMessage):
 
     # default forward
     for action in default_action_graph[message.chat_attrs.platform]:
+        if message.image.startswith('http'):
+            message.image = await get_image(message.image, message.file_id)
         message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
         if action.to_platform == message.chat_attrs.platform:
             user_id = message.chat_attrs.user_id
@@ -246,7 +250,8 @@ async def dispatch(message: UnifiedMessage):
                     # basic message filtering
                     message.send_action = SendAction(message_id=reply_message_id.message_id,
                                                      user_id=reply_message_id.user_id)
-
+        if message.image.startswith('http'):
+            message.image = await get_image(message.image, message.file_id)
         message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
         if action.to_platform == message.chat_attrs.platform:
             user_id = message.chat_attrs.user_id

@@ -414,12 +414,7 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
                                                  name=username,
                                                  user_id=user_id,
                                                  message_id=message_id)
-            file_dir = await get_image(m['url'])
-            if file_dir:
-                unified_message.image = file_dir
-            else:
-                unified_message.message.append(MessageEntity(text='[Image not found]'))
-                logger.warning(f'URL downlaod failed: {m["url"]}')
+            unified_message.image = m['url']
 
         elif message_type == 'text':
             unified_message.message.append(MessageEntity(text=m['text']))
