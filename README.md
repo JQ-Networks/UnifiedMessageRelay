@@ -69,11 +69,15 @@ post_message_format=array
 Log in into `http://YOUR_SERVE_IP:9000`, and use the default vnc password `MAX8char` or your own password. You need to
  activate Coolq Pro and log in your QQ Account manually.
 
-### Install python dependencies
+### Install python dependencies on host os
 
 Make sure Python 3.7+ and `pip` are installed. Run:
 
 `pip3 install -r requirements.txt`
+
+### Install other required package on host os
+
+`apt install libcairosvg2 ffmpeg`
 
 ## Configurations
 
@@ -90,10 +94,10 @@ Copy config.yaml to `~/.umr`
 Example config
 ```yaml
 ForwardList:
-  Accounts:
+  Accounts:  # must specify all available bot account ids for every driver in use
     QQ: 12213312  # your QQ bot account number
     Telegram: 12321312  # your telegram bot chat id
-  Topology:
+  Topology:  # keep this key even if no topology exists
     - From: QQ
       FromChat: -1123131231  # use negative number for group/discuss, positive for private chat
       To: Telegram
@@ -105,6 +109,11 @@ ForwardList:
       # Forward from "FromChat" to "ToChat" and vise versa
       # ReplyOnly:
       # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
+  Default:  # keep this key even if no default route exists
+    - From: QQ
+      To: Telegram
+      ToChat: -123244234234
+      # Reply bot message will also reply the source in other platform
 Driver:
   QQ:
     Account: 643503161
@@ -114,6 +123,8 @@ Driver:
     Token: very
     Secret: long
     IsPro: yes    # currently coolq air is not supported, image sending is unavailable
+    NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
+    NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
     ChatList:
       -1123131231: group       # group/discuss should be negative, type is lower case
       1234423423: private
@@ -129,7 +140,6 @@ BotAdmin:
   Telegram:
     - 213442352354534534
     - 345235345345345345
-
 
 ```
 

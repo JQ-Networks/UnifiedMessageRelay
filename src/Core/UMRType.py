@@ -238,7 +238,9 @@ class DestinationMessageID:
     """
     Used in MessageRelation
     """
-    platform: str
-    chat_id: int
-    message_id: int  # or asyncio.Future, only in generation step
-    user_id: int
+    platform: str = ''
+    chat_id: int = 0
+    message_id: int = 0  # or asyncio.Future, only in generation step
+    user_id: int = 0
+    source: DestinationMessageID = None
+
