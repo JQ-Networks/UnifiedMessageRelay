@@ -8,7 +8,6 @@ from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
 from Util.Helper import check_attribute
-from Core.UMRFile import get_image
 import datetime
 
 launch_time = datetime.datetime.now()
@@ -161,7 +160,7 @@ def parse_entity(message: types.Message):
     return message_list
 
 
-async def tg_get_image(file_id):
+async def tg_get_image(file_id) -> (str, str):
     """
 
     :param file_id:
@@ -172,8 +171,7 @@ async def tg_get_image(file_id):
     file = await bot.get_file(file_id)
     url = f'https://api.telegram.org/file/bot{config["BotToken"]}/{file.file_path}'
     perm_id = file_id[-52:]
-    file_path = await get_image(url, file_id=perm_id)
-    return file_path
+    return url, perm_id
 
 
 def get_chat_attributes(message: types.Message, chat_attrs: ChatAttribute):
@@ -259,17 +257,20 @@ def run():
             unified_message.message = parse_entity(message)
             await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.PHOTO:
-            file_path = await tg_get_image(message.photo[-1].file_id)
-            unified_message.image = file_path
+            url, file_id = await tg_get_image(message.photo[-1].file_id)
+            unified_message.image = url
+            unified_message.file_id = file_id
             unified_message.message = parse_entity(message)
             await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.STICKER:
-            file_path = await tg_get_image(message.sticker.file_id)
-            unified_message.image = file_path
+            url, file_id = await tg_get_image(message.sticker.file_id)
+            unified_message.image = url
+            unified_message.file_id = file_id
             await UMRDriver.receive(unified_message)
         elif message.content_type == ContentType.ANIMATION:
-            file_path = await tg_get_image(message.animation.file_id)
-            unified_message.image = file_path
+            url, file_id = await tg_get_image(message.animation.file_id)
+            unified_message.image = url
+            unified_message.file_id = file_id
             await UMRDriver.receive(unified_message)
         else:
             unified_message.message = [MessageEntity(text='[Unsupported message]')]

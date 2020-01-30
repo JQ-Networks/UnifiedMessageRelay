@@ -83,14 +83,16 @@ class UnifiedMessage:
     chat_attrs: ChatAttribute
     message: List[MessageEntity]  # pure text message
     image: str  # path of the image
+    file_id: str  # unique file identifier
     send_action: SendAction
 
-    def __init__(self, message=None, image='', platform='', chat_id=0, name='', user_id=0, message_id: int = 0):
+    def __init__(self, message=None, image='', file_id='', platform='', chat_id=0, name='', user_id=0, message_id: int = 0):
         if message is None:
             message = list()
         self.send_action = SendAction(0, 0)
         self.message = message
         self.image = image
+        self.file_id = file_id
         self.chat_attrs = ChatAttribute(platform=platform,
                                         chat_id=chat_id,
                                         name=name,
