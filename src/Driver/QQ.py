@@ -29,6 +29,8 @@ attributes = [
     'Token',
     'Secret',
     'IsPro',
+    'NameforPrivateChat',
+    'NameforGroupChat',
     'ChatList',
 ]
 check_attribute(config, attributes, logger)
@@ -53,7 +55,10 @@ stranger_list: Dict[int, str] = dict()  # todo initialization on startup
 # 上面这句等价于 @bot.on('message')
 async def handle_msg(context):
     message_type = context.get("message_type")
-    chat_id = context.get(f'{message_type}_id')
+    if message_type in ('group', 'discuss'):
+        chat_id = context.get(f'{message_type}_id')
+    else:
+        chat_id = context.get('user_id')
     if message_type in ('group', 'discuss'):
         chat_id = -chat_id
         context[f'{message_type}_id'] = chat_id
@@ -92,25 +97,31 @@ async def _send(to_chat: int, message: UnifiedMessage):
         image_name = os.path.basename(message.image)
         context['message'].append(MessageSegment.image(image_name))
 
-    # name logic
-    if message.chat_attrs.name:
-        context['message'].append(MessageSegment.text(message.chat_attrs.name))
-    if message.chat_attrs.reply_to:
-        context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
-    if message.chat_attrs.forward_from:
-        context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
-    if message.chat_attrs.name:
-        context['message'].append(MessageSegment.text(': '))
+    if (_group_type == 'private' and config['NameforPrivateChat']) or \
+        (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
+        # name logic
+        if message.chat_attrs.name:
+            context['message'].append(MessageSegment.text(message.chat_attrs.name))
+        if message.chat_attrs.reply_to:
+            context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
+        if message.chat_attrs.forward_from:
+            context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
+        if message.chat_attrs.name:
+            context['message'].append(MessageSegment.text(': '))
 
-    # at user
-    if message.send_action.user_id:
-        context['message'].append(MessageSegment.at(message.send_action.user_id))
-        context['message'].append(MessageSegment.text(' '))
+        # at user
+        if message.send_action.user_id:
+            context['message'].append(MessageSegment.at(message.send_action.user_id))
+            context['message'].append(MessageSegment.text(' '))
+
     for m in message.message:
         context['message'].append(MessageSegment.text(m.text + ' '))
         if m.link:
             context['message'].append(MessageSegment.text(m.link) + ' ')
-    context[f'{_group_type}_id'] = abs(to_chat)
+    if _group_type == 'private':
+        context['user_id'] = to_chat
+    else:
+        context[f'{_group_type}_id'] = abs(to_chat)
     logger.debug('finished processing message, ready to send')
     result = await bot.send(context, context['message'])
     return result.get('message_id')
@@ -143,17 +154,21 @@ async def dissemble_message(context):
     #     message = UnifiedMessage(from_platform='QQ', from_chat=group_id, from_user=username,
     #                              message=context.get('raw_message'))
 
-    chat_id = context.get(f'{context.get("message_type")}_id')
+    message_type = context.get('message_type')
+    if message_type in ('group', 'discuss'):
+        chat_id = context.get(f'{message_type}_id')
+    else:
+        chat_id = context.get('user_id')
     user_id = context.get('user_id')
-    chat_type = context.get('message_type')
+
     message_id = context.get('message_id')
-    username = await get_username(user_id, chat_id, chat_type)
+    username = await get_username(user_id, chat_id, message_type)
     message: List[Dict] = context['message']
 
     unified_message = await parse_special_message(chat_id, username, message_id, user_id, message)
     if unified_message:
         return [unified_message]
-    unified_message_list = await parse_message(chat_id, chat_type, username, message_id, user_id, message)
+    unified_message_list = await parse_message(chat_id, message_type, username, message_id, user_id, message)
     return unified_message_list
 
 
