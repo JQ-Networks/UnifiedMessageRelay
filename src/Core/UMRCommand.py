@@ -58,13 +58,17 @@ async def command_dispatcher(message: UnifiedMessage):
                     await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
             elif command_map[cmd].privilege == Privilege.GROUP_OWNER:
-                if not await is_group_owner(platform=message.chat_attrs.platform, chat_id=message.chat_attrs.chat_id,
-                                            user_id=message.chat_attrs.user_id):
+                if not await is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id) or \
+                        not await is_group_owner(platform=message.chat_attrs.platform,
+                                                 chat_id=message.chat_attrs.chat_id,
+                                                 user_id=message.chat_attrs.user_id):
                     await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
             elif command_map[cmd].privilege == Privilege.GROUP_ADMIN:
-                if not await is_group_admin(platform=message.chat_attrs.platform, chat_id=message.chat_attrs.chat_id,
-                                            user_id=message.chat_attrs.user_id):
+                if not await is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id) or \
+                        not await is_group_admin(platform=message.chat_attrs.platform,
+                                                 chat_id=message.chat_attrs.chat_id,
+                                                 user_id=message.chat_attrs.user_id):
                     await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
 

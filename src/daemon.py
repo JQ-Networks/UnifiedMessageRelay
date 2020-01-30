@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 import argparse
 from Lib.DaemonClass import Daemon
-from Core.UMRManager import UMRManager
 
 
 class MainProcess(Daemon):
     def run(self, debug_mode):
+        from Core.UMRManager import UMRManager
         UMRManager.run()
 
 
