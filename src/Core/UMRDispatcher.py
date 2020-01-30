@@ -211,13 +211,25 @@ async def dispatch(message: UnifiedMessage):
                 if hook.hook_function(action.to_platform, action.to_chat, message):
                     continue
 
-        # basic message filtering
-        if action.action_type == ForwardActionType.Reply and not message.chat_attrs.reply_to:
-            continue
-
         # check api registration
         if not api_lookup(action.to_platform, 'send'):
             continue
+
+        if action.action_type == ForwardActionType.Reply:
+            if message.chat_attrs.reply_to:
+                reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
+                                                  src_chat_id=message.chat_attrs.chat_id,
+                                                  message_id=message.chat_attrs.reply_to.message_id,
+                                                  dst_platform=action.to_platform,
+                                                  dst_chat_id=action.to_chat)
+                if not reply_message_id:
+                    continue
+                if (message.chat_attrs.platform == message.chat_attrs.reply_to.platform
+                        and message.chat_attrs.chat_id == message.chat_attrs.reply_to.chat_id
+                        and message.chat_attrs.reply_to.user_id != bot_accounts[message.chat_attrs.platform]):
+                    continue
+            else:
+                continue
 
         if message.chat_attrs.reply_to:
             reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
@@ -226,14 +238,14 @@ async def dispatch(message: UnifiedMessage):
                                               dst_platform=action.to_platform,
                                               dst_chat_id=action.to_chat)
 
-            # reply to real user on the other side
-            if reply_message_id:
-                message.send_action = SendAction(message_id=reply_message_id.message_id,
-                                                 user_id=reply_message_id.user_id)
-
             # filter duplicate reply (the fact that user is actually replying to bot)
             if message.chat_attrs.reply_to.user_id == bot_accounts[message.chat_attrs.platform]:
                 message.chat_attrs.reply_to = None
+                # reply to real user on the other side
+                if reply_message_id:
+                    # basic message filtering
+                    message.send_action = SendAction(message_id=reply_message_id.message_id,
+                                                     user_id=reply_message_id.user_id)
 
         message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
         if action.to_platform == message.chat_attrs.platform:
