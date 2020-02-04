@@ -129,12 +129,12 @@ async def _send(to_chat: int, message: UnifiedMessage):
 
 ##### Utilities #####
 
-async def get_username(user_id, chat_id, chat_type: str):
+async def get_username(user_id: int, chat_id: int):
     if user_id == config['Account']:
         return 'bot'
-    if chat_type == 'group':
+    if chat_id < 0:
         user = group_list.get(chat_id, dict()).get(user_id, dict())
-        username = user.get('nickname', str(user_id))
+        username = user.get('card', user.get('nickname', str(user_id)))
     else:
         if user_id in stranger_list:
             username = stranger_list.get(user_id)
@@ -162,7 +162,7 @@ async def dissemble_message(context):
     user_id = context.get('user_id')
 
     message_id = context.get('message_id')
-    username = await get_username(user_id, chat_id, message_type)
+    username = await get_username(user_id, chat_id)
     message: List[Dict] = context['message']
 
     unified_message = await parse_special_message(chat_id, username, message_id, user_id, message)
@@ -419,7 +419,7 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
         elif message_type == 'text':
             unified_message.message.append(MessageEntity(text=m['text']))
         elif message_type == 'at':
-            target = await get_username(m['qq'], chat_type, chat_type)
+            target = await get_username(m['qq'], chat_id)
             unified_message.message.append(MessageEntity(text='@' + target, entity_type='bold'))
         elif message_type == 'sface':
             qq_face = int(m['id']) & 255
