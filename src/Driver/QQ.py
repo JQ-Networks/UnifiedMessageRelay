@@ -2,7 +2,7 @@ from typing import Dict, List
 import threading
 import asyncio
 import janus
-from aiocqhttp import CQHttp, MessageSegment
+from aiocqhttp import CQHttp, MessageSegment, Event
 from Core.UMRType import UnifiedMessage, MessageEntity
 from Core import UMRDriver
 from Core import UMRLogging
@@ -86,45 +86,51 @@ async def _send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
-    context = dict()
-    _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
-    if not _group_type:
-        logger.warning(f'Sending to undefined group or chat {to_chat}')
-        return
-    context['message_type'] = _group_type
-    context['message'] = list()
-    if message.image:
-        image_name = os.path.basename(message.image)
-        context['message'].append(MessageSegment.image(image_name))
+    try:
+        context = dict()
+        _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
+        if not _group_type:
+            logger.warning(f'Sending to undefined group or chat {to_chat}')
+            return
+        context['message_type'] = _group_type
+        context['message'] = list()
+        if message.image:
+            image_name = os.path.basename(message.image)
+            context['message'].append(MessageSegment.image(image_name))
 
-    if (_group_type == 'private' and config['NameforPrivateChat']) or \
-        (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
-        # name logic
-        if message.chat_attrs.name:
-            context['message'].append(MessageSegment.text(message.chat_attrs.name))
-        if message.chat_attrs.reply_to:
-            context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
-        if message.chat_attrs.forward_from:
-            context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
-        if message.chat_attrs.name:
-            context['message'].append(MessageSegment.text(': '))
+        if (_group_type == 'private' and config['NameforPrivateChat']) or \
+            (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
+            # name logic
+            if message.chat_attrs.name:
+                context['message'].append(MessageSegment.text(message.chat_attrs.name))
+            if message.chat_attrs.reply_to:
+                context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
+            if message.chat_attrs.forward_from:
+                context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
+            if message.chat_attrs.name:
+                context['message'].append(MessageSegment.text(': '))
 
-        # at user
-        if message.send_action.user_id:
-            context['message'].append(MessageSegment.at(message.send_action.user_id))
-            context['message'].append(MessageSegment.text(' '))
+            # at user
+            if message.send_action.user_id:
+                context['message'].append(MessageSegment.at(message.send_action.user_id))
+                context['message'].append(MessageSegment.text(' '))
 
-    for m in message.message:
-        context['message'].append(MessageSegment.text(m.text + ' '))
-        if m.link:
-            context['message'].append(MessageSegment.text(m.link) + ' ')
-    if _group_type == 'private':
-        context['user_id'] = to_chat
-    else:
-        context[f'{_group_type}_id'] = abs(to_chat)
-    logger.debug('finished processing message, ready to send')
-    result = await bot.send(context, context['message'])
-    return result.get('message_id')
+        for m in message.message:
+            context['message'].append(MessageSegment.text(m.text + ' '))
+            if m.link:
+                context['message'].append(MessageSegment.text(m.link) + ' ')
+        if _group_type == 'private':
+            context['user_id'] = to_chat
+        else:
+            context[f'{_group_type}_id'] = abs(to_chat)
+        logger.debug('finished processing message, ready to send')
+        result = await bot.send(context, context['message'])
+        return result.get('message_id')
+    except:
+        logger.exception('Unhandled exception: ')
+
+    return 0
+
 
 
 ##### Utilities #####
@@ -134,13 +140,15 @@ async def get_username(user_id: int, chat_id: int):
         return 'bot'
     if chat_id < 0:
         user = group_list.get(chat_id, dict()).get(user_id, dict())
-        username = user.get('card', user.get('nickname', str(user_id)))
+        username = user.get('card', '')
+        if not username:
+            username = user.get('nickname', str(user_id))
     else:
         if user_id in stranger_list:
             username = stranger_list.get(user_id)
         else:
             user = await bot.get_stranger_info(user_id=user_id)
-            username = user.get('nickname')
+            username = user.get('nickname', str(user_id))
             stranger_list[user_id] = username
     return username
 
@@ -419,7 +427,7 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
         elif message_type == 'text':
             unified_message.message.append(MessageEntity(text=m['text']))
         elif message_type == 'at':
-            target = await get_username(m['qq'], chat_id)
+            target = await get_username(int(m['qq']), chat_id)
             unified_message.message.append(MessageEntity(text='@' + target, entity_type='bold'))
         elif message_type == 'sface':
             qq_face = int(m['id']) & 255
@@ -436,8 +444,8 @@ async def parse_message(chat_id: int, chat_type: str, username: str, message_id:
         else:
             logger.debug('Unhandled message type: ' + str(m))
 
-        message_list.append(unified_message)
-        return message_list
+    message_list.append(unified_message)
+    return message_list
 
 
 @UMRDriver.api_register('QQ', 'is_group_admin')

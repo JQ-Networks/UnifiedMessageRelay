@@ -71,7 +71,7 @@ async def command(chat_attrs: ChatAttribute, args: List):
         await quick_reply(chat_attrs, f'Success, added channel {reply_chat_attrs.forward_from.name}')
 
 
-@register_command(cmd=['block_keyword', 'bw'], platform='Telegram', description='register block channel',
+@register_command(cmd=['block_keyword', 'bw'], platform='Telegram', description='register block keyword',
                   privilege=Privilege.BOT_ADMIN)
 async def command(chat_attrs: ChatAttribute, args: List):
     global config
