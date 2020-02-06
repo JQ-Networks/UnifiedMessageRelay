@@ -35,6 +35,7 @@ async def send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
+    logger.debug('calling real send')
     return asyncio.run_coroutine_threadsafe(_send(to_chat, message), loop)
 
 
@@ -43,6 +44,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
+    logger.debug('begin processing message')
     await bot.send_chat_action(to_chat, types.chat.ChatActions.TYPING)
     if message.chat_attrs.name:
         text = '<b>' + message.chat_attrs.name + '</b>: '
@@ -60,9 +62,14 @@ async def _send(to_chat: int, message: UnifiedMessage):
     if message.image:
         if message.image in image_file_id:
             logger.debug(f'file id for {message.image} found, sending file id')
-            tg_message = await bot.send_photo(to_chat, image_file_id[message.image], caption=text,
-                                              parse_mode=types.message.ParseMode.HTML,
-                                              reply_to_message_id=reply_to_message_id)
+            if message.image.endswith('gif'):
+                tg_message = await bot.send_animation(to_chat, image_file_id[message.image], caption=text,
+                                                      parse_mode=types.message.ParseMode.HTML,
+                                                      reply_to_message_id=reply_to_message_id)
+            else:
+                tg_message = await bot.send_photo(to_chat, image_file_id[message.image], caption=text,
+                                                  parse_mode=types.message.ParseMode.HTML,
+                                                  reply_to_message_id=reply_to_message_id)
         else:
             logger.debug(f'file id for {message.image} not found, sending image file')
             if message.image.endswith('gif'):
@@ -76,8 +83,10 @@ async def _send(to_chat: int, message: UnifiedMessage):
                                                   reply_to_message_id=reply_to_message_id)
                 image_file_id[message.image] = tg_message.photo[-1].file_id
     else:
+        logger.debug('finished processing message, ready to send')
         tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
                                             reply_to_message_id=reply_to_message_id)
+    logger.debug('finished sending')
     return tg_message.message_id
 
 
@@ -288,6 +297,7 @@ def run():
 
 
 t = threading.Thread(target=run)
+t.daemon = True
 UMRDriver.threads.append(t)
 t.start()
 

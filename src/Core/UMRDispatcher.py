@@ -2,6 +2,7 @@ from typing import Union, List, DefaultDict, Tuple, Any
 import asyncio
 from collections import defaultdict
 from janus import Queue
+import concurrent.futures
 from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, SendAction, DestinationMessageID
 from . import UMRLogging
 from .UMRDriver import api_lookup, api_call
@@ -271,7 +272,14 @@ async def dispatch(message: UnifiedMessage):
         if isinstance(message_id_list[idx], int):
             continue
         else:
-            message_id_list[idx].message_id = message_id_list[idx].message_id.result()
+            try:
+                message_id_list[idx].message_id = message_id_list[idx].message_id.result(timeout=30)
+            except concurrent.futures.TimeoutError:
+                logger.warn(f'task ({message_id_list[idx].platform}, {message_id_list[idx].chat_id})'
+                            f' took longer than 30 seconds, aborting')
+                message_id_list[idx].message_id.interrupt()
+                message_id_list[idx].message_id = 0
 
     message_id_list.append(source_message_id)
+    message_id_list = [*filter(lambda x: x.message_id > 0, message_id_list)]
     set_message_id(message_id_list)

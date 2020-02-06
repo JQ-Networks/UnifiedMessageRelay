@@ -77,7 +77,7 @@ async def send(to_chat: int, messsage: UnifiedMessage) -> asyncio.Future:
     decorator for send new message
     :return:
     """
-    logger.debug('sending message')
+    logger.debug('calling real send')
     return asyncio.run_coroutine_threadsafe(_send(to_chat, messsage), loop)
 
 
@@ -86,8 +86,9 @@ async def _send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
+    logger.debug('begin processing message')
     context = dict()
-    _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
+    _group_type = chat_type.get(to_chat, 'group')
     if not _group_type:
         logger.warning(f'Sending to undefined group or chat {to_chat}')
         return
@@ -98,7 +99,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
         context['message'].append(MessageSegment.image(image_name))
 
     if (_group_type == 'private' and config['NameforPrivateChat']) or \
-        (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
+       (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
         # name logic
         if message.chat_attrs.name:
             context['message'].append(MessageSegment.text(message.chat_attrs.name))
@@ -124,6 +125,7 @@ async def _send(to_chat: int, message: UnifiedMessage):
         context[f'{_group_type}_id'] = abs(to_chat)
     logger.debug('finished processing message, ready to send')
     result = await bot.send(context, context['message'])
+    logger.debug('finished sending')
     return result.get('message_id')
 
 
@@ -476,6 +478,7 @@ def run():
 
 
 t = threading.Thread(target=run)
+t.daemon = True
 UMRDriver.threads.append(t)
 t.start()
 

@@ -28,12 +28,16 @@ class UMRManager:
 
     @staticmethod
     def run():
-        # init drivers for different platform
-        UMRManager.check_drivers()
-        sleep(2)
-        # init plugin hooks
-        UMRManager.load_plugins()
-        for i in UMRDriver.threads:
-            i.join()
-        # TODO check if stop should be handled
-        pass
+        try:
+            # init drivers for different platform
+            UMRManager.check_drivers()
+            sleep(2)
+            # init plugin hooks
+            UMRManager.load_plugins()
+            for i in UMRDriver.threads:
+                i.join()
+            # TODO check if stop should be handled
+            pass
+        except KeyboardInterrupt:
+            logger.info('Terminating')
+            exit(0)
