@@ -234,9 +234,16 @@ async def is_group_owner(chat_id: int, user_id: int):
     return False
 
 
+def handle_exception(loop, context):
+    # context["message"] will always be there; but context["exception"] may not
+    msg = context.get("exception", context["message"])
+    logger.exception('Unhandled exception: ', exc_info=msg)
+
+
 def run():
     global bot, dp, loop
     loop = asyncio.new_event_loop()
+    loop.set_exception_handler(handle_exception)
     asyncio.set_event_loop(loop)
     bot = Bot(token=config['BotToken'])
     dp = Dispatcher(bot)

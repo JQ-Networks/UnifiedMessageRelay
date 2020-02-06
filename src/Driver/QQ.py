@@ -86,50 +86,45 @@ async def _send(to_chat: int, message: UnifiedMessage):
     decorator for send new message
     :return:
     """
-    try:
-        context = dict()
-        _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
-        if not _group_type:
-            logger.warning(f'Sending to undefined group or chat {to_chat}')
-            return
-        context['message_type'] = _group_type
-        context['message'] = list()
-        if message.image:
-            image_name = os.path.basename(message.image)
-            context['message'].append(MessageSegment.image(image_name))
+    context = dict()
+    _group_type = chat_type.get(to_chat, 'group')  # todo maybe a better logic?
+    if not _group_type:
+        logger.warning(f'Sending to undefined group or chat {to_chat}')
+        return
+    context['message_type'] = _group_type
+    context['message'] = list()
+    if message.image:
+        image_name = os.path.basename(message.image)
+        context['message'].append(MessageSegment.image(image_name))
 
-        if (_group_type == 'private' and config['NameforPrivateChat']) or \
-            (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
-            # name logic
-            if message.chat_attrs.name:
-                context['message'].append(MessageSegment.text(message.chat_attrs.name))
-            if message.chat_attrs.reply_to:
-                context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
-            if message.chat_attrs.forward_from:
-                context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
-            if message.chat_attrs.name:
-                context['message'].append(MessageSegment.text(': '))
+    if (_group_type == 'private' and config['NameforPrivateChat']) or \
+        (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
+        # name logic
+        if message.chat_attrs.name:
+            context['message'].append(MessageSegment.text(message.chat_attrs.name))
+        if message.chat_attrs.reply_to:
+            context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
+        if message.chat_attrs.forward_from:
+            context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
+        if message.chat_attrs.name:
+            context['message'].append(MessageSegment.text(': '))
 
-            # at user
-            if message.send_action.user_id:
-                context['message'].append(MessageSegment.at(message.send_action.user_id))
-                context['message'].append(MessageSegment.text(' '))
+        # at user
+        if message.send_action.user_id:
+            context['message'].append(MessageSegment.at(message.send_action.user_id))
+            context['message'].append(MessageSegment.text(' '))
 
-        for m in message.message:
-            context['message'].append(MessageSegment.text(m.text + ' '))
-            if m.link:
-                context['message'].append(MessageSegment.text(m.link) + ' ')
-        if _group_type == 'private':
-            context['user_id'] = to_chat
-        else:
-            context[f'{_group_type}_id'] = abs(to_chat)
-        logger.debug('finished processing message, ready to send')
-        result = await bot.send(context, context['message'])
-        return result.get('message_id')
-    except:
-        logger.exception('Unhandled exception: ')
-
-    return 0
+    for m in message.message:
+        context['message'].append(MessageSegment.text(m.text + ' '))
+        if m.link:
+            context['message'].append(MessageSegment.text(m.link) + ' ')
+    if _group_type == 'private':
+        context['user_id'] = to_chat
+    else:
+        context[f'{_group_type}_id'] = abs(to_chat)
+    logger.debug('finished processing message, ready to send')
+    result = await bot.send(context, context['message'])
+    return result.get('message_id')
 
 
 
@@ -462,6 +457,11 @@ async def is_group_owner(chat_id: int, user_id: int):
     return group_list[chat_id][user_id]['role'] == 'owner'
 
 
+def handle_exception(loop, context):
+    # context["message"] will always be there; but context["exception"] may not
+    msg = context.get("exception", context["message"])
+    logger.exception('Unhandled exception: ', exc_info=msg)
+
 def do_nothing():
     pass
 
@@ -469,6 +469,7 @@ def do_nothing():
 def run():
     global loop
     loop = asyncio.new_event_loop()
+    loop.set_exception_handler(handle_exception)
     asyncio.set_event_loop(loop)
     logger.debug('Starting Quart server')
     bot.run(host=config.get('ListenIP'), port=config.get('ListenPort'), loop=loop, shutdown_trigger=do_nothing)
