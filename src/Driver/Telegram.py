@@ -69,11 +69,12 @@ async def _send(to_chat: int, message: UnifiedMessage):
                 tg_message = await bot.send_animation(to_chat, types.input_file.InputFile(message.image), caption=text,
                                                       parse_mode=types.message.ParseMode.HTML,
                                                       reply_to_message_id=reply_to_message_id)
+                image_file_id[message.image] = tg_message.document.file_id
             else:
                 tg_message = await bot.send_photo(to_chat, types.input_file.InputFile(message.image), caption=text,
                                                   parse_mode=types.message.ParseMode.HTML,
                                                   reply_to_message_id=reply_to_message_id)
-            image_file_id[message.image] = tg_message.photo[-1].file_id
+                image_file_id[message.image] = tg_message.photo[-1].file_id
     else:
         tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
                                             reply_to_message_id=reply_to_message_id)
