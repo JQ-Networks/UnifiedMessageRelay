@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Callable, FrozenSet, Union
 from enum import Enum
-
+from concurrent.futures import Future
 
 class ChatType(Enum):
     """
@@ -242,7 +242,7 @@ class DestinationMessageID:
     """
     platform: str = ''
     chat_id: int = 0
-    message_id: int = 0  # or asyncio.Future, only in generation step
+    message_id: Union[int, Future] = 0
     user_id: int = 0
     source: DestinationMessageID = None
 

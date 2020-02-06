@@ -2,7 +2,6 @@ from typing import Union, List, DefaultDict, Tuple, Any
 import asyncio
 from collections import defaultdict
 from janus import Queue
-import concurrent.futures
 from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, SendAction, DestinationMessageID
 from . import UMRLogging
 from .UMRDriver import api_lookup, api_call
@@ -11,6 +10,7 @@ from .UMRMessageRelation import set_message_id, get_message_id, get_relation_dic
 from .UMRMessageHook import message_hook_src, message_hook_full
 from Util.Helper import check_attribute
 from .UMRFile import get_image
+from concurrent.futures import TimeoutError
 
 logger = UMRLogging.getLogger('Dispatcher')
 
@@ -274,10 +274,11 @@ async def dispatch(message: UnifiedMessage):
         else:
             try:
                 message_id_list[idx].message_id = message_id_list[idx].message_id.result(timeout=30)
-            except concurrent.futures.TimeoutError:
-                logger.warn(f'task ({message_id_list[idx].platform}, {message_id_list[idx].chat_id})'
-                            f' took longer than 30 seconds, aborting')
-                message_id_list[idx].message_id.interrupt()
+            except TimeoutError:
+                logger.exception(
+                    f'Timed out when dispatching to ({message_id_list[idx].platform}, {message_id_list[idx].chat_id})')
+            except:
+                logger.exception('Unhandled exception: ')
                 message_id_list[idx].message_id = 0
 
     message_id_list.append(source_message_id)
