@@ -6,7 +6,7 @@ from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, SendActio
 from . import UMRLogging
 from .UMRDriver import api_lookup, api_call
 from .UMRConfig import config
-from .UMRMessageRelation import set_message_id, get_message_id, get_relation_dict
+from .UMRMessageRelation import get_message_id
 from .UMRMessageHook import message_hook_src, message_hook_full
 from Util.Helper import check_attribute
 from .UMRFile import get_image
@@ -79,7 +79,6 @@ async def dispatch_reply(message: UnifiedMessage):
     :param message:
     :return:
     """
-    message_id_list: List[DestinationMessageID] = list()  # list of List[platform, chat_id, message_id]
 
     # check reply
     if message.chat_attrs.reply_to:
@@ -87,7 +86,7 @@ async def dispatch_reply(message: UnifiedMessage):
         if message.chat_attrs.reply_to.user_id == bot_accounts[message.chat_attrs.platform]:
             reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
                                               src_chat_id=message.chat_attrs.chat_id,
-                                              message_id=message.chat_attrs.reply_to.message_id,
+                                              src_message_id=message.chat_attrs.reply_to.message_id,
                                               dst_platform=message.chat_attrs.platform,
                                               dst_chat_id=message.chat_attrs.chat_id)
             if not reply_message_id or not reply_message_id.source:
@@ -102,40 +101,19 @@ async def dispatch_reply(message: UnifiedMessage):
             if action_graph[reply_message_id.source.platform][reply_message_id.source.chat_id]:
                 return False
 
-            source_message_id = DestinationMessageID(platform=message.chat_attrs.platform,
-                                                     chat_id=message.chat_attrs.chat_id,
-                                                     message_id=message.chat_attrs.message_id,
-                                                     user_id=message.chat_attrs.user_id)
-
             message.chat_attrs.reply_to = None
             message.send_action = SendAction(message_id=reply_message_id.source.message_id,
                                              user_id=reply_message_id.source.user_id)
             if message.image.startswith('http'):
                 message.image = await get_image(message.image, message.file_id)
-            message_id = await api_call(reply_message_id.source.platform, 'send',
-                                        reply_message_id.source.chat_id, message)
-            message_id_list.append(
-                DestinationMessageID(platform=reply_message_id.source.platform,
-                                     chat_id=reply_message_id.source.chat_id,
-                                     message_id=message_id,
-                                     user_id=reply_message_id.source.user_id,
-                                     source=source_message_id)
-            )
+            await api_call(reply_message_id.source.platform, 'send',
+                           reply_message_id.source.chat_id, message)
 
-            for idx in range(len(message_id_list)):
-                if isinstance(message_id_list[idx], int):
-                    continue
-                else:
-                    message_id_list[idx].message_id = message_id_list[idx].message_id.result()
-
-            message_id_list.append(source_message_id)
-            set_message_id(message_id_list)
             return True
     return False
 
 
 async def dispatch_default(message: UnifiedMessage):
-    message_id_list: List[DestinationMessageID] = list()  # list of List[platform, chat_id, message_id]
 
     # has other match
     if action_graph[message.chat_attrs.platform][message.chat_attrs.chat_id]:
@@ -145,36 +123,12 @@ async def dispatch_default(message: UnifiedMessage):
     if not default_action_graph[message.chat_attrs.platform]:
         return True
 
-    source_message_id = DestinationMessageID(platform=message.chat_attrs.platform,
-                                             chat_id=message.chat_attrs.chat_id,
-                                             message_id=message.chat_attrs.message_id,
-                                             user_id=message.chat_attrs.user_id)
-
     # default forward
     for action in default_action_graph[message.chat_attrs.platform]:
         if message.image.startswith('http'):
             message.image = await get_image(message.image, message.file_id)
-        message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
-        if action.to_platform == message.chat_attrs.platform:
-            user_id = message.chat_attrs.user_id
-        else:
-            user_id = bot_accounts[action.to_platform]
-        message_id_list.append(
-            DestinationMessageID(platform=action.to_platform,
-                                 chat_id=action.to_chat,
-                                 message_id=message_id,
-                                 user_id=user_id,
-                                 source=source_message_id)
-        )
+        await api_call(action.to_platform, 'send', action.to_chat, message)
 
-    for idx in range(len(message_id_list)):
-        if isinstance(message_id_list[idx], int):
-            continue
-        else:
-            message_id_list[idx].message_id = message_id_list[idx].message_id.result()
-
-    message_id_list.append(source_message_id)
-    set_message_id(message_id_list)
     return True
 
 
@@ -198,13 +152,6 @@ async def dispatch(message: UnifiedMessage):
     if await dispatch_default(message):
         return
 
-    message_id_list: List[DestinationMessageID] = list()  # list of List[platform, chat_id, message_id]
-
-    source_message_id = DestinationMessageID(platform=message.chat_attrs.platform,
-                                             chat_id=message.chat_attrs.chat_id,
-                                             message_id=message.chat_attrs.message_id,
-                                             user_id=message.chat_attrs.user_id)
-
     for action in action_graph[message.chat_attrs.platform][message.chat_attrs.chat_id]:
 
         # hook for matching all four attributes
@@ -224,7 +171,7 @@ async def dispatch(message: UnifiedMessage):
             if message.chat_attrs.reply_to:
                 reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
                                                   src_chat_id=message.chat_attrs.chat_id,
-                                                  message_id=message.chat_attrs.reply_to.message_id,
+                                                  src_message_id=message.chat_attrs.reply_to.message_id,
                                                   dst_platform=action.to_platform,
                                                   dst_chat_id=action.to_chat)
                 if not reply_message_id:
@@ -239,7 +186,7 @@ async def dispatch(message: UnifiedMessage):
         if message.chat_attrs.reply_to:
             reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
                                               src_chat_id=message.chat_attrs.chat_id,
-                                              message_id=message.chat_attrs.reply_to.message_id,
+                                              src_message_id=message.chat_attrs.reply_to.message_id,
                                               dst_platform=action.to_platform,
                                               dst_chat_id=action.to_chat)
 
@@ -253,34 +200,6 @@ async def dispatch(message: UnifiedMessage):
                                                      user_id=reply_message_id.user_id)
         if message.image.startswith('http'):
             message.image = await get_image(message.image, message.file_id)
-        message_id = await api_call(action.to_platform, 'send', action.to_chat, message)
-        if action.to_platform == message.chat_attrs.platform:
-            user_id = message.chat_attrs.user_id
-        else:
-            user_id = bot_accounts[action.to_platform]
-        message_id_list.append(
-            DestinationMessageID(platform=action.to_platform,
-                                 chat_id=action.to_chat,
-                                 message_id=message_id,
-                                 user_id=user_id,
-                                 source=source_message_id)
-        )
+        await api_call(action.to_platform, 'send', action.to_chat, message)
 
         logger.debug(f'added new task to ({action.to_platform}, {action.to_chat})')
-
-    for idx in range(len(message_id_list)):
-        if isinstance(message_id_list[idx], int):
-            continue
-        else:
-            try:
-                message_id_list[idx].message_id = message_id_list[idx].message_id.result(timeout=30)
-            except TimeoutError:
-                logger.exception(
-                    f'Timed out when dispatching to ({message_id_list[idx].platform}, {message_id_list[idx].chat_id})')
-            except:
-                logger.exception('Unhandled exception: ')
-                message_id_list[idx].message_id = 0
-
-    message_id_list.append(source_message_id)
-    message_id_list = [*filter(lambda x: x.message_id > 0, message_id_list)]
-    set_message_id(message_id_list)

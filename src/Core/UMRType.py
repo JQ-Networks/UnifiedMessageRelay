@@ -2,7 +2,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Callable, FrozenSet, Union
 from enum import Enum
-from concurrent.futures import Future
 
 class ChatType(Enum):
     """
@@ -37,6 +36,9 @@ class ChatAttribute:
         self.message_id = message_id
         self.forward_from: Union[None, ChatAttribute] = None
         self.reply_to: Union[None, ChatAttribute] = None
+
+    def __bool__(self):
+        return self.platform is not None
 
 
 @dataclass
@@ -242,7 +244,7 @@ class DestinationMessageID:
     """
     platform: str = ''
     chat_id: int = 0
-    message_id: Union[int, Future] = 0
+    message_id: int = 0
     user_id: int = 0
     source: DestinationMessageID = None
 

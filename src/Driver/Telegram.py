@@ -7,6 +7,7 @@ from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute
 from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
+from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
 from Util.Helper import check_attribute
 import datetime
 
@@ -25,6 +26,7 @@ attributes = [
 config = UMRConfig.config['Driver']['Telegram']
 check_attribute(config, attributes, logger)
 bot: Bot
+bot_user_id = int(config['BotToken'].split(':')[0])
 loop: asyncio.AbstractEventLoop
 image_file_id: Dict[str, str] = dict()  # mapping from filename to existing file id
 
@@ -86,6 +88,15 @@ async def _send(to_chat: int, message: UnifiedMessage):
         logger.debug('finished processing message, ready to send')
         tg_message = await bot.send_message(to_chat, text, parse_mode=types.message.ParseMode.HTML,
                                             reply_to_message_id=reply_to_message_id)
+
+    if message.chat_attrs:
+        set_egress_message_id(src_platform=message.chat_attrs.platform,
+                              src_chat_id=message.chat_attrs.chat_id,
+                              src_message_id=message.chat_attrs.message_id,
+                              dst_platform='Telegram',
+                              dst_chat_id=to_chat,
+                              dst_message_id=tg_message.message_id,
+                              user_id=bot_user_id)
     logger.debug('finished sending')
     return tg_message.message_id
 
@@ -116,7 +127,7 @@ def htmlify(segment: MessageEntity):
         else:
             return '<code>' + encoded_text + '</code>'
     elif entity_type == 'link':
-        return '<a href=' + segment.link + '>' + encoded_text + '</i>'
+        return '<a href=' + segment.link + '>' + encoded_text + '</a>'
     else:
         return encoded_text
 
@@ -269,6 +280,8 @@ def run():
                                          message_id=message.message_id)
 
         get_chat_attributes(message, unified_message.chat_attrs)
+        set_ingress_message_id(src_platform='Telegram', src_chat_id=message.chat.id,
+                               src_message_id=message.message_id, user_id=message.from_user.id)
 
         if message.content_type == ContentType.TEXT:
             unified_message.message = parse_entity(message)

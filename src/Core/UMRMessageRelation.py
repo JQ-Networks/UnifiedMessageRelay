@@ -21,30 +21,61 @@ class FIFODict(OrderedDict):
 message_mapping = FIFODict(4096)  # at least twice as large as message_tuple
 
 
-def set_message_id(message_id_list: List[DestinationMessageID]):
+def set_ingress_message_id(src_platform: str, src_chat_id: int, src_message_id: int, user_id):
     """
-    put a list of [platform, chat_id, user_id, message_id] into mapping
-    the reason why user_id is needed: if the platform doesn't support reply, the reply can fallback to mention the user
-    :param message_id_list: list of [platform, chat_id, user_id, message_id]
-    :return: None
+    Register related message id (for message received by bot)
+    :param src_platform:
+    :param src_chat_id:
+    :param src_message_id:
+    :param user_id:
+    :return:
     """
-    saved_mapping = {GroupID(platform=i.platform, chat_id=i.chat_id): i for i in message_id_list}
-    for i in message_id_list:
-        message_mapping[MessageID(platform=i.platform, chat_id=i.chat_id, message_id=i.message_id)] = saved_mapping
+    saved_msg_id = {GroupID(platform=src_platform, chat_id=src_chat_id): DestinationMessageID(platform=src_platform,
+                                                                                              chat_id=src_chat_id,
+                                                                                              message_id=src_message_id,
+                                                                                              user_id=user_id)}
+    message_mapping[MessageID(platform=src_platform, chat_id=src_chat_id, message_id=src_message_id)] = saved_msg_id
 
 
-def get_message_id(src_platform: str, src_chat_id: int, message_id: int, dst_platform: str, dst_chat_id: int) \
+def set_egress_message_id(src_platform: str, src_chat_id: int, src_message_id: int,
+                          dst_platform: str, dst_chat_id: int, dst_message_id: int, user_id: int):
+    """
+    Register related message id (for message sent by bot)
+    :param src_platform:
+    :param src_chat_id:
+    :param src_message_id:
+    :param dst_platform:
+    :param dst_chat_id:
+    :param dst_message_id:
+    :param user_id:
+    :return:
+    """
+    saved_msg_id = message_mapping.get(MessageID(platform=src_platform,
+                                       chat_id=src_chat_id, message_id=src_message_id), dict())
+
+    if not saved_msg_id:  # message relation not found
+        return
+
+    source = saved_msg_id.get(GroupID(platform=src_platform, chat_id=src_chat_id))
+
+    dst_msg_id = DestinationMessageID(platform=dst_platform, chat_id=dst_chat_id,
+                                      message_id=dst_message_id, user_id=user_id, source=source)
+    saved_msg_id[GroupID(platform=dst_platform, chat_id=dst_chat_id)] = dst_msg_id
+    message_mapping[MessageID(platform=dst_platform, chat_id=dst_chat_id, message_id=dst_message_id)] = saved_msg_id
+
+
+def get_message_id(src_platform: str, src_chat_id: int, src_message_id: int, dst_platform: str, dst_chat_id: int) \
         -> DestinationMessageID:
     """
 
     :param src_platform:
     :param src_chat_id:
-    :param message_id:
+    :param src_message_id:
     :param dst_platform:
     :param dst_chat_id:
     :return: tuple of user_id, message_id
     """
-    return message_mapping.get(MessageID(platform=src_platform, chat_id=src_chat_id, message_id=message_id),
+    return message_mapping.get(MessageID(platform=src_platform, chat_id=src_chat_id, message_id=src_message_id),
                                dict()).get(GroupID(platform=dst_platform, chat_id=dst_chat_id))
 
 
