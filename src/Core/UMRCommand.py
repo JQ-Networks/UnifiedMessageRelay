@@ -4,14 +4,14 @@ from . import UMRConfig
 from . import UMRLogging
 from .UMRType import UnifiedMessage, Command, ChatAttribute, MessageEntity, ChatType, Privilege, SendAction
 from .UMRMessageHook import register_hook
-from .UMRDriver import api_call, api_lookup
+from .UMRDriver import api_call
 from .UMRAdmin import is_bot_admin, is_group_admin, is_group_owner
 from Util.Helper import assemble_message
 
 logger = UMRLogging.getLogger('Command')
 
 command_map: Dict[str, Command] = dict()
-command_start: str = UMRConfig.config['CommandStart']
+command_start: str = UMRConfig.config['CommandPrefix']
 
 
 async def unauthorized(chat_attrs: ChatAttribute, required_privilege: Privilege):
@@ -41,8 +41,10 @@ async def command_dispatcher(message: UnifiedMessage):
     logger.debug(f'dispatching command: "{cmd}" with args: "{" ".join(args)}"')
     if cmd in command_map:
         # check if platform matches
-        if command_map[cmd].platform and message.chat_attrs.platform not in command_map[cmd].platform:
-            return False
+        if command_map[cmd].platform:
+            base_platform = UMRConfig.config['Driver'][message.chat_attrs.platform]['Base']
+            if base_platform not in command_map[cmd].platform:
+                return False
 
         # filter chat_type
         if command_map[cmd].chat_type:
@@ -135,8 +137,6 @@ async def quick_reply(chat_attrs: ChatAttribute, text: Union[str, List[MessageEn
     :return:
     """
 
-    if not api_lookup(chat_attrs.platform, 'send'):
-        return
     message = UnifiedMessage()
     if isinstance(text, str):
         message.message.append(MessageEntity(text=text))

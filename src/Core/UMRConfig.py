@@ -8,8 +8,9 @@ from Util.Helper import check_attribute
 logger = UMRLogging.getLogger('Config')
 config: Dict
 
+home = str(pathlib.Path.home())
+
 try:
-    home = str(pathlib.Path.home())
     config = yaml.load(open(f'{home}/.umr/config.yaml'), Loader=yaml.FullLoader)
 
     # test attributes
@@ -17,7 +18,7 @@ try:
         'ForwardList',   # directed graph contains forward relationships
         'Driver',        # configs for each driver
         'DataRoot',      # file root for images
-        'CommandStart',  # command hint format, e.g. "/" for /start, /stop type of commands
+        'CommandPrefix',  # command hint format, e.g. "/" for /start, /stop type of commands
         'BotAdmin',    # Bot administrators, highest privilege users
     ]
     check_attribute(config, attributes, logger)

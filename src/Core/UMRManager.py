@@ -12,13 +12,6 @@ logger = UMRLogging.getLogger('Manager')
 
 
 class UMRManager:
-    @staticmethod
-    def check_drivers():
-        required_drivers = set(UMRConfig.config['ForwardList']['Accounts'])
-        for driver in required_drivers:
-            if driver not in UMRDriver.api_lookup_table:
-                logger.error(f'Error: driver for {driver} is not registered')
-                exit(-1)
 
     @staticmethod
     def load_plugins():
@@ -30,7 +23,6 @@ class UMRManager:
     def run():
         try:
             # init drivers for different platform
-            UMRManager.check_drivers()
             sleep(2)
             # init plugin hooks
             UMRManager.load_plugins()

@@ -1,11 +1,9 @@
-from typing import List, Dict
-import asyncio
+from typing import List
 from Core import UMRLogging
-from Core.UMRCommand import register_command, quick_reply
-from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity, GroupID, DestinationMessageID, SendAction
-from Core.UMRMessageRelation import get_relation_dict
-from Driver.QQ import bot, loop, chat_type
+from Core.UMRType import ChatAttribute
 from aiocqhttp import MessageSegment
+from Core.UMRDriver import driver_lookup_table
+from Driver import QQ
 
 logger = UMRLogging.getLogger('Plugin.QQ-recall')
 
@@ -14,11 +12,20 @@ logger = UMRLogging.getLogger('Plugin.QQ-recall')
 async def command(chat_attrs: ChatAttribute, args: List):
     if not args:
         return False
+    if len(args) != 2:
+        return False
 
-    dst_chat_id = int(args[0])
+    dst_driver_name = args[0]
+    dst_chat_id = int(args[1])
+
+    dst_driver = driver_lookup_table.get(dst_driver_name)
+    if not dst_driver:
+        return
+
+    assert isinstance(dst_driver, QQ.QQDriver)
 
     context = dict()
-    _group_type = chat_type.get(dst_chat_id, 'group')
+    _group_type = dst_driver.chat_type.get(dst_chat_id, 'group')
     context['message_type'] = _group_type
     context['message'] = list()
     if _group_type == 'private':
@@ -31,4 +38,4 @@ async def command(chat_attrs: ChatAttribute, args: List):
         context['message'].append(MessageSegment.face(i))
         context['message'].append(MessageSegment.text('\n'))
 
-    await bot.send(context, context['message'])
+    await dst_driver.bot.send(context, context['message'])

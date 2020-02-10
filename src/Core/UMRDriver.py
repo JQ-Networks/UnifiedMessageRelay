@@ -1,49 +1,62 @@
-from typing import Callable, Dict, List, DefaultDict, Union
+from typing import  Dict, List, Union, Any
 from threading import Thread
-import janus
 from .UMRType import UnifiedMessage
 from . import UMRLogging
-from collections import defaultdict
+from . import UMRConfig
 from asyncio import iscoroutinefunction
 
 logger = UMRLogging.getLogger('Driver')
 
-# region Driver API lookup table
-api_lookup_table: DefaultDict[str, Dict[str, Callable]] = defaultdict(dict)
-threads: List[Thread] = list()
 
+# region Driver API lookup table
+class BaseDriver:
+    def send(self, to_chat: int, message: UnifiedMessage):
+        pass
+
+    def is_group_admin(self, chat_id: int, user_id: int) -> bool:
+        pass
+
+    def is_group_owner(self, chat_id: int, user_id: int) -> bool:
+        pass
+
+    def start(self):
+        pass
+
+driver_class_lookup_table: Dict[str, Any] = dict()
+driver_lookup_table: Dict[str, BaseDriver] = dict()
+threads: List[Thread] = list()  # all threads that drivers created
+
+
+def register_driver(name, driver):
+    driver_class_lookup_table[name] = driver
 
 # endregion
 
+
 # region Driver API for other modules
-def api_lookup(driver: str, api: str) -> Union[None, Callable]:
-    if driver not in api_lookup_table:
-        logger.error(f'driver "{driver}" is not registered')
+def driver_lookup(platform: str) -> Union[None, BaseDriver]:
+    if platform not in driver_lookup_table:
+        logger.error(f'Base driver "{platform}" not found')
         return None
-    if api not in api_lookup_table[driver]:
-        logger.warn(f'api "{api}" in {driver} is not registered')
-        return None
-    return api_lookup_table[driver][api]
-
-
-def api_register(driver: str, api: str):
-    def deco(func):
-        api_lookup_table[driver][api] = func
-        return func
-    return deco
+    else:
+        return driver_lookup_table[platform]
 
 
 async def api_call(platform: str, api_name: str, *args, **kwargs):
     """
     fast api call
-    :param platform: driver platform
+    :param platform: driver alias
     :param api_name: name of the api
     :param args: positional args to pass
     :param kwargs: keyword args to pass
     :return: None for API not found, api result for successful calling
     api result can be any or asyncio.Future, for Future type use result.result() to get the actual result
     """
-    func = api_lookup(platform, api_name)
+    driver = driver_lookup(platform)
+    if not driver:
+        return
+
+    func = getattr(driver, api_name)
     if not func:
         return
 
@@ -72,4 +85,20 @@ async def receive(messsage: UnifiedMessage):
 # endregion
 
 
+# TODO initialize driver
+
 import Driver
+
+config = UMRConfig.config.get('Driver')
+
+for driver_name, driver_config in config.items():
+    if driver_config['Base'] not in driver_class_lookup_table:
+        logger.error(f'Base driver "{driver_config["Base"]}" not found')
+        exit(-1)
+    driver = driver_class_lookup_table[driver_config['Base']](driver_name)
+    driver.start()
+    driver_lookup_table[driver_name] = driver
+
+
+
+

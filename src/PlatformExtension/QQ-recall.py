@@ -4,7 +4,8 @@ from Core import UMRLogging
 from Core.UMRCommand import register_command, quick_reply
 from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity, GroupID, DestinationMessageID, SendAction
 from Core.UMRMessageRelation import get_relation_dict
-from Driver.QQ import bot, loop
+from Driver import QQ
+from Core.UMRDriver import driver_lookup_table
 
 logger = UMRLogging.getLogger('Plugin.QQ-recall')
 
@@ -16,12 +17,14 @@ async def command(chat_attrs: ChatAttribute, args: List):
                                              src_chat_id=chat_attrs.chat_id,
                                              message_id=chat_attrs.reply_to.message_id)
 
+        dst_drivers = {k: v for k, v in driver_lookup_table.items() if isinstance(v, QQ.QQDriver)}
+
         if message_relation:
             filtered_message_ids: Dict[GroupID, DestinationMessageID] = {k: w for k, w in message_relation.items() if
-                                                                         k.platform == 'QQ'}
+                                                                         k.platform in dst_drivers}
             if filtered_message_ids:
                 for key, value in filtered_message_ids.items():
-                    asyncio.run_coroutine_threadsafe(bot.delete_msg(message_id=value.message_id), loop)
+                    asyncio.run_coroutine_threadsafe(dst_drivers[value.platform].delete_msg(message_id=value.message_id), dst_drivers[value.platform].loop)
                 reply_text = 'Message recalled'
             else:
                 reply_text = 'No related QQ message found'

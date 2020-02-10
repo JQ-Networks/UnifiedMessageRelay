@@ -12,288 +12,6 @@ from Core import UMRConfig
 import re
 import os
 
-NAME = 'QQ'
-
-logger = UMRLogging.getLogger('UMRDriver.QQ')
-logger.debug('Started initialization for QQ')
-
-loop: asyncio.AbstractEventLoop
-
-config: Dict = UMRConfig.config['Driver']['QQ']
-
-attributes = [
-    'Account',
-    'APIRoot',
-    'ListenIP',
-    'ListenPort',
-    'Token',
-    'Secret',
-    'IsPro',
-    'NameforPrivateChat',
-    'NameforGroupChat',
-    'ChatList',
-]
-check_attribute(config, attributes, logger)
-bot = CQHttp(api_root=config.get('APIRoot'),
-             access_token=config.get('Token'),
-             secret=config.get('Secret'))
-
-##### initializations #####
-
-# get group list
-group_list: Dict[int, Dict[int, Dict]] = dict()  # Dict[group_id, Dict[member_id, member_info]]
-# see https://cqhttp.cc/docs/4.13/#/API?id=响应数据23
-
-chat_type: Dict[int, str] = config.get('ChatList')  # todo initialization on startup
-is_coolq_pro = config.get('IsPro', False)  # todo initialization on startup
-stranger_list: Dict[int, str] = dict()  # todo initialization on startup
-
-
-##### Define send and receive #####
-
-@bot.on_message()
-# 上面这句等价于 @bot.on('message')
-async def handle_msg(context):
-    message_type = context.get("message_type")
-    if message_type in ('group', 'discuss'):
-        chat_id = context.get(f'{message_type}_id')
-    else:
-        chat_id = context.get('user_id')
-    if message_type in ('group', 'discuss'):
-        chat_id = -chat_id
-        context[f'{message_type}_id'] = chat_id
-    if chat_id not in chat_type:
-        chat_type[chat_id] = message_type
-
-    unified_message_list = await dissemble_message(context)
-    set_ingress_message_id(src_platform='QQ', src_chat_id=chat_id,
-                           src_message_id=context.get('message_id'), user_id=context.get('user_id'))
-    for message in unified_message_list:
-        await UMRDriver.receive(message)
-    return {}  # 返回给 HTTP API 插件，走快速回复途径
-
-
-@UMRDriver.api_register('QQ', 'send')
-async def send(to_chat: int, messsage: UnifiedMessage) -> asyncio.Future:
-    """
-    decorator for send new message
-    :return:
-    """
-    logger.debug('calling real send')
-    return asyncio.run_coroutine_threadsafe(_send(to_chat, messsage), loop)
-
-
-async def _send(to_chat: int, message: UnifiedMessage):
-    """
-    decorator for send new message
-    :return:
-    """
-    logger.debug('begin processing message')
-    context = dict()
-    _group_type = chat_type.get(to_chat, 'group')
-    if not _group_type:
-        logger.warning(f'Sending to undefined group or chat {to_chat}')
-        return
-    context['message_type'] = _group_type
-    context['message'] = list()
-    if message.image:
-        image_name = os.path.basename(message.image)
-        context['message'].append(MessageSegment.image(image_name))
-
-    if (_group_type == 'private' and config['NameforPrivateChat']) or \
-            (_group_type in ('group', 'discuss') and config['NameforGroupChat']):
-        # name logic
-        if message.chat_attrs.name:
-            context['message'].append(MessageSegment.text(message.chat_attrs.name))
-        if message.chat_attrs.reply_to:
-            context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
-        if message.chat_attrs.forward_from:
-            context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
-        if message.chat_attrs.name:
-            context['message'].append(MessageSegment.text(': '))
-
-        # at user
-        if message.send_action.user_id:
-            context['message'].append(MessageSegment.at(message.send_action.user_id))
-            context['message'].append(MessageSegment.text(' '))
-
-    for m in message.message:
-        context['message'].append(MessageSegment.text(m.text + ' '))
-        if m.link:
-            context['message'].append(MessageSegment.text(m.link) + ' ')
-    if _group_type == 'private':
-        context['user_id'] = to_chat
-    else:
-        context[f'{_group_type}_id'] = abs(to_chat)
-    logger.debug('finished processing message, ready to send')
-    result = await bot.send(context, context['message'])
-    if message.chat_attrs:
-        set_egress_message_id(src_platform=message.chat_attrs.platform,
-                              src_chat_id=message.chat_attrs.chat_id,
-                              src_message_id=message.chat_attrs.message_id,
-                              dst_platform='QQ',
-                              dst_chat_id=to_chat,
-                              dst_message_id=result.get('message_id'),
-                              user_id=config['Account'])
-    logger.debug('finished sending')
-    return result.get('message_id')
-
-
-##### Utilities #####
-
-async def get_username(user_id: int, chat_id: int):
-    if user_id == config['Account']:
-        return 'bot'
-    if user_id == 1000000:
-        return 'App message'
-    if chat_id < 0:
-        user = group_list.get(chat_id, dict()).get(user_id, dict())
-        username = user.get('card', '')
-        if not username:
-            username = user.get('nickname', str(user_id))
-    else:
-        if user_id in stranger_list:
-            username = stranger_list.get(user_id)
-        else:
-            user = await bot.get_stranger_info(user_id=user_id)
-            username = user.get('nickname', str(user_id))
-            stranger_list[user_id] = username
-    return username
-
-
-async def dissemble_message(context):
-    # group_id = context.get('group_id')
-    # user_id = context.get('user_id')
-    # user = group_list.get(group_id, dict()).get(user_id, dict())
-    # username = user.get('nickname', str(user_id))
-    # for i in range(len(context['message'])):
-    #     message = UnifiedMessage(from_platform='QQ', from_chat=group_id, from_user=username,
-    #                              message=context.get('raw_message'))
-
-    message_type = context.get('message_type')
-    if message_type in ('group', 'discuss'):
-        chat_id = context.get(f'{message_type}_id')
-    else:
-        chat_id = context.get('user_id')
-    user_id = context.get('user_id')
-
-    message_id = context.get('message_id')
-    username = await get_username(user_id, chat_id)
-    message: List[Dict] = context['message']
-
-    unified_message = await parse_special_message(chat_id, username, message_id, user_id, message)
-    if unified_message:
-        return [unified_message]
-    unified_message_list = await parse_message(chat_id, message_type, username, message_id, user_id, message)
-    return unified_message_list
-
-
-async def parse_special_message(chat_id: int, username: str, message_id: int, user_id: int,
-                                message: List[Dict[str, Dict[str, str]]]):
-    if len(message) > 1:
-        return None
-    message = message[0]
-    message_type = message['type']
-    message = message['data']
-    unified_message = UnifiedMessage(platform='QQ', chat_id=chat_id, name=username, user_id=user_id,
-                                     message_id=message_id)
-    if message_type == 'share':
-        unified_message.message = [
-            MessageEntity(text='Shared '),
-            MessageEntity(text=message['title'], entity_type='link', link=message['url'])
-        ]
-    elif message_type == 'rich':
-        if 'url' in message:
-            url = message['url']
-            if url.startswith('mqqapi'):
-                cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
-                locations = cq_location_regex.findall(message['url'])  # [('lat', 'lon', 'name', 'addr')]
-                unified_message.message = [
-                    MessageEntity(
-                        text=f'Shared a location: {locations[2]}, {locations[3]}, {locations[0]}, {locations[1]}'),
-                ]
-            else:
-                unified_message.message = [
-                    MessageEntity(text='Shared '),
-                    MessageEntity(text=message['text'], entity_type='link', link=message['url'])
-                ]
-        elif 'title' in message:
-            if 'content' in message:
-                try:
-                    content = json.loads(message['content'])
-                    if 'news' in content:
-                        unified_message.message = [
-                            MessageEntity(text=content.get('title', message['title']),
-                                          entity_type='link', link=content.get('jumpUrl')),
-                            MessageEntity(text=' ' + message.get('desc'))
-                        ]
-                    elif 'weather' in content:
-                        unified_message.message = [
-                            MessageEntity(text=message['title']),
-                        ]
-                except:
-                    logger.exception(f'Cannot decode json: {str(message)}')
-                    unified_message.message = [
-                        MessageEntity(text=message['title']),
-                    ]
-            else:
-                unified_message.message = [
-                    MessageEntity(text=message['title']),
-                ]
-        else:
-            logger.debug(f'Got miscellaneous rich text message: {str(message)}')
-            unified_message.message = [
-                MessageEntity(text=message.get('text', str(message))),
-            ]
-    elif message_type == 'dice':
-        unified_message.message = [
-            MessageEntity(text='Rolled '),
-            MessageEntity(text=message['type'], entity_type='bold'),
-        ]
-    elif message_type == 'rps':
-        unified_message.message = [
-            MessageEntity(text='Played '),
-            MessageEntity(text={'1': 'Rock',
-                                '2': 'Scissors',
-                                '3': 'Paper'}[message['type']]
-                          , entity_type='bold')
-        ]
-    elif message_type == 'shake':
-        unified_message.message = [
-            MessageEntity(text='Sent you a shake')
-        ]
-    elif message_type == 'music':
-        if message['type'].startswith('163'):
-            unified_message.message = [
-                MessageEntity(text='Shared a music: '),
-                MessageEntity(text='Netease Music', entity_type='link',
-                              link=f'https://music.163.com/song?id={message["id"]}')
-            ]
-        elif message['type'].startswith('qq'):
-            unified_message.message = [
-                MessageEntity(text='Shared a music: '),
-                MessageEntity(text='QQ Music', entity_type='link',
-                              link=f'https://y.qq.com/n/yqq/song/{message["id"]}_num.html')
-            ]
-        else:
-            logger.debug(f'Got unseen music share message: {str(message)}')
-            unified_message.message = [
-                MessageEntity(text='Shared a music: ' + str(message)),
-            ]
-    elif message_type == 'record':
-        unified_message.message = [
-            MessageEntity(text='Unsupported voice record, please view on QQ')
-        ]
-    elif message_type == 'bface':
-        unified_message.message = [
-            MessageEntity(text='Unsupported big face, please view on QQ')
-        ]
-    else:
-        return
-
-    return unified_message
-
-
 qq_emoji_list = {  # created by JogleLew and jqqqqqqqqqq, optimized based on Tim's emoji support
     0:   '😮',
     1:   '😣',
@@ -857,92 +575,358 @@ qq_sface_list = {
 }
 
 
-async def parse_message(chat_id: int, chat_type: str, username: str, message_id: int, user_id: int,
-                        message: List[Dict[str, Dict[str, str]]]):
-    message_list = list()
-    unified_message = UnifiedMessage(platform='QQ',
-                                     chat_id=chat_id,
-                                     name=username,
-                                     user_id=user_id,
-                                     message_id=message_id)
-    for m in message:
-        message_type = m['type']
-        m = m['data']
-        if message_type == 'image':
-            # message not empty or contained a image, append to list
-            if unified_message.message or unified_message.image:
-                message_list.append(unified_message)
-                unified_message = UnifiedMessage(platform='QQ',
-                                                 chat_id=chat_id,
-                                                 name=username,
-                                                 user_id=user_id,
-                                                 message_id=message_id)
-            unified_message.image = m['url']
+class QQDriver(UMRDriver.BaseDriver):
+    def __init__(self, name):
+        self.name = name
+        self.logger = UMRLogging.getLogger(f'UMRDriver.{self.name}')
+        self.logger.debug(f'Started initialization for {self.name}')
 
-        elif message_type == 'text':
-            unified_message.message.append(MessageEntity(text=m['text']))
-        elif message_type == 'at':
-            target = await get_username(int(m['qq']), chat_id)
-            unified_message.message.append(MessageEntity(text='@' + target, entity_type='bold'))
-        elif message_type == 'sface':
-            qq_face = int(m['id']) & 255
-            if qq_face in qq_sface_list:
-                unified_message.message.append(MessageEntity(text=qq_sface_list[qq_face]))
+        self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
+        self.loop.set_exception_handler(self.handle_exception)
+        self.config: Dict = UMRConfig.config['Driver'][self.name]
+
+        attributes = [
+            'Account',
+            'APIRoot',
+            'ListenIP',
+            'ListenPort',
+            'Token',
+            'Secret',
+            'IsPro',
+            'NameforPrivateChat',
+            'NameforGroupChat',
+            'ChatList',
+        ]
+        check_attribute(self.config, attributes, self.logger)
+        self.bot = CQHttp(api_root=self.config.get('APIRoot'),
+                          access_token=self.config.get('Token'),
+                          secret=self.config.get('Secret'))
+
+        ##### initializations #####
+
+        # get group list
+        self.group_list: Dict[int, Dict[int, Dict]] = dict()  # Dict[group_id, Dict[member_id, member_info]]
+        # see https://cqhttp.cc/docs/4.13/#/API?id=响应数据23
+
+        self.chat_type: Dict[int, str] = self.config.get('ChatList')  # todo initialization on startup
+        self.is_coolq_pro = self.config.get('IsPro', False)  # todo initialization on startup
+        self.stranger_list: Dict[int, str] = dict()  # todo initialization on startup
+
+        @self.bot.on_message()
+        async def handle_msg(context):
+            message_type = context.get("message_type")
+            if message_type in ('group', 'discuss'):
+                chat_id = context.get(f'{message_type}_id')
             else:
-                unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
-        elif message_type == 'face':
-            qq_face = int(m['id'])
-            if qq_face in qq_emoji_list:
-                unified_message.message.append(MessageEntity(text=qq_emoji_list[qq_face]))
-            else:
-                unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
-        elif message_type == 'sign':
-            unified_message.image = m['image']
-            sign_text = f'Sign at location: {m["location"]} with title: {m["title"]}'
-            unified_message.message.append(MessageEntity(text=sign_text))
+                chat_id = context.get('user_id')
+            if message_type in ('group', 'discuss'):
+                chat_id = -chat_id
+                context[f'{message_type}_id'] = chat_id
+            if chat_id not in self.chat_type:
+                self.chat_type[chat_id] = message_type
+
+            unified_message_list = await self.dissemble_message(context)
+            set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id,
+                                   src_message_id=context.get('message_id'), user_id=context.get('user_id'))
+            for message in unified_message_list:
+                await UMRDriver.receive(message)
+            return {}  # 返回给 HTTP API 插件，走快速回复途径
+
+    def start(self):
+        def do_nothing():
+            pass
+
+        def run():
+            asyncio.set_event_loop(self.loop)
+            self.logger.debug(f'Starting Quart server for {self.name}')
+            self.bot.run(host=self.config.get('ListenIP'), port=self.config.get('ListenPort'), loop=self.loop,
+                         shutdown_trigger=do_nothing)
+
+        t = threading.Thread(target=run)
+        t.daemon = True
+        UMRDriver.threads.append(t)
+        t.start()
+
+        self.logger.debug(f'Finished initialization for {self.name}')
+
+        ##### Define send and receive #####
+
+    async def send(self, to_chat: int, messsage: UnifiedMessage):
+        """
+        decorator for send new message
+        :return:
+        """
+        self.logger.debug('calling real send')
+        return asyncio.run_coroutine_threadsafe(self._send(to_chat, messsage), self.loop)
+
+    async def _send(self, to_chat: int, message: UnifiedMessage):
+        """
+        decorator for send new message
+        :return:
+        """
+        self.logger.debug('begin processing message')
+        context = dict()
+        _group_type = self.chat_type.get(to_chat, 'group')
+        if not _group_type:
+            self.logger.warning(f'Sending to undefined group or chat {to_chat}')
+            return
+        context['message_type'] = _group_type
+        context['message'] = list()
+        if message.image:
+            image_name = os.path.basename(message.image)
+            context['message'].append(MessageSegment.image(image_name))
+
+        if (_group_type == 'private' and self.config['NameforPrivateChat']) or \
+                (_group_type in ('group', 'discuss') and self.config['NameforGroupChat']):
+            # name logic
+            if message.chat_attrs.name:
+                context['message'].append(MessageSegment.text(message.chat_attrs.name))
+            if message.chat_attrs.reply_to:
+                context['message'].append(MessageSegment.text(' (➡️️' + message.chat_attrs.reply_to.name + ')'))
+            if message.chat_attrs.forward_from:
+                context['message'].append(MessageSegment.text(' (️️↩️' + message.chat_attrs.forward_from.name + ')'))
+            if message.chat_attrs.name:
+                context['message'].append(MessageSegment.text(': '))
+
+            # at user
+            if message.send_action.user_id:
+                context['message'].append(MessageSegment.at(message.send_action.user_id))
+                context['message'].append(MessageSegment.text(' '))
+
+        for m in message.message:
+            context['message'].append(MessageSegment.text(m.text + ' '))
+            if m.link:
+                context['message'].append(MessageSegment.text(m.link) + ' ')
+        if _group_type == 'private':
+            context['user_id'] = to_chat
         else:
-            logger.debug(f'Unhandled message type: {str(m)} with type: {message_type}')
+            context[f'{_group_type}_id'] = abs(to_chat)
+        self.logger.debug('finished processing message, ready to send')
+        result = await self.bot.send(context, context['message'])
+        if message.chat_attrs:
+            set_egress_message_id(src_platform=message.chat_attrs.platform,
+                                  src_chat_id=message.chat_attrs.chat_id,
+                                  src_message_id=message.chat_attrs.message_id,
+                                  dst_platform=self.name,
+                                  dst_chat_id=to_chat,
+                                  dst_message_id=result.get('message_id'),
+                                  user_id=self.config['Account'])
+        self.logger.debug('finished sending')
+        return result.get('message_id')
 
-    message_list.append(unified_message)
-    return message_list
+    async def get_username(self, user_id: int, chat_id: int):
+        if user_id == self.config['Account']:
+            return 'bot'
+        if user_id == 1000000:
+            return 'App message'
+        if chat_id < 0:
+            user = self.group_list.get(chat_id, dict()).get(user_id, dict())
+            username = user.get('card', '')
+            if not username:
+                username = user.get('nickname', str(user_id))
+        else:
+            if user_id in self.stranger_list:
+                username = self.stranger_list.get(user_id)
+            else:
+                user = await self.bot.get_stranger_info(user_id=user_id)
+                username = user.get('nickname', str(user_id))
+                self.stranger_list[user_id] = username
+        return username
+
+    async def dissemble_message(self, context):
+        # group_id = context.get('group_id')
+        # user_id = context.get('user_id')
+        # user = group_list.get(group_id, dict()).get(user_id, dict())
+        # username = user.get('nickname', str(user_id))
+        # for i in range(len(context['message'])):
+        #     message = UnifiedMessage(from_platform=self.name, from_chat=group_id, from_user=username,
+        #                              message=context.get('raw_message'))
+
+        message_type = context.get('message_type')
+        if message_type in ('group', 'discuss'):
+            chat_id = context.get(f'{message_type}_id')
+        else:
+            chat_id = context.get('user_id')
+        user_id = context.get('user_id')
+
+        message_id = context.get('message_id')
+        username = await self.get_username(user_id, chat_id)
+        message: List[Dict] = context['message']
+
+        unified_message = await self.parse_special_message(chat_id, username, message_id, user_id, message)
+        if unified_message:
+            return [unified_message]
+        unified_message_list = await self.parse_message(chat_id, message_type, username, message_id, user_id, message)
+        return unified_message_list
+
+    async def parse_special_message(self, chat_id: int, username: str, message_id: int, user_id: int,
+                                    message: List[Dict[str, Dict[str, str]]]):
+        if len(message) > 1:
+            return None
+        message = message[0]
+        message_type = message['type']
+        message = message['data']
+        unified_message = UnifiedMessage(platform=self.name, chat_id=chat_id, name=username, user_id=user_id,
+                                         message_id=message_id)
+        if message_type == 'share':
+            unified_message.message = [
+                MessageEntity(text='Shared '),
+                MessageEntity(text=message['title'], entity_type='link', link=message['url'])
+            ]
+        elif message_type == 'rich':
+            if 'url' in message:
+                url = message['url']
+                if url.startswith('mqqapi'):
+                    cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
+                    locations = cq_location_regex.findall(message['url'])  # [('lat', 'lon', 'name', 'addr')]
+                    unified_message.message = [
+                        MessageEntity(
+                            text=f'Shared a location: {locations[2]}, {locations[3]}, {locations[0]}, {locations[1]}'),
+                    ]
+                else:
+                    unified_message.message = [
+                        MessageEntity(text='Shared '),
+                        MessageEntity(text=message['text'], entity_type='link', link=message['url'])
+                    ]
+            elif 'title' in message:
+                if 'content' in message:
+                    try:
+                        content = json.loads(message['content'])
+                        if 'news' in content:
+                            unified_message.message = [
+                                MessageEntity(text=content.get('title', message['title']),
+                                              entity_type='link', link=content.get('jumpUrl')),
+                                MessageEntity(text=' ' + message.get('desc'))
+                            ]
+                        elif 'weather' in content:
+                            unified_message.message = [
+                                MessageEntity(text=message['title']),
+                            ]
+                    except:
+                        self.logger.exception(f'Cannot decode json: {str(message)}')
+                        unified_message.message = [
+                            MessageEntity(text=message['title']),
+                        ]
+                else:
+                    unified_message.message = [
+                        MessageEntity(text=message['title']),
+                    ]
+            else:
+                self.logger.debug(f'Got miscellaneous rich text message: {str(message)}')
+                unified_message.message = [
+                    MessageEntity(text=message.get('text', str(message))),
+                ]
+        elif message_type == 'dice':
+            unified_message.message = [
+                MessageEntity(text='Rolled '),
+                MessageEntity(text=message['type'], entity_type='bold'),
+            ]
+        elif message_type == 'rps':
+            unified_message.message = [
+                MessageEntity(text='Played '),
+                MessageEntity(text={'1': 'Rock',
+                                    '2': 'Scissors',
+                                    '3': 'Paper'}[message['type']]
+                              , entity_type='bold')
+            ]
+        elif message_type == 'shake':
+            unified_message.message = [
+                MessageEntity(text='Sent you a shake')
+            ]
+        elif message_type == 'music':
+            if message['type'].startswith('163'):
+                unified_message.message = [
+                    MessageEntity(text='Shared a music: '),
+                    MessageEntity(text='Netease Music', entity_type='link',
+                                  link=f'https://music.163.com/song?id={message["id"]}')
+                ]
+            elif message['type'].startswith('qq'):
+                unified_message.message = [
+                    MessageEntity(text='Shared a music: '),
+                    MessageEntity(text='QQ Music', entity_type='link',
+                                  link=f'https://y.qq.com/n/yqq/song/{message["id"]}_num.html')
+                ]
+            else:
+                self.logger.debug(f'Got unseen music share message: {str(message)}')
+                unified_message.message = [
+                    MessageEntity(text='Shared a music: ' + str(message)),
+                ]
+        elif message_type == 'record':
+            unified_message.message = [
+                MessageEntity(text='Unsupported voice record, please view on QQ')
+            ]
+        elif message_type == 'bface':
+            unified_message.message = [
+                MessageEntity(text='Unsupported big face, please view on QQ')
+            ]
+        else:
+            return
+
+        return unified_message
+
+    async def parse_message(self, chat_id: int, chat_type: str, username: str, message_id: int, user_id: int,
+                            message: List[Dict[str, Dict[str, str]]]):
+        message_list = list()
+        unified_message = UnifiedMessage(platform=self.name,
+                                         chat_id=chat_id,
+                                         name=username,
+                                         user_id=user_id,
+                                         message_id=message_id)
+        for m in message:
+            message_type = m['type']
+            m = m['data']
+            if message_type == 'image':
+                # message not empty or contained a image, append to list
+                if unified_message.message or unified_message.image:
+                    message_list.append(unified_message)
+                    unified_message = UnifiedMessage(platform=self.name,
+                                                     chat_id=chat_id,
+                                                     name=username,
+                                                     user_id=user_id,
+                                                     message_id=message_id)
+                unified_message.image = m['url']
+
+            elif message_type == 'text':
+                unified_message.message.append(MessageEntity(text=m['text']))
+            elif message_type == 'at':
+                target = await self.get_username(int(m['qq']), chat_id)
+                unified_message.message.append(MessageEntity(text='@' + target, entity_type='bold'))
+            elif message_type == 'sface':
+                qq_face = int(m['id']) & 255
+                if qq_face in qq_sface_list:
+                    unified_message.message.append(MessageEntity(text=qq_sface_list[qq_face]))
+                else:
+                    unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
+            elif message_type == 'face':
+                qq_face = int(m['id'])
+                if qq_face in qq_emoji_list:
+                    unified_message.message.append(MessageEntity(text=qq_emoji_list[qq_face]))
+                else:
+                    unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
+            elif message_type == 'sign':
+                unified_message.image = m['image']
+                sign_text = f'Sign at location: {m["location"]} with title: {m["title"]}'
+                unified_message.message.append(MessageEntity(text=sign_text))
+            else:
+                self.logger.debug(f'Unhandled message type: {str(m)} with type: {message_type}')
+
+        message_list.append(unified_message)
+        return message_list
+
+    async def is_group_admin(self, chat_id: int, user_id: int):
+        if chat_id not in self.group_list:
+            return False
+        return self.group_list[chat_id][user_id]['role'] in ('owner', 'admin')
+
+    async def is_group_owner(self, chat_id: int, user_id: int):
+        if chat_id not in self.group_list:
+            return False
+        return self.group_list[chat_id][user_id]['role'] == 'owner'
+
+    def handle_exception(self, loop, context):
+        # context["message"] will always be there; but context["exception"] may not
+        msg = context.get("exception", context["message"])
+        self.logger.exception('Unhandled exception: ', exc_info=msg)
 
 
-@UMRDriver.api_register('QQ', 'is_group_admin')
-async def is_group_admin(chat_id: int, user_id: int):
-    if chat_id not in group_list:
-        return False
-    return group_list[chat_id][user_id]['role'] in ('owner', 'admin')
-
-
-@UMRDriver.api_register('QQ', 'is_group_owner')
-async def is_group_owner(chat_id: int, user_id: int):
-    if chat_id not in group_list:
-        return False
-    return group_list[chat_id][user_id]['role'] == 'owner'
-
-
-def handle_exception(loop, context):
-    # context["message"] will always be there; but context["exception"] may not
-    msg = context.get("exception", context["message"])
-    logger.exception('Unhandled exception: ', exc_info=msg)
-
-
-def do_nothing():
-    pass
-
-
-def run():
-    global loop
-    loop = asyncio.new_event_loop()
-    loop.set_exception_handler(handle_exception)
-    asyncio.set_event_loop(loop)
-    logger.debug('Starting Quart server')
-    bot.run(host=config.get('ListenIP'), port=config.get('ListenPort'), loop=loop, shutdown_trigger=do_nothing)
-
-
-t = threading.Thread(target=run)
-t.daemon = True
-UMRDriver.threads.append(t)
-t.start()
-
-logger.debug('Finished initialization for QQ')
+UMRDriver.register_driver('QQ', QQDriver)

@@ -4,11 +4,12 @@ from Core import UMRLogging
 from Driver import QQ
 from Core.UMRType import ChatAttribute, UnifiedMessage, MessageEntity
 from Core.UMRCommand import register_command, quick_reply
+from Core.UMRDriver import driver_lookup_table
 
 logger = UMRLogging.getLogger('UMRPlugins.QQ-init')
 
 
-async def update_name_list():
+async def update_name_list(QQ):
     try:
         groups = await QQ.bot.get_group_list()
         for group in groups:
@@ -31,7 +32,11 @@ async def update_name_list():
 #     else:
 #         sleep(1)
 
-asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
+
+def do_update():
+    for k, v in driver_lookup_table.items():
+        if isinstance(v, QQ.QQDriver):
+            asyncio.run_coroutine_threadsafe(update_name_list(v), v.loop)
 
 
 @register_command(cmd='name', description='update QQ nicknames')
@@ -39,6 +44,7 @@ async def reload_name_list(chat_attrs: ChatAttribute, args: List):
     if args:  # args should be empty
         return
 
-    asyncio.run_coroutine_threadsafe(update_name_list(), QQ.loop)
+    do_update()
     await quick_reply(chat_attrs, 'QQ nicknames updated')
 
+do_update()

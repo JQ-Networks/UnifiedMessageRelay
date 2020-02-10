@@ -4,7 +4,7 @@ from collections import defaultdict
 from janus import Queue
 from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, SendAction, DestinationMessageID
 from . import UMRLogging
-from .UMRDriver import api_lookup, api_call
+from .UMRDriver import api_call
 from .UMRConfig import config
 from .UMRMessageRelation import get_message_id
 from .UMRMessageHook import message_hook_src, message_hook_full
@@ -162,10 +162,6 @@ async def dispatch(message: UnifiedMessage):
                     (not hook.dst_chat or action.to_chat in hook.dst_chat):
                 if hook.hook_function(action.to_platform, action.to_chat, message):
                     continue
-
-        # check api registration
-        if not api_lookup(action.to_platform, 'send'):
-            continue
 
         if action.action_type == ForwardActionType.Reply:
             if message.chat_attrs.reply_to:

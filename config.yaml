@@ -21,6 +21,7 @@ ForwardList:
       # Reply bot message will also reply the source in other platform
 Driver:
   QQ:
+    Base: QQ
     Account: 643503161
     APIRoot: http://127.0.0.1:5700/
     ListenIP: 172.17.0.1
@@ -35,9 +36,24 @@ Driver:
       1234423423: private
       -213124432432: discuss
   Telegram:
+    Base: Telegram
     BotToken: asdasdsadsadsadsad
+  Line:
+    Base: Line
+    ChannelID: sdarq3rcar323r2r23r
+    BotToken: 123dff23rr23r23r23rr
+    WebHookToken: 43r23r23rf23r23r23r2
+    WebHookURL: https://example.com/callback  # must end with /callback
+    WebHookPort: 41443
+    HTTPSCert: /root/.acme.sh/example.com/example.com.cer
+    HTTPSKey: /root/.acme.sh/example.com/example.com.key
+    HTTPSCA: /root/.acme.sh/example.com/ca.cer
+    ChatList:  # chatlist is group_id: type (user, room or group)
+      asre12qdqwdq13f: group
+      asd23r23f23f23r23: room
+      312r32r23r2r5435r: user
 DataRoot: /root/coolq/data/image
-CommandStart: "!!"
+CommandPrefix: "!!"
 BotAdmin:
   QQ:
     - 123456789

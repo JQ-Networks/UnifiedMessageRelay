@@ -9,3 +9,5 @@ cairosvg
 Pillow
 coloredlogs
 ffmpy
+line-bot-sdk
+quart
