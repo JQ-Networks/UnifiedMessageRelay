@@ -1,6 +1,6 @@
 from typing import List
 from Core import UMRLogging
-from Core.UMRType import ChatAttribute
+from Core.UMRType import ChatAttribute, ChatType
 from aiocqhttp import MessageSegment
 from Core.UMRDriver import driver_lookup_table
 from Driver import QQ
@@ -25,7 +25,9 @@ async def command(chat_attrs: ChatAttribute, args: List):
     assert isinstance(dst_driver, QQ.QQDriver)
 
     context = dict()
-    _group_type = dst_driver.chat_type.get(dst_chat_id, 'group')
+    if chat_attrs.chat_type == ChatType.UNSPECIFIED:
+        return
+    _group_type = dst_driver.chat_type_dict_reverse[chat_attrs.chat_type]
     context['message_type'] = _group_type
     context['message'] = list()
     if _group_type == 'private':

@@ -15,6 +15,7 @@ async def command(chat_attrs: ChatAttribute, args: List):
     if chat_attrs.reply_to:
         message_relation = get_relation_dict(src_platform=chat_attrs.platform,
                                              src_chat_id=chat_attrs.chat_id,
+                                             src_chat_type=chat_attrs.chat_type,
                                              message_id=chat_attrs.reply_to.message_id)
 
         dst_drivers = {k: v for k, v in driver_lookup_table.items() if isinstance(v, QQ.QQDriver)}

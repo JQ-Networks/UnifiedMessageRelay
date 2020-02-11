@@ -1,6 +1,6 @@
 from typing import  Dict, List, Union, Any
 from threading import Thread
-from .UMRType import UnifiedMessage
+from .UMRType import UnifiedMessage, ChatType
 from . import UMRLogging
 from . import UMRConfig
 from asyncio import iscoroutinefunction
@@ -10,17 +10,18 @@ logger = UMRLogging.getLogger('Driver')
 
 # region Driver API lookup table
 class BaseDriver:
-    def send(self, to_chat: int, message: UnifiedMessage):
+    def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
         pass
 
-    def is_group_admin(self, chat_id: int, user_id: int) -> bool:
+    def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
         pass
 
-    def is_group_owner(self, chat_id: int, user_id: int) -> bool:
+    def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
         pass
 
     def start(self):
         pass
+
 
 driver_class_lookup_table: Dict[str, Any] = dict()
 driver_lookup_table: Dict[str, BaseDriver] = dict()
@@ -84,8 +85,6 @@ async def receive(messsage: UnifiedMessage):
 
 # endregion
 
-
-# TODO initialize driver
 
 import Driver
 

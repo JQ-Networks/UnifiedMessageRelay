@@ -4,13 +4,13 @@ from linebot.exceptions import InvalidSignatureError
 from linebot.models import MessageEvent, TextMessage, TextSendMessage, ImageMessage, ImageSendMessage, StickerMessage, \
     StickerSendMessage, VideoMessage, AudioMessage
 import asyncio
-from typing import Dict, DefaultDict
+from typing import Dict, DefaultDict, Union
 from io import BytesIO
 from PIL import Image
 from Core import UMRLogging
 from Core import UMRDriver
 from Core import UMRConfig
-from Core.UMRType import UnifiedMessage, MessageEntity
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatType
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
 from Util.Helper import check_attribute, assemble_message
 import threading
@@ -39,12 +39,9 @@ class LineDriver(UMRDriver.BaseDriver):
             'HTTPSCert',
             'HTTPSKey',
             'HTTPSCA',
-            'ChatList'  # chatlist is group_id: type (user, room or group)
         ]
         check_attribute(self.config, attributes, self.logger)
 
-        self.chat_list = dict()
-        self.reverse_chat_list = dict()
         self.user_names: Dict[str, str] = dict()  # [user_id, username]
         self._message_id = 0
         self._chat_id = 0
@@ -52,8 +49,13 @@ class LineDriver(UMRDriver.BaseDriver):
         self.channel_id = self.config['ChannelID']
         self.image_webhook_url = self.config.get('WebHookURL') + ':' + str(self.config.get('WebHookPort')) + '/image/'
 
-        for raw_chat_id, chat_type in self.config['ChatList'].items():
-            self.raw_to_chat_id(raw_chat_id, chat_type)
+        self.chat_type_dict = {
+            'user': ChatType.PRIVATE,
+            'room': ChatType.DISCUSS,
+            'group': ChatType.GROUP
+        }
+
+        self.chat_type_dict_reversed = {v: k for k, v in self.chat_type_dict.items()}
 
         self.loop = asyncio.new_event_loop()
 
@@ -87,21 +89,21 @@ class LineDriver(UMRDriver.BaseDriver):
         @self.handler.add(MessageEvent)
         async def message_text(event: MessageEvent):
             if event.source.type == 'user':
-                raw_chat_id = event.source.user_id
+                chat_id = event.source.user_id
                 username = await self.get_user_name(user_id=event.source.user_id)
             elif event.source.type == 'group':
-                raw_chat_id = event.source.group_id
+                chat_id = event.source.group_id
                 username = await self.get_user_name(user_id=event.source.user_id, group_id=event.source.group_id)
             elif event.source.type == 'room':
-                raw_chat_id = event.source.room_id
+                chat_id = event.source.room_id
                 username = await self.get_user_name(user_id=event.source.user_id, room_id=event.source.room_id)
             else:  # unknown source
                 return
 
-            chat_id = self.raw_to_chat_id(raw_chat_id, event.source.type)
+            _chat_type = self.chat_type_dict[event.source.type]
             pseudo_message_id = self.message_id
-            message = UnifiedMessage(platform=self.name, chat_id=chat_id, name=username, message_id=pseudo_message_id)
-            set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id,
+            message = UnifiedMessage(platform=self.name, chat_id=chat_id, chat_type=_chat_type, name=username, message_id=pseudo_message_id)
+            set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=_chat_type,
                                    src_message_id=pseudo_message_id, user_id=0)
             if isinstance(event.message, TextMessage):
                 message.message.append(MessageEntity(text=event.message.text))
@@ -149,20 +151,6 @@ class LineDriver(UMRDriver.BaseDriver):
         self.user_names[user_id] = profile.display_name
         return profile.display_name
 
-    def chat_id_to_raw(self, chat_id):
-        return self.chat_list.get(chat_id)
-
-    def raw_to_chat_id(self, raw_chat_id, chat_type='user'):
-        chat_id = self.reverse_chat_list.get(raw_chat_id)
-        if not chat_id:
-            if chat_type == 'user':
-                chat_id = self.chat_id
-            elif chat_type in ('room', 'group'):
-                chat_id = -self.chat_id
-            self.reverse_chat_list[raw_chat_id] = chat_id
-            self.chat_list[chat_id] = raw_chat_id
-        return chat_id
-
     def start(self):
         async def shutdown():
             await self.bot.close()
@@ -182,22 +170,22 @@ class LineDriver(UMRDriver.BaseDriver):
 
         self.logger.debug(f'Finished initialization for {self.name}')
 
-    async def send(self, to_chat: int, messsage: UnifiedMessage):
+    async def send(self, to_chat: Union[int, str], chat_type: ChatType, messsage: UnifiedMessage):
         """
         decorator for send new message
         :return:
         """
         self.logger.debug('calling real send')
-        return asyncio.run_coroutine_threadsafe(self._send(to_chat, messsage), self.loop)
+        return asyncio.run_coroutine_threadsafe(self._send(to_chat, chat_type, messsage), self.loop)
 
-    async def _send(self, to_chat: int, message: UnifiedMessage):
+    async def _send(self, to_chat: str, chat_type: ChatType, message: UnifiedMessage):
         """
         decorator for send new message
         :return:
         """
         self.logger.debug('begin processing message')
 
-        raw_chat_id = self.chat_id_to_raw(to_chat)
+        _chat_type = self.chat_type_dict_reversed[chat_type]
 
         message_prefix = ''
         if message.chat_attrs.name:
@@ -211,7 +199,7 @@ class LineDriver(UMRDriver.BaseDriver):
 
         if message.message:
             message_text = assemble_message(message)
-            await self.bot.push_message(to=raw_chat_id, messages=TextSendMessage(text=message_prefix + message_text))
+            await self.bot.push_message(to=to_chat, messages=TextSendMessage(text=message_prefix + message_text))
         if message.image:
             _, original_file_name = os.path.split(message.image)
             file_name, file_ext = original_file_name.split('.')
@@ -222,14 +210,17 @@ class LineDriver(UMRDriver.BaseDriver):
 
             if not os.path.isfile(image_original_path):
                 image: Image.Image = Image.open(message.image)
-                image.thumbnail((1024, 1024), Image.ANTIALIAS)
-                image.save(image_original_path)
+                if image.size[0] <= 1024 and image.size[1] <= 1024:
+                    image_original = original_file_name
+                else:
+                    image.thumbnail((1024, 1024), Image.ANTIALIAS)
+                    image.save(image_original_path)
                 image.thumbnail((240, 240), Image.ANTIALIAS)
                 image.save(image_thumb_path)
 
-            await self.bot.push_message(to=raw_chat_id, messages=TextSendMessage(text=message_prefix + 'Sent an image ⬇️'))
+            await self.bot.push_message(to=to_chat, messages=TextSendMessage(text=message_prefix + 'Sent an image ⬇️'))
             self.logger.debug('Begin sending image')
-            await self.bot.push_message(to=raw_chat_id,
+            await self.bot.push_message(to=to_chat,
                                         messages=ImageSendMessage(original_content_url=self.image_webhook_url + image_original,
                                                                   preview_image_url=self.image_webhook_url + image_thumb)
             )
@@ -237,9 +228,11 @@ class LineDriver(UMRDriver.BaseDriver):
         if message.chat_attrs:
             set_egress_message_id(src_platform=message.chat_attrs.platform,
                                   src_chat_id=message.chat_attrs.chat_id,
+                                  src_chat_type=message.chat_attrs.chat_type,
                                   src_message_id=message.chat_attrs.message_id,
                                   dst_platform=self.name,
                                   dst_chat_id=to_chat,
+                                  dst_chat_type=_chat_type,
                                   dst_message_id=self.message_id,  # useless message id
                                   user_id=0)
 
@@ -250,10 +243,10 @@ class LineDriver(UMRDriver.BaseDriver):
         msg = context.get("exception", context["message"])
         self.logger.exception('Unhandled exception: ', exc_info=msg)
 
-    async def is_group_admin(self, chat_id: int, user_id: int):
+    async def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int):
         return False
 
-    async def is_group_owner(self, chat_id: int, user_id: int):
+    async def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int):
         return False
 
 

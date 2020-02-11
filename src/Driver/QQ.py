@@ -1,9 +1,9 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 import threading
 import asyncio
 import json
 from aiocqhttp import CQHttp, MessageSegment
-from Core.UMRType import UnifiedMessage, MessageEntity
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatType
 from Core import UMRDriver
 from Core import UMRLogging
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
@@ -595,7 +595,6 @@ class QQDriver(UMRDriver.BaseDriver):
             'IsPro',
             'NameforPrivateChat',
             'NameforGroupChat',
-            'ChatList',
         ]
         check_attribute(self.config, attributes, self.logger)
         self.bot = CQHttp(api_root=self.config.get('APIRoot'),
@@ -607,26 +606,25 @@ class QQDriver(UMRDriver.BaseDriver):
         # get group list
         self.group_list: Dict[int, Dict[int, Dict]] = dict()  # Dict[group_id, Dict[member_id, member_info]]
         # see https://cqhttp.cc/docs/4.13/#/API?id=响应数据23
-
-        self.chat_type: Dict[int, str] = self.config.get('ChatList')  # todo initialization on startup
         self.is_coolq_pro = self.config.get('IsPro', False)  # todo initialization on startup
         self.stranger_list: Dict[int, str] = dict()  # todo initialization on startup
+
+        self.chat_type_dict = {
+                'group': ChatType.GROUP,
+                'discuss': ChatType.DISCUSS,
+                'private': ChatType.PRIVATE,
+            }
+
+        self.chat_type_dict_reverse = {v: k for k, v in self.chat_type_dict.items()}
 
         @self.bot.on_message()
         async def handle_msg(context):
             message_type = context.get("message_type")
-            if message_type in ('group', 'discuss'):
-                chat_id = context.get(f'{message_type}_id')
-            else:
-                chat_id = context.get('user_id')
-            if message_type in ('group', 'discuss'):
-                chat_id = -chat_id
-                context[f'{message_type}_id'] = chat_id
-            if chat_id not in self.chat_type:
-                self.chat_type[chat_id] = message_type
+            chat_id = context.get(f'{message_type}_id')
+            chat_type = self.chat_type_dict[message_type]
 
             unified_message_list = await self.dissemble_message(context)
-            set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id,
+            set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=chat_type,
                                    src_message_id=context.get('message_id'), user_id=context.get('user_id'))
             for message in unified_message_list:
                 await UMRDriver.receive(message)
@@ -651,33 +649,34 @@ class QQDriver(UMRDriver.BaseDriver):
 
         ##### Define send and receive #####
 
-    async def send(self, to_chat: int, messsage: UnifiedMessage):
+    async def send(self, to_chat: Union[int, str], chat_type: ChatType, messsage: UnifiedMessage):
         """
         decorator for send new message
         :return:
         """
         self.logger.debug('calling real send')
-        return asyncio.run_coroutine_threadsafe(self._send(to_chat, messsage), self.loop)
+        return asyncio.run_coroutine_threadsafe(self._send(to_chat, chat_type, messsage), self.loop)
 
-    async def _send(self, to_chat: int, message: UnifiedMessage):
+    async def _send(self, to_chat: int, chat_type: ChatType, message: UnifiedMessage):
         """
         decorator for send new message
         :return:
         """
         self.logger.debug('begin processing message')
         context = dict()
-        _group_type = self.chat_type.get(to_chat, 'group')
-        if not _group_type:
+        if chat_type == ChatType.UNSPECIFIED:
             self.logger.warning(f'Sending to undefined group or chat {to_chat}')
             return
-        context['message_type'] = _group_type
+
+        _chat_type = self.chat_type_dict_reverse[chat_type]
+        context['message_type'] = _chat_type
         context['message'] = list()
         if message.image:
             image_name = os.path.basename(message.image)
             context['message'].append(MessageSegment.image(image_name))
 
-        if (_group_type == 'private' and self.config['NameforPrivateChat']) or \
-                (_group_type in ('group', 'discuss') and self.config['NameforGroupChat']):
+        if (_chat_type == 'private' and self.config['NameforPrivateChat']) or \
+                (_chat_type in ('group', 'discuss') and self.config['NameforGroupChat']):
             # name logic
             if message.chat_attrs.name:
                 context['message'].append(MessageSegment.text(message.chat_attrs.name))
@@ -697,18 +696,20 @@ class QQDriver(UMRDriver.BaseDriver):
             context['message'].append(MessageSegment.text(m.text + ' '))
             if m.link:
                 context['message'].append(MessageSegment.text(m.link) + ' ')
-        if _group_type == 'private':
+        if _chat_type == 'private':
             context['user_id'] = to_chat
         else:
-            context[f'{_group_type}_id'] = abs(to_chat)
+            context[f'{_chat_type}_id'] = to_chat
         self.logger.debug('finished processing message, ready to send')
         result = await self.bot.send(context, context['message'])
         if message.chat_attrs:
             set_egress_message_id(src_platform=message.chat_attrs.platform,
                                   src_chat_id=message.chat_attrs.chat_id,
+                                  src_chat_type=message.chat_attrs.chat_type,
                                   src_message_id=message.chat_attrs.message_id,
                                   dst_platform=self.name,
                                   dst_chat_id=to_chat,
+                                  dst_chat_type=chat_type,
                                   dst_message_id=result.get('message_id'),
                                   user_id=self.config['Account'])
         self.logger.debug('finished sending')
@@ -753,20 +754,24 @@ class QQDriver(UMRDriver.BaseDriver):
         username = await self.get_username(user_id, chat_id)
         message: List[Dict] = context['message']
 
-        unified_message = await self.parse_special_message(chat_id, username, message_id, user_id, message)
+        unified_message = await self.parse_special_message(chat_id, self.chat_type_dict[message_type], username, message_id, user_id, message)
         if unified_message:
             return [unified_message]
-        unified_message_list = await self.parse_message(chat_id, message_type, username, message_id, user_id, message)
+        unified_message_list = await self.parse_message(chat_id, self.chat_type_dict[message_type], username, message_id, user_id, message)
         return unified_message_list
 
-    async def parse_special_message(self, chat_id: int, username: str, message_id: int, user_id: int,
+    async def parse_special_message(self, chat_id: int, chat_type: ChatType, username: str, message_id: int, user_id: int,
                                     message: List[Dict[str, Dict[str, str]]]):
         if len(message) > 1:
             return None
         message = message[0]
         message_type = message['type']
         message = message['data']
-        unified_message = UnifiedMessage(platform=self.name, chat_id=chat_id, name=username, user_id=user_id,
+        unified_message = UnifiedMessage(platform=self.name,
+                                         chat_id=chat_id,
+                                         chat_type=chat_type,
+                                         name=username,
+                                         user_id=user_id,
                                          message_id=message_id)
         if message_type == 'share':
             unified_message.message = [
@@ -864,11 +869,12 @@ class QQDriver(UMRDriver.BaseDriver):
 
         return unified_message
 
-    async def parse_message(self, chat_id: int, chat_type: str, username: str, message_id: int, user_id: int,
+    async def parse_message(self, chat_id: int, chat_type: ChatType, username: str, message_id: int, user_id: int,
                             message: List[Dict[str, Dict[str, str]]]):
         message_list = list()
         unified_message = UnifiedMessage(platform=self.name,
                                          chat_id=chat_id,
+                                         chat_type=chat_type,
                                          name=username,
                                          user_id=user_id,
                                          message_id=message_id)
@@ -881,6 +887,7 @@ class QQDriver(UMRDriver.BaseDriver):
                     message_list.append(unified_message)
                     unified_message = UnifiedMessage(platform=self.name,
                                                      chat_id=chat_id,
+                                                     chat_type=chat_type,
                                                      name=username,
                                                      user_id=user_id,
                                                      message_id=message_id)
@@ -913,12 +920,16 @@ class QQDriver(UMRDriver.BaseDriver):
         message_list.append(unified_message)
         return message_list
 
-    async def is_group_admin(self, chat_id: int, user_id: int):
+    async def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int):
+        if chat_type != ChatType.GROUP:
+            return False
         if chat_id not in self.group_list:
             return False
         return self.group_list[chat_id][user_id]['role'] in ('owner', 'admin')
 
-    async def is_group_owner(self, chat_id: int, user_id: int):
+    async def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int):
+        if chat_type != ChatType.GROUP:
+            return False
         if chat_id not in self.group_list:
             return False
         return self.group_list[chat_id][user_id]['role'] == 'owner'

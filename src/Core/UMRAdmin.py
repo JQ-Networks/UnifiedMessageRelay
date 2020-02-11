@@ -2,6 +2,7 @@ from typing import Dict, List
 from . import UMRConfig
 from . import UMRLogging
 from .UMRDriver import api_call
+from .UMRType import ChatType
 
 logger = UMRLogging.getLogger('Admin')
 
@@ -20,10 +21,10 @@ async def is_bot_admin(platform: str, user_id: int) -> bool:
     return user_id in bot_admin[platform]
 
 
-async def is_group_owner(platform: str, chat_id: int, user_id: int):
+async def is_group_owner(platform: str, chat_id: int, chat_type: ChatType, user_id: int):
     if chat_id > 0:  # private chat
         return False
-    result = await api_call(platform, 'is_group_owner', chat_id, user_id)
+    result = await api_call(platform, 'is_group_owner', chat_id, chat_type, user_id)
     if result:  # result can be None if driver does not have is_group_owner
         if isinstance(result, bool):
             return result
@@ -33,10 +34,10 @@ async def is_group_owner(platform: str, chat_id: int, user_id: int):
         return False
 
 
-async def is_group_admin(platform: str, chat_id: int, user_id: int):
+async def is_group_admin(platform: str, chat_id: int, chat_type: ChatType, user_id: int):
     if chat_id > 0:  # private chat
         return False
-    result = await api_call(platform, 'is_group_admin', chat_id, user_id)
+    result = await api_call(platform, 'is_group_admin', chat_id, chat_type, user_id)
     if result:  # result can be None if driver does not have is_group_admin
         if isinstance(result, bool):
             return result

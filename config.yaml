@@ -4,20 +4,24 @@ ForwardList:
     Telegram: 12321312  # your telegram bot chat id
   Topology:  # keep this key even if no topology exists
     - From: QQ
-      FromChat: -1123131231  # use negative number for group/discuss, positive for private chat
+      FromChat: 1123131231  # use negative number for group/discuss, positive for private chat
+      FromChatType: group  # group, discuss, private
       To: Telegram
       ToChat: -31231212344  # telegram chat id, use !!id to show
-      ForwardType: ReplyOnly
+      ToChatType: group
+      ForwardType: OneWay+
       # OneWay:
       # Forward from "FromChat" to "ToChat"
       # BiDirection:
       # Forward from "FromChat" to "ToChat" and vise versa
-      # ReplyOnly:
-      # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
+      # OneWay+:
+      # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
   Default:  # keep this key even if no default route exists
     - From: QQ
       To: Telegram
-      ToChat: -123244234234
+      ToChat: 123244234234
+      ToChatType: group
+      ForwardType:
       # Reply bot message will also reply the source in other platform
 Driver:
   QQ:
@@ -31,10 +35,6 @@ Driver:
     IsPro: yes    # currently coolq air is not supported, image sending is unavailable
     NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
     NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
-    ChatList:
-      -1123131231: group       # group/discuss should be negative, type is lower case
-      1234423423: private
-      -213124432432: discuss
   Telegram:
     Base: Telegram
     BotToken: asdasdsadsadsadsad
@@ -48,10 +48,6 @@ Driver:
     HTTPSCert: /root/.acme.sh/example.com/example.com.cer
     HTTPSKey: /root/.acme.sh/example.com/example.com.key
     HTTPSCA: /root/.acme.sh/example.com/ca.cer
-    ChatList:  # chatlist is group_id: type (user, room or group)
-      asre12qdqwdq13f: group
-      asd23r23f23f23r23: room
-      312r32r23r2r5435r: user
 DataRoot: /root/coolq/data/image
 CommandPrefix: "!!"
 BotAdmin:

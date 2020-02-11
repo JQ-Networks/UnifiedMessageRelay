@@ -37,7 +37,7 @@ from Core.UMRCommand import register_command, quick_reply
 from typing import List
 
 @register_command(cmd=['cmd1', 'cmd2', ...], platform=['QQ', 'Telegram', ...],
- description='Your description goes here', chat_type=ChatType.PRIVATE_CHAT, privilege=Privilege.BOT_ADMIN)
+ description='Your description goes here', chat_type=ChatType.PRIVATE, privilege=Privilege.BOT_ADMIN)
 async def command(chat_attrs: ChatAttribute, args: List):
     pass
 ```

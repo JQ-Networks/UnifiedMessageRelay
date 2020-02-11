@@ -1,9 +1,9 @@
 import threading
 import asyncio
-from typing import Dict
+from typing import Dict, Union
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType
-from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute, ChatType
 from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
@@ -44,15 +44,17 @@ class TelegramDriver(UMRDriver.BaseDriver):
             @self.dp.edited_message_handler(content_types=ContentType.ANY)
             async def handle_msg(message: types.Message):
                 from_user = message.from_user
+                _chat_type = ChatType.GROUP if message.chat.id < 0 else ChatType.PRIVATE
 
                 unified_message = UnifiedMessage(platform=self.name,
                                                  chat_id=message.chat.id,
+                                                 chat_type=_chat_type,
                                                  name=from_user.full_name,
                                                  user_id=from_user.id,
                                                  message_id=message.message_id)
 
                 self.get_chat_attributes(message, unified_message.chat_attrs)
-                set_ingress_message_id(src_platform=self.name, src_chat_id=message.chat.id,
+                set_ingress_message_id(src_platform=self.name, src_chat_id=message.chat.id, src_chat_type=_chat_type,
                                        src_message_id=message.message_id, user_id=message.from_user.id)
 
                 if message.content_type == ContentType.TEXT:
@@ -86,7 +88,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
 
         self.logger.debug(f'Finished initialization for {self.name}')
 
-    async def send(self, to_chat: int, message: UnifiedMessage):
+    async def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
         """
         decorator for send new message
         :return:
@@ -147,9 +149,11 @@ class TelegramDriver(UMRDriver.BaseDriver):
         if message.chat_attrs:
             set_egress_message_id(src_platform=message.chat_attrs.platform,
                                   src_chat_id=message.chat_attrs.chat_id,
+                                  src_chat_type=message.chat_attrs.chat_type,
                                   src_message_id=message.chat_attrs.message_id,
                                   dst_platform=self.name,
                                   dst_chat_id=to_chat,
+                                  dst_chat_type=ChatType.GROUP if to_chat < 0 else ChatType.PRIVATE,
                                   dst_message_id=tg_message.message_id,
                                   user_id=self.bot_user_id)
         self.logger.debug('finished sending')
@@ -258,6 +262,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
             # private message does not have message_id, and channel message does not have user_id
             chat_attrs.forward_from = ChatAttribute(platform=self.name,
                                                     chat_id=chat_id,
+                                                    chat_type=ChatType.GROUP if message.chat.id < 0 else ChatType.PRIVATE,
                                                     user_id=user_id,
                                                     name=name,
                                                     message_id=message_id)
@@ -271,6 +276,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
             user_id = message.forward_from.id
             # forward message does not have message_id and chat_id
             chat_attrs.forward_from = ChatAttribute(platform=self.name,
+                                                    chat_type=ChatType.PRIVATE,
                                                     chat_id=0,
                                                     user_id=user_id,
                                                     name=name)
@@ -278,19 +284,24 @@ class TelegramDriver(UMRDriver.BaseDriver):
         if message.reply_to_message:
             chat_attrs.reply_to = ChatAttribute(platform=self.name,
                                                 chat_id=message.reply_to_message.chat.id,
+                                                chat_type=ChatType.GROUP if message.reply_to_message.chat.id < 0 else ChatType.PRIVATE,
                                                 name=message.reply_to_message.from_user.full_name,
                                                 user_id=message.reply_to_message.from_user.id,
                                                 message_id=message.reply_to_message.message_id)
             self.get_chat_attributes(message.reply_to_message, chat_attrs.reply_to)
 
-    async def is_group_admin(self, chat_id: int, user_id: int):
+    async def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int):
+        if chat_type != ChatType.GROUP:
+            return False
         member = await self.bot.get_chat_member(chat_id, user_id)
         if member:
             if member.status in ('creator', 'administrator'):
                 return True
         return False
 
-    async def is_group_owner(self, chat_id: int, user_id: int):
+    async def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int):
+        if chat_type != ChatType.GROUP:
+            return False
         member = await self.bot.get_chat_member(chat_id, user_id)
         if member:
             if member.status == 'creator':

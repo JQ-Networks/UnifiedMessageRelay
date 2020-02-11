@@ -91,57 +91,8 @@ Copy config.yaml to `~/.umr`
 
 [Why yaml instead of json?](https://www.quora.com/What-situation-would-you-use-YAML-instead-of-JSON-or-XML)
 
-Example config
-```yaml
-ForwardList:
-  Accounts:  # must specify all available bot account ids for every driver in use
-    QQ: 12213312  # your QQ bot account number
-    Telegram: 12321312  # your telegram bot chat id
-  Topology:  # keep this key even if no topology exists
-    - From: QQ
-      FromChat: -1123131231  # use negative number for group/discuss, positive for private chat
-      To: Telegram
-      ToChat: -31231212344  # telegram chat id, use !!id to show
-      ForwardType: ReplyOnly
-      # OneWay:
-      # Forward from "FromChat" to "ToChat"
-      # BiDirection:
-      # Forward from "FromChat" to "ToChat" and vise versa
-      # ReplyOnly:
-      # Forward from "FromChat" to "ToChat", ignoring message without "reply_to"
-  Default:  # keep this key even if no default route exists
-    - From: QQ
-      To: Telegram
-      ToChat: -123244234234
-      # Reply bot message will also reply the source in other platform
-Driver:
-  QQ:
-    Account: 643503161
-    APIRoot: http://127.0.0.1:5700/
-    ListenIP: 172.17.0.1
-    ListenPort: 8080
-    Token: very
-    Secret: long
-    IsPro: yes    # currently coolq air is not supported, image sending is unavailable
-    NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
-    NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
-    ChatList:
-      -1123131231: group       # group/discuss should be negative, type is lower case
-      1234423423: private
-      -213124432432: discuss
-  Telegram:
-    BotToken: asdasdsadsadsadsad
-DataRoot: /root/coolq/data/image
-CommandStart: "!!"
-BotAdmin:
-  QQ:
-    - 123456789
-    - 987654321
-  Telegram:
-    - 213442352354534534
-    - 345235345345345345
+[Full Example config](config.yaml)
 
-```
 
 ## Start the bot
 

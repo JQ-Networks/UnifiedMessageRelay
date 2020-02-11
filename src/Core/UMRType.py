@@ -3,13 +3,23 @@ from dataclasses import dataclass
 from typing import List, Callable, FrozenSet, Union
 from enum import Enum
 
+
 class ChatType(Enum):
     """
     Command filter option
     """
     UNSPECIFIED = 0
-    PRIVATE_CHAT = 1
-    GROUP = 2
+    PRIVATE = 1
+    DISCUSS = 2
+    GROUP = 3
+
+    def __str__(self):
+        return {
+            0: 'unspecified',
+            1: 'private',
+            2: 'discuss',
+            3: 'group'
+        }[self.value]
 
 
 class Privilege(Enum):
@@ -28,9 +38,11 @@ class ChatAttribute:
     Part of UnifiedMessage
     Attributes for every received message. Recursive attributes exist for some platform.
     """
-    def __init__(self, platform: str = '', chat_id: int = 0, name: str = '', user_id: int = 0, message_id: int = 0):
+    def __init__(self, platform: str = '', chat_id: Union[int, str] = 0, chat_type: ChatType = ChatType.UNSPECIFIED,
+                 name: str = '', user_id: Union[int, str] = 0, message_id: int = 0):
         self.platform = platform
         self.chat_id = chat_id
+        self.chat_type = chat_type
         self.name = name
         self.user_id = user_id
         self.message_id = message_id
@@ -88,7 +100,8 @@ class UnifiedMessage:
     file_id: str  # unique file identifier
     send_action: SendAction
 
-    def __init__(self, message=None, image='', file_id='', platform='', chat_id=0, name='', user_id=0, message_id: int = 0):
+    def __init__(self, message=None, image='', file_id='', platform='', chat_id=0, chat_type=ChatType.UNSPECIFIED,
+                 name='', user_id=0, message_id: int = 0):
         if message is None:
             message = list()
         self.send_action = SendAction(0, 0)
@@ -97,6 +110,7 @@ class UnifiedMessage:
         self.file_id = file_id
         self.chat_attrs = ChatAttribute(platform=platform,
                                         chat_id=chat_id,
+                                        chat_type=chat_type,
                                         name=name,
                                         user_id=user_id,
                                         message_id=message_id)
@@ -134,8 +148,16 @@ class ForwardActionType(Enum):
     """
     Dispatch filter, filters message reply attribute
     """
-    All = 1
-    Reply = 2
+    ForwardAll = 1  # message can go to the other side
+    ReplyOnly = 2   # message that replies to forwarded message can go to the other side
+
+
+class DefaultForwardActionType(Enum):
+    """
+    Dispatch filter, filters message reply attribute
+    """
+    OneWay = 1           # aggregate message only, no backward
+    OneWayWithReply = 2  # aggregate message and allow backward
 
 
 @dataclass
@@ -144,8 +166,20 @@ class ForwardAction:
     Dispatch action, final action for matching message
     """
     to_platform: str
-    to_chat: int
+    to_chat: Union[int, str]
+    chat_type: ChatType
     action_type: ForwardActionType  # All, Reply
+
+
+@dataclass
+class DefaultForwardAction:
+    """
+    Dispatch action, final action for matching message
+    """
+    to_platform: str
+    to_chat: Union[int, str]
+    chat_type: ChatType
+    action_type: DefaultForwardActionType  # All, Reply
 
 
 @dataclass
@@ -224,7 +258,8 @@ class GroupID:
     Used in MessageRelation
     """
     platform: str
-    chat_id: int
+    chat_type: ChatType
+    chat_id: Union[int, str]
 
 
 @dataclass(frozen=True)
@@ -233,7 +268,8 @@ class MessageID:
     Used in MessageRelation
     """
     platform: str
-    chat_id: int
+    chat_id: Union[int, str]
+    chat_type: ChatType
     message_id: int
 
 
@@ -243,7 +279,8 @@ class DestinationMessageID:
     Used in MessageRelation
     """
     platform: str = ''
-    chat_id: int = 0
+    chat_id: Union[int, str] = 0
+    chat_type: ChatType = ChatType.UNSPECIFIED
     message_id: int = 0
     user_id: int = 0
     source: DestinationMessageID = None

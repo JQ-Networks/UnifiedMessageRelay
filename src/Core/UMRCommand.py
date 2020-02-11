@@ -50,7 +50,7 @@ async def command_dispatcher(message: UnifiedMessage):
         if command_map[cmd].chat_type:
             if message.chat_attrs.chat_id > 0 and command_map[cmd].chat_type == ChatType.GROUP:
                 return False
-            if message.chat_attrs.chat_id < 0 and command_map[cmd].chat_type == ChatType.PRIVATE_CHAT:
+            if message.chat_attrs.chat_id < 0 and command_map[cmd].chat_type == ChatType.PRIVATE:
                 return False
 
         # filter privilege
@@ -63,6 +63,7 @@ async def command_dispatcher(message: UnifiedMessage):
                 if not await is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id) or \
                         not await is_group_owner(platform=message.chat_attrs.platform,
                                                  chat_id=message.chat_attrs.chat_id,
+                                                 chat_type=message.chat_attrs.chat_type,
                                                  user_id=message.chat_attrs.user_id):
                     await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
@@ -70,6 +71,7 @@ async def command_dispatcher(message: UnifiedMessage):
                 if not await is_bot_admin(message.chat_attrs.platform, message.chat_attrs.user_id) or \
                         not await is_group_admin(platform=message.chat_attrs.platform,
                                                  chat_id=message.chat_attrs.chat_id,
+                                                 chat_type=message.chat_attrs.chat_type,
                                                  user_id=message.chat_attrs.user_id):
                     await unauthorized(message.chat_attrs, command_map[cmd].privilege)
                     return True
@@ -144,4 +146,4 @@ async def quick_reply(chat_attrs: ChatAttribute, text: Union[str, List[MessageEn
         message.message = text
     message.send_action = SendAction(message_id=chat_attrs.message_id, user_id=chat_attrs.user_id)
 
-    await api_call(chat_attrs.platform, 'send', chat_attrs.chat_id, message)
+    await api_call(chat_attrs.platform, 'send', chat_attrs.chat_id, chat_attrs.chat_type, message)
