@@ -1,5 +1,5 @@
 from typing import List, Callable, Union
-from .UMRType import MessageHook
+from .UMRType import MessageHook, ChatType
 from . import UMRLogging
 
 logger = UMRLogging.getLogger('MessageHook')
@@ -8,8 +8,8 @@ message_hook_full: List[MessageHook] = list()  # src_driver, src_group, dst_driv
 message_hook_src: List[MessageHook] = list()
 
 
-def register_hook(src_driver: Union[str, List[str]] = '', src_chat: Union[int, List[int]] = 0,
-                  dst_driver: Union[str, List[str]] = '', dst_chat: Union[int, List[int]] = 0) -> Callable:
+def register_hook(src_driver: Union[str, List[str]] = '', src_chat: Union[int, List[int]] = 0, src_chat_type: Union[ChatType, List[ChatType]] = ChatType.UNSPECIFIED,
+                  dst_driver: Union[str, List[str]] = '', dst_chat: Union[int, List[int]] = 0, dst_chat_type: Union[ChatType, List[ChatType]] = ChatType.UNSPECIFIED) -> Callable:
     """
     message hook registration
     :param src_driver: driver name
@@ -21,9 +21,9 @@ def register_hook(src_driver: Union[str, List[str]] = '', src_chat: Union[int, L
 
     def deco(original_func):
         if not dst_chat and not dst_driver:
-            message_hook_src.append(MessageHook(src_driver, src_chat, dst_driver, dst_chat, original_func))
+            message_hook_src.append(MessageHook(src_driver, src_chat, src_chat_type, dst_driver, dst_chat, dst_chat_type, original_func))
         else:
-            message_hook_full.append(MessageHook(src_driver, src_chat, dst_driver, dst_chat, original_func))
+            message_hook_full.append(MessageHook(src_driver, src_chat, src_chat_type, dst_driver, dst_chat, dst_chat_type, original_func))
         return original_func
 
     return deco

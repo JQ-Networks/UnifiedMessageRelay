@@ -33,8 +33,10 @@ async def message_hook_func(message: UnifiedMessage) -> bool:
 #### Args:
  - `src_driver`: str or List[str], the source driver
  - `src_chat`: int or List[int], the source chat id
+ - `src_chat_type`: ChatType or List[ChatType], the source chat type
  - `dst_driver`: str or List[str], the destination driver
  - `dst_chat`: int or List[int], the destination chat id
+ - `dst_chat_type`: ChatType or List[ChatType], the destination chat type
  
  WHen dst_\* are empty, the function prototype should be:
  

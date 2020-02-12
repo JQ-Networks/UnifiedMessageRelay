@@ -1,1 +1,1 @@
-__all__ = ['DaemonClass']
+__all__ = ['DaemonClass', 'quart']

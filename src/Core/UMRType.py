@@ -189,12 +189,14 @@ class MessageHook:
     """
     src_driver: FrozenSet[str]
     src_chat: FrozenSet[int]
+    src_chat_type: FrozenSet[ChatType]
     dst_driver: FrozenSet[str]
     dst_chat: FrozenSet[int]
+    dst_chat_type: FrozenSet[ChatType]
     hook_function: Callable
 
-    def __init__(self, src_driver: Union[str, List[str]], src_chat: Union[int, List[int]],
-                 dst_driver: Union[str, List[str]], dst_chat: Union[int, List[int]], hook_function: Callable):
+    def __init__(self, src_driver: Union[str, List[str]], src_chat: Union[int, List[int]], src_chat_type: Union[ChatType, List[ChatType]],
+                 dst_driver: Union[str, List[str]], dst_chat: Union[int, List[int]], dst_chat_type: Union[ChatType, List[ChatType]], hook_function: Callable):
         if isinstance(src_driver, str):
             if src_driver:
                 self.src_driver = frozenset([src_driver])
@@ -209,6 +211,10 @@ class MessageHook:
                 self.src_chat = frozenset()
         else:
             self.src_chat = frozenset(src_chat)
+        if isinstance(src_chat_type, ChatType):
+            self.src_chat_type = frozenset([src_chat_type])
+        else:
+            self.src_chat_type = frozenset(src_chat_type)
         if isinstance(dst_driver, str):
             if dst_driver:
                 self.dst_driver = frozenset([dst_driver])
@@ -223,6 +229,10 @@ class MessageHook:
                 self.dst_chat = frozenset()
         else:
             self.dst_chat = frozenset(dst_chat)
+        if isinstance(dst_chat_type, ChatType):
+            self.dst_chat_type = frozenset([dst_chat_type])
+        else:
+            self.dst_chat_type = frozenset(dst_chat_type)
         self.hook_function = hook_function
 
 

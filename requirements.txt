@@ -1,5 +1,5 @@
 aiogram
-aiohttp
+httpx
 aiocqhttp
 tgs
 imageio

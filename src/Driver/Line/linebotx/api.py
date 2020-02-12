@@ -19,8 +19,7 @@ from linebot.models import (
     IssueChannelTokenResponse,
 )
 
-from .http_client import AioHttpClient
-import requests
+from .http_client import HttpXClient
 
 
 class LineBotApiAsync(object):
@@ -46,7 +45,7 @@ class LineBotApiAsync(object):
         if http_client:
             self.http_client = http_client
         else:
-            self.http_client = AioHttpClient(timeout=timeout)
+            self.http_client = HttpXClient(timeout=timeout)
 
     async def close(self):
         await self.http_client.close()
@@ -225,7 +224,7 @@ class LineBotApiAsync(object):
         return MemberIds.new_from_json_dict(json_resp)
 
     async def get_message_content(self, message_id, timeout=None):
-        response = self._get_sync(
+        response = await self._get(
             '/v2/bot/message/{message_id}/content'.format(message_id=message_id),
             endpoint=self.data_endpoint,
             stream=True,
@@ -356,20 +355,6 @@ class LineBotApiAsync(object):
             timeout=timeout,
         )
 
-    def _get_sync(self, path, endpoint=None, params=None, headers=None, stream=False, timeout=None):
-        url = (endpoint or self.endpoint) + path
-
-        if headers is None:
-            headers = {}
-        headers.update(self.headers)
-
-        response = requests.get(
-            url, headers=headers, params=params, stream=stream, timeout=timeout
-        )
-
-        self.__check_error(response)
-        return response
-
     async def _get(self, path, params=None, endpoint=None, headers=None, stream=False, timeout=None):
         if endpoint:
             url = endpoint + path
@@ -414,7 +399,7 @@ class LineBotApiAsync(object):
         headers.update(self.headers)
 
         response = await self.http_client.delete(
-            url, headers=headers, data=data, timeout=timeout
+            url, headers=headers, params=data, timeout=timeout
         )
 
         await self.__check_error(response)

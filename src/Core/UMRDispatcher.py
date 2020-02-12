@@ -178,6 +178,7 @@ async def dispatch(message: UnifiedMessage):
     # hook for matching source only
     for hook in message_hook_src:
         if (not hook.src_driver or message.chat_attrs.platform in hook.src_driver) and \
+                (ChatType.UNSPECIFIED in hook.src_chat_type or message.chat_attrs.chat_type in hook.src_chat_type) and \
                 (not hook.src_chat or message.chat_attrs.chat_id in hook.src_chat):
             if await hook.hook_function(message):
                 return
@@ -197,7 +198,9 @@ async def dispatch(message: UnifiedMessage):
         for hook in message_hook_full:
             if (not hook.src_driver or message.chat_attrs.platform in hook.src_driver) and \
                     (not hook.src_chat or message.chat_attrs.chat_id in hook.src_chat) and \
+                    (ChatType.UNSPECIFIED in hook.src_chat_type or message.chat_attrs.chat_type in hook.src_chat_type) and \
                     (not hook.dst_driver or action.to_platform in hook.dst_driver) and \
+                    (ChatType.UNSPECIFIED in hook.dst_chat_type or action.chat_type in hook.src_chat_type) and \
                     (not hook.dst_chat or action.to_chat in hook.dst_chat):
                 if hook.hook_function(action.to_platform, action.to_chat, action.chat_type, message):
                     continue

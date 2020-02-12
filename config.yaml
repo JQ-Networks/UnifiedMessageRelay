@@ -21,8 +21,11 @@ ForwardList:
       To: Telegram
       ToChat: 123244234234
       ToChatType: group
-      ForwardType:
-      # Reply bot message will also reply the source in other platform
+      ForwardType: OneWay+
+      # OneWay:
+      # Forward from "FromChat" to "ToChat"
+      # OneWay+:
+      # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
 Driver:
   QQ:
     Base: QQ
@@ -43,7 +46,7 @@ Driver:
     ChannelID: sdarq3rcar323r2r23r
     BotToken: 123dff23rr23r23r23rr
     WebHookToken: 43r23r23rf23r23r23r2
-    WebHookURL: https://example.com/callback  # must end with /callback
+    WebHookURL: https://example.com  # must not include /callback
     WebHookPort: 41443
     HTTPSCert: /root/.acme.sh/example.com/example.com.cer
     HTTPSKey: /root/.acme.sh/example.com/example.com.key

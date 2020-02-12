@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 import threading
 import asyncio
 import json
-from aiocqhttp import CQHttp, MessageSegment
+from .aiocqhttp import CQHttp, MessageSegment
 from Core.UMRType import UnifiedMessage, MessageEntity, ChatType
 from Core import UMRDriver
 from Core import UMRLogging
@@ -628,7 +628,7 @@ class QQDriver(UMRDriver.BaseDriver):
                                    src_message_id=context.get('message_id'), user_id=context.get('user_id'))
             for message in unified_message_list:
                 await UMRDriver.receive(message)
-            return {}  # 返回给 HTTP API 插件，走快速回复途径
+            return {}
 
     def start(self):
         def do_nothing():
