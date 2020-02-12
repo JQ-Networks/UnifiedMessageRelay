@@ -6,6 +6,10 @@ UnifiedMessageRelay is a framework for the purpose of bringing messages from dif
 user no longer need to view messages on different platform, or different groups. UnifiedMessageRelay brings powerful
  message forwarding functionality and flexible plugin API to meet your custom need. A driver API specification is also
  provided, so one can compose their own backend driver, and the framework will load and utilize the driver automatically.
+ 
+[Developer group](https://t.me/UnifiedMessageRelayDev)
+
+[Support group](https://t.me/UnifiedMessageRelay)
 
 ## Demo
 
