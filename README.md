@@ -136,7 +136,7 @@ By default, log will be stored in `/var/log/umr/bot.log`, and cache will be clea
 python3 daemon.py stop
 ```
 
-### Front desk process
+### Foreground process (for debugging purpose)
 
 If you need to see the log output for debugging purpose, stop the running daemon first. Then follow this command.
 
