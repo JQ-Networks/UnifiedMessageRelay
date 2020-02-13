@@ -15,15 +15,17 @@ user no longer need to view messages on different platform, or different groups.
 
 Telegram <-> QQ:
 
-![Telegram](image/telegram.png =x300)
+<img src="image/telegram.png" height="400" alt="Telegram">
 
-![QQ](image/qq.png =x300)
+<img src="image/qq.png" height="600" alt="QQ">
 
 Telegram <-> Discord:
 
-![Discord](image/tg-discord1.png =x300)
+<img src="image/tg-discord1.png" height="500" alt="Discord">
 
-![Telegram](image/tg-discord2.png =x300)
+<img src="image/tg-discord2.png" height="500" alt="Telegram">
+
+All four platforms: QQ, Telegram, Line and Discord can forward between each other directly.
 
 ## Supported platforms
 
