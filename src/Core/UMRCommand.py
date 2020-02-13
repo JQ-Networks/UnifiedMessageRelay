@@ -2,11 +2,11 @@ from typing import Dict, List, Union, Set
 from asyncio import iscoroutinefunction
 from . import UMRConfig
 from . import UMRLogging
-from .UMRType import UnifiedMessage, Command, ChatAttribute, MessageEntity, ChatType, Privilege, SendAction
+from .UMRType import UnifiedMessage, Command, ChatAttribute, MessageEntity, ChatType, Privilege, SendAction, EntityType
 from .UMRMessageHook import register_hook
 from .UMRDriver import api_call
 from .UMRAdmin import is_bot_admin, is_group_admin, is_group_owner
-from Util.Helper import assemble_message
+from Util.Helper import unparse_entities_to_markdown
 
 logger = UMRLogging.getLogger('Command')
 
@@ -31,7 +31,7 @@ async def command_dispatcher(message: UnifiedMessage):
     if len(message.message) == 0:  # command must have some texts
         return False
 
-    msg = assemble_message(message)
+    msg = unparse_entities_to_markdown(message, EntityType.PLAIN)
 
     if not msg.startswith(command_start):  # command must start with command_start
         return False
@@ -120,30 +120,35 @@ async def command(chat_attrs: ChatAttribute, args: List):
         return
 
     message_entities = list()
-    help_text = 'Available commands in this group:'
-    message_entities.append(MessageEntity(text=help_text))
+    help_text = 'Available commands in this group: '
+    message = help_text
     for cmd, cmd_obj in command_map.items():
         if cmd_obj.platform and chat_attrs.platform not in cmd_obj.platform:
             continue
-        message_entities.append(MessageEntity(text='\n' + cmd + ': ', entity_type='bold'))
-        message_entities.append(MessageEntity(text=cmd_obj.description))
+        message += '\n'
+        cmd_text = cmd + ': '
+        message_entities.append(
+            MessageEntity(start=len(message),
+                          end=len(message) + len(cmd_text),
+                          entity_type=EntityType.BOLD))
+        message_entities += cmd_text
+        message_entities += cmd_obj.description
 
-    await quick_reply(chat_attrs, message_entities)
+    await quick_reply(chat_attrs, message, message_entities)
 
 
-async def quick_reply(chat_attrs: ChatAttribute, text: Union[str, List[MessageEntity]]):
+async def quick_reply(chat_attrs: ChatAttribute, text: str, message_entities: List[MessageEntity] = None):
     """
     send quick reply for bot commands
     :param chat_attrs:
     :param text:
+    :param message_entities:
     :return:
     """
 
     message = UnifiedMessage()
-    if isinstance(text, str):
-        message.message.append(MessageEntity(text=text))
-    else:
-        message.message = text
+    message.message = text
+    message.message_entities = message_entities
     message.send_action = SendAction(message_id=chat_attrs.message_id, user_id=chat_attrs.user_id)
 
     await api_call(chat_attrs.platform, 'send', chat_attrs.chat_id, chat_attrs.chat_type, message)

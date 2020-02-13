@@ -1,14 +1,14 @@
 import threading
 import asyncio
-from typing import Dict, Union
+from typing import Dict, Union, List
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types import ContentType
-from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute, ChatType
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatAttribute, ChatType, EntityType
 from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
-from Util.Helper import check_attribute
+from Util.Helper import check_attribute, unparse_entities_to_html
 
 
 class TelegramDriver(UMRDriver.BaseDriver):
@@ -33,7 +33,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
     def start(self):
         def run():
             nonlocal self
-            self.logger.debug('running start')
+            self.logger.debug('Running start')
             self.loop = asyncio.new_event_loop()
             self.loop.set_exception_handler(self.handle_exception)
             asyncio.set_event_loop(self.loop)
@@ -46,7 +46,18 @@ class TelegramDriver(UMRDriver.BaseDriver):
                 from_user = message.from_user
                 _chat_type = ChatType.GROUP if message.chat.id < 0 else ChatType.PRIVATE
 
+                if message.text:
+                    text = message.text
+                elif message.caption:
+                    text = message.caption
+                else:
+                    text = ''
+
+                message_entities = self.parse_entities(message)
+
                 unified_message = UnifiedMessage(platform=self.name,
+                                                 message=text,
+                                                 message_entities=message_entities,
                                                  chat_id=message.chat.id,
                                                  chat_type=_chat_type,
                                                  name=from_user.full_name,
@@ -58,13 +69,11 @@ class TelegramDriver(UMRDriver.BaseDriver):
                                        src_message_id=message.message_id, user_id=message.from_user.id)
 
                 if message.content_type == ContentType.TEXT:
-                    unified_message.message = self.parse_entity(message)
                     await UMRDriver.receive(unified_message)
                 elif message.content_type == ContentType.PHOTO:
                     url, file_id = await self.tg_get_image(message.photo[-1].file_id)
                     unified_message.image = url
                     unified_message.file_id = file_id
-                    unified_message.message = self.parse_entity(message)
                     await UMRDriver.receive(unified_message)
                 elif message.content_type == ContentType.STICKER:
                     url, file_id = await self.tg_get_image(message.sticker.file_id)
@@ -77,7 +86,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
                     unified_message.file_id = file_id
                     await UMRDriver.receive(unified_message)
                 else:
-                    unified_message.message = [MessageEntity(text='[Unsupported message]')]
+                    unified_message.message = '[Unsupported message]'
                     await UMRDriver.receive(unified_message)
             executor.start_polling(self.dp, skip_updates=True, loop=self.loop)
 
@@ -86,7 +95,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
         UMRDriver.threads.append(t)
         t.start()
 
-        self.logger.debug(f'Finished initialization for {self.name}')
+        self.logger.debug(f'Finished initialization')
 
     async def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
         """
@@ -108,8 +117,10 @@ class TelegramDriver(UMRDriver.BaseDriver):
         else:
             text = ''
 
-        for m in message.message:
-            text += self.htmlify(m)
+        text += unparse_entities_to_html(message,
+                                         EntityType.LINK | EntityType.STRIKETHROUGH | EntityType.UNDERLINE |
+                                         EntityType.CODE_BLOCK | EntityType.BOLD | EntityType.ITALIC |
+                                         EntityType.PLAIN | EntityType.CODE)
 
         if message.send_action.message_id:
             reply_to_message_id = message.send_action.message_id
@@ -159,82 +170,42 @@ class TelegramDriver(UMRDriver.BaseDriver):
         self.logger.debug('finished sending')
         return tg_message.message_id
 
-    def encode_html(self, encode_string: str) -> str:
-        """
-        used for telegram parse_mode=HTML
-        :param encode_string: string to encode
-        :return: encoded string, is encoded
-        """
-        return encode_string.replace('<', '&lt;').replace('>', '&gt;')
-
-    def htmlify(self, segment: MessageEntity):
-        entity_type = segment.entity_type
-        encoded_text = self.encode_html(segment.text)
-        if entity_type == 'bold':
-            return '<b>' + encoded_text + '</b>'
-        elif entity_type == 'italic':
-            return '<i>' + encoded_text + '</i>'
-        elif entity_type == 'underline':
-            return '<u>' + encoded_text + '</u>'
-        elif entity_type == 'strikethrough':
-            return '<s>' + encoded_text + '</s>'
-        elif entity_type == 'monospace':
-            if '\n' in encoded_text:
-                return '<pre>' + encoded_text + '</pre>'
-            else:
-                return '<code>' + encoded_text + '</code>'
-        elif entity_type == 'link':
-            return '<a href=' + segment.link + '>' + encoded_text + '</a>'
-        else:
-            return encoded_text
-
-    def parse_entity(self, message: types.Message):
-        message_list = list()
-        if message.text:
-            text = message.text
-        elif message.caption:
-            text = message.caption
-        else:
-            return message_list  # return an empty list
+    def parse_entities(self, message: types.Message):
         if message.entities:
             entities = message.entities
         elif message.caption_entities:
             entities = message.caption_entities
         else:
-            message_list.append(MessageEntity(text=text))
-            return message_list
+            return None
 
-        offset = 0
-        length = len(text)
-        for index, entity in enumerate(entities):
-            if entity.offset > offset:
-                message_list.append(MessageEntity(text=text[offset: entity.offset]))
-            start = entity.offset
-            offset = entity.offset + entity.length
-            # entity overlapping not supported
+        result = list()
+
+        for entity in entities:
+            entity_map = {
+                'mention':       EntityType.BOLD,
+                'hashtag':       EntityType.PLAIN,
+                'cashtag':       EntityType.PLAIN,
+                'bot_command':   EntityType.PLAIN,
+                'url':           EntityType.PLAIN,
+                'email':         EntityType.PLAIN,
+                'phone_number':  EntityType.PLAIN,
+                'bold':          EntityType.BOLD,
+                'italic':        EntityType.ITALIC,
+                'underline':     EntityType.UNDERLINE,
+                'strikethrough': EntityType.STRIKETHROUGH,
+                'code':          EntityType.CODE,
+                'pre':           EntityType.CODE_BLOCK,
+                'text_mention':  EntityType.BOLD,
+                'text_link':     EntityType.LINK
+            }
             if entity.type == 'text_link':
-                message_list.append(MessageEntity(text=text[start:offset], entity_type='url', link=entity.url))
+                url = entity.url
             else:
-                entity_map = {
-                    'mention':       'bold',
-                    'hashtag':       '',
-                    'cashtag':       '',
-                    'bot_command':   '',
-                    'url':           'url',
-                    'email':         '',
-                    'phone_number':  '',
-                    'bold':          'bold',
-                    'italic':        'italic',
-                    'underline':     'underline',
-                    'strikethrough': 'strikethrough',
-                    'code':          'monospace',
-                    'pre':           'monospace',
-                    'text_mention':  ''
-                }
-                message_list.append(MessageEntity(text=text[start:offset], entity_type=entity_map[entity.type]))
-        if offset < length:
-            message_list.append(MessageEntity(text=text[offset: length]))
-        return message_list
+                url = ''
+
+            result.append(MessageEntity(start=entity.offset, end=entity.offset+entity.length,
+                                        entity_type=entity_map[entity.type], link=url))
+        return result
 
     async def tg_get_image(self, file_id) -> (str, str):
         """

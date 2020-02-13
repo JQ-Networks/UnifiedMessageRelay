@@ -1,1 +1,1 @@
-from . import QQ, Telegram, Line
+from . import QQ, Telegram, Line, Discord

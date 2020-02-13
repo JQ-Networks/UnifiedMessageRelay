@@ -6,7 +6,6 @@ from Core import UMRLogging
 from Core.UMRMessageHook import register_hook
 from Core.UMRCommand import register_command, quick_reply
 from Core.UMRType import UnifiedMessage, ChatAttribute, Privilege
-from Util.Helper import assemble_message
 
 logger = UMRLogging.getLogger('Plugin.WaterMeter')
 
@@ -35,7 +34,7 @@ async def message_hook_func(message: UnifiedMessage) -> bool:
         return True
 
     # filter keyword
-    raw_text = assemble_message(message).lower()
+    raw_text = message.message
     for keyword in config['Keyword']:
         if keyword in raw_text:
             await quick_reply(message.chat_attrs, f'Message blocked by rule (keyword: {keyword})')

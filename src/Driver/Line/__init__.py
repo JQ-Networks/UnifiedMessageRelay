@@ -10,16 +10,16 @@ from PIL import Image
 from Core import UMRLogging
 from Core import UMRDriver
 from Core import UMRConfig
-from Core.UMRType import UnifiedMessage, MessageEntity, ChatType
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatType, EntityType
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
-from Util.Helper import check_attribute, assemble_message
+from Util.Helper import check_attribute, unparse_entities_to_markdown
 import threading
 import os
 from uuid import uuid4
 from collections import defaultdict
-from ssl import SSLError
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
 
 class LineDriver(UMRDriver.BaseDriver):
     def __init__(self, name):
@@ -44,7 +44,6 @@ class LineDriver(UMRDriver.BaseDriver):
 
         self.user_names: Dict[str, str] = dict()  # [user_id, username]
         self._message_id = 0
-        self._chat_id = 0
         self.data_root = UMRConfig.config['DataRoot']
         self.channel_id = self.config['ChannelID']
         self.image_webhook_url = self.config.get('WebHookURL') + ':' + str(self.config.get('WebHookPort')) + '/image/'
@@ -110,9 +109,9 @@ class LineDriver(UMRDriver.BaseDriver):
             set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=_chat_type,
                                    src_message_id=pseudo_message_id, user_id=0)
             if isinstance(event.message, TextMessage):
-                message.message.append(MessageEntity(text=event.message.text))
+                message.message = event.message.text
             elif isinstance(event.message, StickerMessage):
-                message.message.append(MessageEntity(text='Sent a sticker'))
+                message.message = 'Sent a sticker'
             elif isinstance(event.message, ImageMessage):
                 message_content = await self.bot.get_message_content(event.message.id)
                 image_content = message_content.content
@@ -121,18 +120,13 @@ class LineDriver(UMRDriver.BaseDriver):
                 image.save(image_path)
                 message.image = image_path
             else:
-                message.message.append(MessageEntity(text='Unsupported message type'))
+                message.message = 'Unsupported message type'
             await UMRDriver.receive(message)
 
     @property
     def message_id(self):
         self._message_id += 1
         return self._message_id
-
-    @property
-    def chat_id(self):
-        self._chat_id += 1
-        return self._chat_id
 
     async def get_user_name(self, user_id, group_id=None, room_id=None):
         """
@@ -202,7 +196,7 @@ class LineDriver(UMRDriver.BaseDriver):
             message_prefix += ': '
 
         if message.message:
-            message_text = assemble_message(message)
+            message_text = unparse_entities_to_markdown(message, EntityType.PLAIN)
             _message = TextSendMessage(text=message_prefix + message_text)
             await self.bot.push_message(to=to_chat, messages=_message)
         if message.image:

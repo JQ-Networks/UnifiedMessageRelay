@@ -3,11 +3,11 @@ import threading
 import asyncio
 import json
 from .aiocqhttp import CQHttp, MessageSegment
-from Core.UMRType import UnifiedMessage, MessageEntity, ChatType
+from Core.UMRType import UnifiedMessage, MessageEntity, ChatType, EntityType
 from Core import UMRDriver
 from Core import UMRLogging
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
-from Util.Helper import check_attribute
+from Util.Helper import check_attribute, unparse_entities_to_markdown
 from Core import UMRConfig
 import re
 import os
@@ -607,7 +607,7 @@ class QQDriver(UMRDriver.BaseDriver):
         self.group_list: Dict[int, Dict[int, Dict]] = dict()  # Dict[group_id, Dict[member_id, member_info]]
         # see https://cqhttp.cc/docs/4.13/#/API?id=响应数据23
         self.is_coolq_pro = self.config.get('IsPro', False)  # todo initialization on startup
-        self.stranger_list: Dict[int, str] = dict()  # todo initialization on startup
+        self.stranger_list: Dict[int, str] = dict()
 
         self.chat_type_dict = {
                 'group': ChatType.GROUP,
@@ -692,10 +692,8 @@ class QQDriver(UMRDriver.BaseDriver):
                 context['message'].append(MessageSegment.at(message.send_action.user_id))
                 context['message'].append(MessageSegment.text(' '))
 
-        for m in message.message:
-            context['message'].append(MessageSegment.text(m.text + ' '))
-            if m.link:
-                context['message'].append(MessageSegment.text(m.link) + ' ')
+        context['message'].append(MessageSegment.text(unparse_entities_to_markdown(message, EntityType.PLAIN)))
+
         if _chat_type == 'private':
             context['user_id'] = to_chat
         else:
@@ -774,96 +772,99 @@ class QQDriver(UMRDriver.BaseDriver):
                                          user_id=user_id,
                                          message_id=message_id)
         if message_type == 'share':
-            unified_message.message = [
-                MessageEntity(text='Shared '),
-                MessageEntity(text=message['title'], entity_type='link', link=message['url'])
-            ]
+            unified_message.message = 'Shared '
+            unified_message.message_entities.append(
+                MessageEntity(start=len(unified_message.message),
+                              end=len(unified_message.message) + len(message['title']),
+                              entity_type=EntityType.LINK,
+                              link=message['url']))
+            unified_message.message += message['title']
         elif message_type == 'rich':
             if 'url' in message:
                 url = message['url']
                 if url.startswith('mqqapi'):
                     cq_location_regex = re.compile(r'^mqqapi:.*lat=(.*)&lon=(.*)&title=(.*)&loc=(.*)&.*$')
                     locations = cq_location_regex.findall(message['url'])  # [('lat', 'lon', 'name', 'addr')]
-                    unified_message.message = [
-                        MessageEntity(
-                            text=f'Shared a location: {locations[2]}, {locations[3]}, {locations[0]}, {locations[1]}'),
-                    ]
+                    unified_message.message = f'Shared a location: {locations[2]}, {locations[3]}, {locations[0]}, {locations[1]}'
                 else:
-                    unified_message.message = [
-                        MessageEntity(text='Shared '),
-                        MessageEntity(text=message['text'], entity_type='link', link=message['url'])
-                    ]
+                    unified_message.message = 'Shared '
+                    unified_message.message_entities.append(
+                        MessageEntity(start=len(unified_message.message),
+                                      end=len(unified_message.message) + len(message['title']),
+                                      entity_type=EntityType.LINK,
+                                      link=message['url']))
+                    unified_message.message += message['title']
             elif 'title' in message:
                 if 'content' in message:
                     try:
                         content = json.loads(message['content'])
                         if 'news' in content:
-                            unified_message.message = [
-                                MessageEntity(text=content.get('title', message['title']),
-                                              entity_type='link', link=content.get('jumpUrl')),
-                                MessageEntity(text=' ' + message.get('desc'))
-                            ]
+                            unified_message.message = 'Shared '
+                            unified_message.message_entities.append(
+                                MessageEntity(start=len(unified_message.message),
+                                              end=len(unified_message.message) + len(message['title']),
+                                              entity_type=EntityType.LINK,
+                                              link=content.get('jumpUrl')))
+                            unified_message.message += message['title'] + ' ' + message.get('desc')
                         elif 'weather' in content:
-                            unified_message.message = [
-                                MessageEntity(text=message['title']),
-                            ]
+                            unified_message.message = message['title']
                     except:
                         self.logger.exception(f'Cannot decode json: {str(message)}')
-                        unified_message.message = [
-                            MessageEntity(text=message['title']),
-                        ]
+                        unified_message.message = message['title']
                 else:
-                    unified_message.message = [
-                        MessageEntity(text=message['title']),
-                    ]
+                    unified_message.message = message['title']
             else:
                 self.logger.debug(f'Got miscellaneous rich text message: {str(message)}')
-                unified_message.message = [
-                    MessageEntity(text=message.get('text', str(message))),
-                ]
+                unified_message.message = message.get('text', str(message))
         elif message_type == 'dice':
-            unified_message.message = [
-                MessageEntity(text='Rolled '),
-                MessageEntity(text=message['type'], entity_type='bold'),
-            ]
+            unified_message.message = 'Rolled '
+            unified_message.message_entities.append(
+                MessageEntity(start=len(unified_message.message),
+                              end=len(unified_message.message) + len(message['type']),
+                              entity_type=EntityType.BOLD))
+            unified_message.message += message['type']
         elif message_type == 'rps':
-            unified_message.message = [
-                MessageEntity(text='Played '),
-                MessageEntity(text={'1': 'Rock',
+            unified_message.message = 'Played '
+            played = {'1': 'Rock',
                                     '2': 'Scissors',
                                     '3': 'Paper'}[message['type']]
-                              , entity_type='bold')
-            ]
+            unified_message.message_entities.append(
+                MessageEntity(start=len(unified_message.message),
+                              end=len(unified_message.message) + len(played),
+                              entity_type=EntityType.BOLD))
+            unified_message.message += played
         elif message_type == 'shake':
-            unified_message.message = [
-                MessageEntity(text='Sent you a shake')
-            ]
+            unified_message.message = 'Sent you a shake'
         elif message_type == 'music':
             if message['type'].startswith('163'):
-                unified_message.message = [
-                    MessageEntity(text='Shared a music: '),
-                    MessageEntity(text='Netease Music', entity_type='link',
-                                  link=f'https://music.163.com/song?id={message["id"]}')
-                ]
+                unified_message.message = 'Shared a music: '
+                music_title = 'Netease Music'
+                unified_message.message_entities.append(
+                    MessageEntity(start=len(unified_message.message),
+                                  end=len(unified_message.message) + len(music_title),
+                                  entity_type=EntityType.LINK,
+                                  link=f'https://music.163.com/song?id={message["id"]}'))
+                unified_message += music_title
             elif message['type'].startswith('qq'):
-                unified_message.message = [
-                    MessageEntity(text='Shared a music: '),
-                    MessageEntity(text='QQ Music', entity_type='link',
-                                  link=f'https://y.qq.com/n/yqq/song/{message["id"]}_num.html')
-                ]
+                unified_message.message = 'Shared a music: '
+                music_title = 'Netease Music'
+                unified_message.message_entities.append(
+                    MessageEntity(start=len(unified_message.message),
+                                  end=len(unified_message.message) + len(music_title),
+                                  entity_type=EntityType.LINK,
+                                  link=f'https://y.qq.com/n/yqq/song/{message["id"]}_num.html'))
+                unified_message += music_title
             else:
                 self.logger.debug(f'Got unseen music share message: {str(message)}')
-                unified_message.message = [
-                    MessageEntity(text='Shared a music: ' + str(message)),
-                ]
+                unified_message.message = 'Shared a music: ' + str(message)
         elif message_type == 'record':
-            unified_message.message = [
-                MessageEntity(text='Unsupported voice record, please view on QQ')
-            ]
+            unified_message.message = 'Unsupported voice record, please view on QQ'
         elif message_type == 'bface':
-            unified_message.message = [
-                MessageEntity(text='Unsupported big face, please view on QQ')
-            ]
+            unified_message.message = 'Unsupported big face, please view on QQ'
+        elif message_type == 'sign':
+            unified_message.image = message['image']
+            sign_text = f'Sign at location: {message["location"]} with title: {message["title"]}'
+            unified_message.message = sign_text
         else:
             return
 
@@ -894,26 +895,27 @@ class QQDriver(UMRDriver.BaseDriver):
                 unified_message.image = m['url']
 
             elif message_type == 'text':
-                unified_message.message.append(MessageEntity(text=m['text']))
+                unified_message.message += m['text']
             elif message_type == 'at':
                 target = await self.get_username(int(m['qq']), chat_id)
-                unified_message.message.append(MessageEntity(text='@' + target, entity_type='bold'))
+                at_user_text = '@' + target
+                unified_message.message_entities.append(
+                    MessageEntity(start=len(unified_message.message),
+                                  end=len(unified_message.message) + len(at_user_text),
+                                  entity_type=EntityType.BOLD))
+                unified_message.message += at_user_text
             elif message_type == 'sface':
                 qq_face = int(m['id']) & 255
                 if qq_face in qq_sface_list:
-                    unified_message.message.append(MessageEntity(text=qq_sface_list[qq_face]))
+                    unified_message.message += qq_sface_list[qq_face]
                 else:
-                    unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
+                    unified_message.message += '\u2753'  # ❓
             elif message_type == 'face':
                 qq_face = int(m['id'])
                 if qq_face in qq_emoji_list:
-                    unified_message.message.append(MessageEntity(text=qq_emoji_list[qq_face]))
+                    unified_message.message += qq_emoji_list[qq_face]
                 else:
-                    unified_message.message.append(MessageEntity(text='\u2753'))  # ❓
-            elif message_type == 'sign':
-                unified_message.image = m['image']
-                sign_text = f'Sign at location: {m["location"]} with title: {m["title"]}'
-                unified_message.message.append(MessageEntity(text=sign_text))
+                    unified_message.message += '\u2753'  # ❓
             else:
                 self.logger.debug(f'Unhandled message type: {str(m)} with type: {message_type}')
 

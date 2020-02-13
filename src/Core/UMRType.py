@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import List, Callable, FrozenSet, Union
-from enum import Enum
+from enum import Enum, auto, Flag
 
 
 class ChatType(Enum):
@@ -53,18 +53,37 @@ class ChatAttribute:
         return self.platform is not None
 
 
+class EntityType(Flag):
+    """
+    Each message entity in UnifiedMessage should be monolithic
+    Only EitityType in unparse_* should be multi-valued
+    """
+    PLAIN = auto()
+    BOLD = auto()
+    ITALIC = auto()
+    CODE = auto()
+    CODE_BLOCK = auto()
+    UNDERLINE = auto()
+    STRIKETHROUGH = auto()
+    QUOTE = auto()
+    QUOTE_BLOCK = auto()
+    LINK = auto()
+
+
 @dataclass
 class MessageEntity:
     """
     Part of UnifiedMessage
     Text segments with entity types
     """
-    text: str
-    entity_type: str
+    start: int
+    end: int
+    entity_type: EntityType
     link: str
 
-    def __init__(self, text='', entity_type='', link=''):
-        self.text = text
+    def __init__(self, start, end, entity_type=EntityType.PLAIN, link=''):
+        self.start = start
+        self.end = end
         self.entity_type = entity_type
         self.link = link
 
@@ -95,17 +114,20 @@ class UnifiedMessage:
     ]
     """
     chat_attrs: ChatAttribute
-    message: List[MessageEntity]  # pure text message
+    message: str  # pure text message
+    message_entities: List[MessageEntity]
     image: str  # path of the image
     file_id: str  # unique file identifier
     send_action: SendAction
 
-    def __init__(self, message=None, image='', file_id='', platform='', chat_id=0, chat_type=ChatType.UNSPECIFIED,
+    def __init__(self, message: str = '', message_entities=None, image='', file_id='', platform='', chat_id=0, chat_type=ChatType.UNSPECIFIED,
                  name='', user_id=0, message_id: int = 0):
-        if message is None:
-            message = list()
         self.send_action = SendAction(0, 0)
         self.message = message
+        if message_entities:
+            self.message_entities = message_entities
+        else:
+            self.message_entities = list()
         self.image = image
         self.file_id = file_id
         self.chat_attrs = ChatAttribute(platform=platform,
