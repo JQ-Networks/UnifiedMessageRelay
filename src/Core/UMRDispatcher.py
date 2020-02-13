@@ -118,7 +118,7 @@ async def dispatch_reply(message: UnifiedMessage):
 
     # check reply
     if message.chat_attrs.reply_to:
-        # reply to bot, and action is not defined
+        # reply to bot, and action is not oneway
         if message.chat_attrs.reply_to.user_id == bot_accounts[message.chat_attrs.platform]:
             reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
                                               src_chat_id=message.chat_attrs.chat_id,
@@ -134,10 +134,6 @@ async def dispatch_reply(message: UnifiedMessage):
             # from same chat, ignore
             if reply_message_id.source.platform == message.chat_attrs.platform and \
                     reply_message_id.source.chat_id == message.chat_attrs.chat_id:
-                return False
-
-            # action is defined, ignore
-            if action_graph[GroupID(platform=reply_message_id.source.platform, chat_id=reply_message_id.source.chat_id, chat_type=reply_message_id.source.chat_type)]:
                 return False
 
             # one way forward, block

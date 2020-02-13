@@ -13,13 +13,17 @@ user no longer need to view messages on different platform, or different groups.
 
 ## Demo
 
-Telegram:
+Telegram <-> QQ:
 
-![Telegram](image/telegram.png)
+![Telegram](image/telegram.png =x300)
 
-QQ:
+![QQ](image/qq.png =x300)
 
-![QQ](image/qq.png)
+Telegram <-> Discord:
+
+![Discord](image/tg-discord1.png =x300)
+
+![Telegram](image/tg-discord2.png =x300)
 
 ## Supported platforms
 
@@ -42,7 +46,7 @@ Make sure Python 3.7+ and `pip` are installed. Run:
 
 ### Install other required package on host os
 
-`apt install libcairosvg2 ffmpeg`
+`apt install libcairosvg2 ffmpeg libmagickwand-dev`
 
 ## Configurations
 

@@ -623,6 +623,8 @@ class QQDriver(UMRDriver.BaseDriver):
             chat_id = context.get(f'{message_type}_id')
             chat_type = self.chat_type_dict[message_type]
 
+            self.logger.debug(f'Received message from group: {chat_id} user: {context.get("user_id")}')
+
             unified_message_list = await self.dissemble_message(context)
             set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=chat_type,
                                    src_message_id=context.get('message_id'), user_id=context.get('user_id'))

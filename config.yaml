@@ -51,6 +51,10 @@ Driver:
     HTTPSCert: /root/.acme.sh/example.com/example.com.cer
     HTTPSKey: /root/.acme.sh/example.com/example.com.key
     HTTPSCA: /root/.acme.sh/example.com/ca.cer
+  Discord:
+    Base: Discord
+    BotToken: asdsadsddfffsdffsdfsd  # the longer one
+    ClientToken: asdasdsadsfsafsdfsd # the shorter one
 DataRoot: /root/coolq/data/image
 CommandPrefix: "!!"
 BotAdmin:

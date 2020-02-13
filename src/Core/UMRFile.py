@@ -10,6 +10,7 @@ import filetype
 from tgs.parsers.tgs import parse_tgs
 from tgs.exporters.gif import export_gif
 import ffmpy
+from wand.image import Image as WandImage
 
 download_dir = UMRConfig.config['DataRoot']
 
@@ -24,7 +25,7 @@ default_target_format = {
     'image/jpx':        'image/jpeg',
     'image/png':        'image/png',
     'image/gif':        'image/gif',
-    'image/webp':       'image/jpeg',
+    'image/webp':       'image/png',
     'image/tiff':       'image/jpeg',
     'image/bmp':        'image/bmp',
     'image/heic':       'image/jpeg',
@@ -87,6 +88,8 @@ async def get_image(url, file_id='', target_format=''):
                     convert_tgs_to_gif(image, file_full_path)
                 elif file_mime == 'video/mp4' or file_mime == 'video/webm':  # tg animation
                     convert_mp4_to_gif(image, file_full_path)
+                elif file_mime == 'image/webp':
+                    convert_webp_to_png(image, file_full_path)
                 elif default_target_format[file_mime] == file_mime:
                     open(file_full_path, 'wb').write(image.read())
                 else:
@@ -152,6 +155,29 @@ def convert_tgs_to_gif(tgs_file: [str, BytesIO], gif_file: str) -> bool:
     except Exception:
         logger.exception("Error occurred while converting TGS to GIF.")
         return False
+
+
+def convert_webp_to_png(webp_file: [str, BytesIO], png_file: str) -> bool:
+    """
+    copied from EH Forwarder Bot
+    :param webp_file: full path or BytesIO
+    :param png_file: full output path
+    :return:
+    """
+    if isinstance(webp_file, str):
+        input_file = webp_file
+    else:
+        input_file = '/tmp/' + str(uuid4()) + '.webp'
+        f = open(input_file, 'wb')
+        f.write(webp_file.read())
+        f.close()
+
+    logger.debug(f"converting webp to {png_file}")
+
+    img = WandImage(filename=input_file)
+    img.save(filename=png_file)
+
+    os.remove(input_file)
 
 
 def empty_cache_dir():

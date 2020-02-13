@@ -139,6 +139,7 @@ def unparse_entities(message: UnifiedMessage, support_entities: EntityType, to_t
 
         if entity.start > offset:
             result += escape_function(message.message[offset:entity.start])
+            offset = entity.start
         
         if entity.entity_type == EntityType.LINK:
             if support_entities & entity.entity_type: 

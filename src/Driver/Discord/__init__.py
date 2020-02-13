@@ -22,6 +22,7 @@ code_text = re.compile(r'(?:(?<=^)|(?<=[^`]))`(.*?)`(?:(?=$)|(?=[^`]))', re.Rege
 code_block_text = re.compile(r'(?:(?<=^)|(?<=[^`]))```(.*?)```(?:(?=$)|(?=[^`]))', re.RegexFlag.DOTALL)
 quote_block_text = re.compile(r'^>>> (.*)', re.RegexFlag.DOTALL)
 quote_text = re.compile(r'^> (.*)')
+at_user_text = re.compile(r'<@(\d+)>')
 
 ordered_match_list = [
     (quote_block_text, EntityType.QUOTE_BLOCK),
@@ -98,7 +99,6 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
 
         self.name = name
         self.logger = UMRLogging.getLogger(self.name)
-        self._message_id = 0
 
         self.config = UMRConfig.config['Driver'].get(self.name)
         attributes = [
@@ -106,11 +106,6 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
             'ClientToken'
         ]
         check_attribute(self.config, attributes, self.logger)
-
-    @property
-    def message_id(self):
-        self._message_id += 1
-        return self._message_id
 
     def start(self):
         def run():
@@ -195,7 +190,8 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
                                          user_id=user_id,
                                          message_id=message.id)
 
-        unified_message.message, unified_message.message_entities = find_markdown(message.content)
+        message_content = await self.parse_at(message.content)
+        unified_message.message, unified_message.message_entities = find_markdown(message_content)
 
         if message.attachments:
             if message.attachments[0].proxy_url:
@@ -204,9 +200,33 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
                 self.logger.warning('More than one attachment detected, not sure how it happens')
 
         set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=_chat_type,
-                               src_message_id=self.message_id, user_id=user_id)
+                               src_message_id=message.id, user_id=user_id)
 
         await UMRDriver.receive(unified_message)
+
+    async def parse_at(self, message: str):
+        user_ids = at_user_text.findall(message)
+        if not user_ids:
+            return message
+        user_name_map = dict()
+        for i in user_ids:
+            try:
+                user_id = int(i)
+                user_name_map[user_id] = self.get_user(user_id).display_name
+            except:
+                pass
+
+        def sub_username(match_obj):
+            try:
+                user_id = int(match_obj.group(1))
+                return '@' + user_name_map[user_id]
+            except:
+                pass
+            return '@unknown'
+
+        message = at_user_text.sub(sub_username, message)
+        return message
+
 
     async def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
         """
@@ -249,9 +269,9 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
 
         if message.image:
             assert isinstance(channel, discord.TextChannel)
-            await channel.send(content=message_text, file=discord.File(message.image))
+            outbound_message = await channel.send(content=message_text, file=discord.File(message.image))
         else:
-            await channel.send(content=message_text)
+            outbound_message = await channel.send(content=message_text)
 
         if message.chat_attrs:
             set_egress_message_id(src_platform=message.chat_attrs.platform,
@@ -261,7 +281,7 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
                                   dst_platform=self.name,
                                   dst_chat_id=to_chat,
                                   dst_chat_type=chat_type,
-                                  dst_message_id=self.message_id,  # useless message id
+                                  dst_message_id=outbound_message.id,  # useless message id
                                   user_id=0)
 
 

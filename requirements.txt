@@ -12,3 +12,4 @@ coloredlogs
 ffmpy
 line-bot-sdk
 quart
+Wand
