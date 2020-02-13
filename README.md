@@ -32,10 +32,18 @@ All four platforms: QQ, Telegram, Line and Discord can forward between each othe
 - QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
 - Telegram API based on [aiogram](https://aiogram.dev)
 - Line API based on [linebotx](https://github.com/Shivelight/line-bot-sdk-python-extra) [linebot](https://github.com/line/line-bot-sdk-python)
+- Discord API based on [Discord.py](https://github.com/Rapptz/discord.py)
 
 ## Features
 
-Limited support for Coolq Air, will update once my Coolq Pro license expires.
+- Forward text and image between all supported platforms
+- Image is converted to supported format automatically
+- Reply is preserved with best effort
+- Markdown format is preserved for supported platforms
+- Command API for customize triggers
+- Message Hook API for even more customized needs
+
+Limited support for Coolq Air. image sending is available for Coolq Pro.
 
 ## Installation
 
@@ -115,6 +123,8 @@ The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver shoul
 [Telegram](Installation/Telegram.md)
 
 [Line](Installation/Line.md)
+
+[Discord](Installation/Discord.md)
 
 ## Start the bot
 

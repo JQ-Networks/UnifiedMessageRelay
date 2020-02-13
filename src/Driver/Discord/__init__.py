@@ -8,7 +8,7 @@ from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
-from Util.Helper import check_attribute, unparse_entities_to_markdown
+from Util.Helper import check_attribute, unparse_entities_to_markdown, escape_markdown
 import discord
 import re
 
@@ -250,13 +250,13 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
 
         # name logic
         if message.chat_attrs.name:
-            message_text += message.chat_attrs.name
+            message_text += '**' + escape_markdown(message.chat_attrs.name) + '**'
         if message.chat_attrs.reply_to:
-            message_text += ' (➡️️' + message.chat_attrs.reply_to.name + ')'
+            message_text += '** (➡️️' + message.chat_attrs.reply_to.name + ')**'
         if message.chat_attrs.forward_from:
-            message_text += ' (️️↩️' + message.chat_attrs.forward_from.name + ')'
+            message_text += '** (️️↩️' + message.chat_attrs.forward_from.name + ')**'
         if message.chat_attrs.name:
-            message_text += ': '
+            message_text += '**: **'
 
         # at user
         if message.send_action.user_id:
