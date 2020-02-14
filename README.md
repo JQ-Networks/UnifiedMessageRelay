@@ -7,9 +7,11 @@ user no longer need to view messages on different platform, or different groups.
  message forwarding functionality and flexible plugin API to meet your custom need. A driver API specification is also
  provided, so one can compose their own backend driver, and the framework will load and utilize the driver automatically.
  
-[Developer group](https://t.me/UnifiedMessageRelayDev)
+## Telegram groups
 
-[Support group](https://t.me/UnifiedMessageRelay)
+[Developer group](https://t.me/s/UnifiedMessageRelayDev) 
+
+[Support group](https://t.me/s/UnifiedMessageRelay) (Need help? Join this group)
 
 ## Demo
 
@@ -29,7 +31,7 @@ All four platforms: QQ, Telegram, Line and Discord can forward between each othe
 
 ## Supported platforms
 
-- QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api)
+- QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api) [aiocqhttp](https://github.com/cqmoe/python-aiocqhttp)
 - Telegram API based on [aiogram](https://aiogram.dev)
 - Line API based on [linebotx](https://github.com/Shivelight/line-bot-sdk-python-extra) [linebot](https://github.com/line/line-bot-sdk-python)
 - Discord API based on [Discord.py](https://github.com/Rapptz/discord.py)
@@ -204,12 +206,14 @@ Reply forwarded channel message with `!!bc`
 
 1. Check if you are using Python 3.7+
 2. Check if requirements.txt is installed correctly
-3. Check if cq-http-api is enabled in Coolq
-4. Check if the log suggests any missing configuration
+3. Check if binary dependencies are installed (search apt in this page)
+4. (If using Coolq) Check if cq-http-api is enabled in Coolq
+5. Check if the log suggests any missing configuration
+6. Check if you are on Dev branch, please switch back to master
 
 ## Issues must provide
 
 1. Descriptions about the issue
 2. Logs of python3 daemon.py run (Desensitization)
-3. Which branch you are on (Dev of Master)
+3. Steps to reproduce
 
