@@ -715,12 +715,12 @@ class QQDriver(UMRDriver.BaseDriver):
         self.logger.debug('finished sending')
         return result.get('message_id')
 
-    async def get_username(self, user_id: int, chat_id: int):
+    async def get_username(self, user_id: int, chat_id: int, chat_type: ChatType):
         if user_id == self.config['Account']:
             return 'bot'
         if user_id == 1000000:
             return 'App message'
-        if chat_id < 0:
+        if chat_type == ChatType.GROUP:
             user = self.group_list.get(chat_id, dict()).get(user_id, dict())
             username = user.get('card', '')
             if not username:
@@ -751,7 +751,7 @@ class QQDriver(UMRDriver.BaseDriver):
         user_id = context.get('user_id')
 
         message_id = context.get('message_id')
-        username = await self.get_username(user_id, chat_id)
+        username = await self.get_username(user_id, chat_id, self.chat_type_dict[message_type])
         message: List[Dict] = context['message']
 
         unified_message = await self.parse_special_message(chat_id, self.chat_type_dict[message_type], username, message_id, user_id, message)
@@ -899,7 +899,7 @@ class QQDriver(UMRDriver.BaseDriver):
             elif message_type == 'text':
                 unified_message.message += m['text']
             elif message_type == 'at':
-                target = await self.get_username(int(m['qq']), chat_id)
+                target = await self.get_username(int(m['qq']), chat_id, chat_type)
                 at_user_text = '@' + target
                 unified_message.message_entities.append(
                     MessageEntity(start=len(unified_message.message),
