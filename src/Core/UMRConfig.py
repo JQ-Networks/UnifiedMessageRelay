@@ -23,6 +23,13 @@ try:
         ('Debug', True, True)           # verbose output
     ]
     check_attribute(config, attributes, logger)
+    debug = config.get('Debug')
+
+    if debug:
+        debug_level = 'DEBUG'
+    else:
+        debug_level = 'INFO'
+    UMRLogging.set_logging_level(debug_level)
 
 except FileNotFoundError:
     logger.error(f'config.yaml not found under "{home}/.umr/"!')
