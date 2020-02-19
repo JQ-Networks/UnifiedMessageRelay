@@ -9,7 +9,7 @@ ForwardList:
       To: Telegram
       ToChat: -31231212344  # telegram chat id, use !!id to show
       ToChatType: group
-      ForwardType: OneWay+
+      ForwardType: OneWay+  # default "BiDirection"
       # OneWay:
       # Forward from "FromChat" to "ToChat"
       # BiDirection:
@@ -21,7 +21,7 @@ ForwardList:
       To: Telegram
       ToChat: 123244234234
       ToChatType: group
-      ForwardType: OneWay+
+      ForwardType: OneWay+ # default "OneWay+"
       # OneWay:
       # Forward from "FromChat" to "ToChat"
       # OneWay+:
@@ -35,7 +35,6 @@ Driver:
     ListenPort: 8080
     Token: very
     Secret: long
-    IsPro: yes    # currently coolq air is not supported, image sending is unavailable
     NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
     NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
   Telegram:
@@ -56,12 +55,12 @@ Driver:
     BotToken: asdsadsddfffsdffsdfsd  # the longer one
     ClientToken: asdasdsadsfsafsdfsd # the shorter one
 DataRoot: /root/coolq/data/image
-CommandPrefix: "!!"
-BotAdmin:
+CommandPrefix: "!!"  # optional, default "!!"
+BotAdmin:            # optional, default empty
   QQ:
     - 123456789
     - 987654321
   Telegram:
     - 213442352354534534
     - 345235345345345345
-
+Debug: yes

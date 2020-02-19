@@ -15,11 +15,12 @@ try:
 
     # test attributes
     attributes = [
-        'ForwardList',   # directed graph contains forward relationships
-        'Driver',        # configs for each driver
-        'DataRoot',      # file root for images
-        'CommandPrefix',  # command hint format, e.g. "/" for /start, /stop type of commands
-        'BotAdmin',    # Bot administrators, highest privilege users
+        ('ForwardList', False, None),   # directed graph contains forward relationships
+        ('Driver', False, None),        # configs for each driver
+        ('DataRoot', False, None),      # file root for images
+        ('CommandPrefix', True, '!!'),  # command hint format, e.g. "/" for /start, /stop type of commands
+        ('BotAdmin', True, dict()),     # Bot administrators, highest privilege users
+        ('Debug', True, True)           # verbose output
     ]
     check_attribute(config, attributes, logger)
 

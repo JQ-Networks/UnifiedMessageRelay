@@ -102,8 +102,8 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
 
         self.config = UMRConfig.config['Driver'].get(self.name)
         attributes = [
-            'BotToken',
-            'ClientToken'
+            ('BotToken', False, None),
+            ('ClientToken', True, '')
         ]
         check_attribute(self.config, attributes, self.logger)
 

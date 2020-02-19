@@ -4,14 +4,22 @@ import traceback
 import sys
 from logging.handlers import RotatingFileHandler
 import os
+from . import UMRConfig
+
+debug = UMRConfig.config.get('Debug')
+
+if debug:
+    debug_level = 'DEBUG'
+else:
+    debug_level = 'INFO'
 
 # init coloredlogs
 __fmt = '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n'
-coloredlogs.install(fmt=__fmt, level='DEBUG')
+coloredlogs.install(fmt=__fmt, level=debug_level)
 
 # get and conf root logger
 __root_logger: logging.Logger = logging.getLogger('UMR')
-__root_logger.setLevel('DEBUG')
+__root_logger.setLevel(debug_level)
 
 # log main thread
 __logger: logging.Logger = __root_logger.getChild("Logging")

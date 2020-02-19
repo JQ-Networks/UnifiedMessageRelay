@@ -15,9 +15,9 @@ from concurrent.futures import TimeoutError
 logger = UMRLogging.getLogger('Dispatcher')
 
 attributes = [
-    'Accounts',
-    'Topology',
-    'Default'
+    ('Accounts', False, None),
+    ('Topology', True, list()),
+    ('Default', True, list())
 ]
 
 check_attribute(config['ForwardList'], attributes, logger)
@@ -31,21 +31,21 @@ action_graph: DefaultDict[GroupID, List[ForwardAction]] = defaultdict(lambda: li
 default_action_graph: DefaultDict[str, Dict[GroupID, DefaultForwardAction]] = defaultdict(lambda: dict())  # default action graph
 
 attributes = [
-    'From',
-    'FromChat',
-    'FromChatType',
-    'To',
-    'ToChat',
-    'ToChatType',
-    'ForwardType'
+    ('From', False, None),
+    ('FromChat', False, None),
+    ('FromChatType', False, None),
+    ('To', False, None),
+    ('ToChat', False, None),
+    ('ToChatType', False, None),
+    ('ForwardType', True, 'BiDirection')
 ]
 
 default_attributes = [
-    'From',
-    'To',
-    'ToChat',
-    'ToChatType',
-    'ForwardType'
+    ('From', False, None),
+    ('To', False, None),
+    ('ToChat', False, None),
+    ('ToChatType', False, None),
+    ('ForwardType', True, 'OneWay+')
 ]
 
 chat_type_map = {

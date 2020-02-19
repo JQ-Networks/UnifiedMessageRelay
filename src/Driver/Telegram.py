@@ -20,7 +20,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
         self.logger.debug(f'Started initialization for {self.name}')
 
         attributes = [
-            'BotToken'
+            ('BotToken', False, None)
         ]
         self.config = UMRConfig.config['Driver'][self.name]
         check_attribute(self.config, attributes, self.logger)

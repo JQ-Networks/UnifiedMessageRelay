@@ -2,7 +2,7 @@ from typing import Dict, List, Union
 import threading
 import asyncio
 import json
-from .aiocqhttp import CQHttp, MessageSegment
+from aiocqhttp import CQHttp, MessageSegment
 from Core.UMRType import UnifiedMessage, MessageEntity, ChatType, EntityType
 from Core import UMRDriver
 from Core import UMRLogging
@@ -586,15 +586,14 @@ class QQDriver(UMRDriver.BaseDriver):
         self.config: Dict = UMRConfig.config['Driver'][self.name]
 
         attributes = [
-            'Account',
-            'APIRoot',
-            'ListenIP',
-            'ListenPort',
-            'Token',
-            'Secret',
-            'IsPro',
-            'NameforPrivateChat',
-            'NameforGroupChat',
+            ('Account', False, None),
+            ('APIRoot', False, None),
+            ('ListenIP', False, None),
+            ('ListenPort', False, None),
+            ('Token', False, None),
+            ('Secret', False, None),
+            ('NameforPrivateChat', False, None),
+            ('NameforGroupChat', False, None),
         ]
         check_attribute(self.config, attributes, self.logger)
         self.bot = CQHttp(api_root=self.config.get('APIRoot'),
@@ -623,7 +622,7 @@ class QQDriver(UMRDriver.BaseDriver):
             chat_id = context.get(f'{message_type}_id')
             chat_type = self.chat_type_dict[message_type]
 
-            self.logger.debug(f'Received message from group: {chat_id} user: {context.get("user_id")}')
+            self.logger.debug(f'Received message: {str(context)}')
 
             unified_message_list = await self.dissemble_message(context)
             set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=chat_type,
@@ -633,14 +632,15 @@ class QQDriver(UMRDriver.BaseDriver):
             return {}
 
     def start(self):
-        def do_nothing():
-            pass
 
         def run():
             asyncio.set_event_loop(self.loop)
             self.logger.debug(f'Starting Quart server for {self.name}')
-            self.bot.run(host=self.config.get('ListenIP'), port=self.config.get('ListenPort'), loop=self.loop,
-                         shutdown_trigger=do_nothing)
+            task = self.bot._server_app.run_task(host=self.config.get('ListenIP'),
+                                                 port=self.config.get('ListenPort'))
+
+            self.loop.create_task(task)
+            self.loop.run_forever()
 
         t = threading.Thread(target=run)
         t.daemon = True
@@ -720,18 +720,15 @@ class QQDriver(UMRDriver.BaseDriver):
             return 'bot'
         if user_id == 1000000:
             return 'App message'
+
         if chat_type == ChatType.GROUP:
-            user = self.group_list.get(chat_id, dict()).get(user_id, dict())
-            username = user.get('card', '')
-            if not username:
-                username = user.get('nickname', str(user_id))
+            user = await self.bot.get_group_member_info(group_id=chat_id, user_id=user_id)
+            username = user.get('card', user.get('nickname', str(user_id)))
         else:
-            if user_id in self.stranger_list:
-                username = self.stranger_list.get(user_id)
-            else:
-                user = await self.bot.get_stranger_info(user_id=user_id)
-                username = user.get('nickname', str(user_id))
-                self.stranger_list[user_id] = username
+            user = await self.bot.get_stranger_info(user_id=user_id)
+            username = user.get('nickname', str(user_id))
+            if username == 'mpqqnickname':
+                username = 'TencentBot'
         return username
 
     async def dissemble_message(self, context):
@@ -751,7 +748,8 @@ class QQDriver(UMRDriver.BaseDriver):
         user_id = context.get('user_id')
 
         message_id = context.get('message_id')
-        username = await self.get_username(user_id, chat_id, self.chat_type_dict[message_type])
+        user = context.get('sender')
+        username = user.get('card', user.get('nickname', str(user_id)))
         message: List[Dict] = context['message']
 
         unified_message = await self.parse_special_message(chat_id, self.chat_type_dict[message_type], username, message_id, user_id, message)
@@ -809,6 +807,9 @@ class QQDriver(UMRDriver.BaseDriver):
                                               link=content.get('jumpUrl')))
                             unified_message.message += message['title'] + ' ' + message.get('desc')
                         elif 'weather' in content:
+                            unified_message.message = message['title']
+                        else:
+                            self.logger.debug(f'Got miscellaneous rich text message with content: {str(message)}')
                             unified_message.message = message['title']
                     except:
                         self.logger.exception(f'Cannot decode json: {str(message)}')

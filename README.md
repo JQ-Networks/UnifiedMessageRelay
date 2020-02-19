@@ -160,6 +160,8 @@ python3 daemon.py stop
 
 If you need to see the log output for debugging purpose, stop the running daemon first. Then follow this command.
 
+Remember to enable debug option in config.
+
 ```shell
 python3 daemon.py run
 ```
@@ -177,10 +179,6 @@ Send `!!help` to show available commands.
 Send `!!id` anywhere to see chat id.
 
 Reply message with `!!id` to reveal source chat id.
-
-### Update QQ name list
-
-Send `!!name` to update qq name list manually (will apply to all QQ platforms)
 
 ### Delete QQ Message
 

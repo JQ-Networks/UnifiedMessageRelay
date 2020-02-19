@@ -53,7 +53,6 @@ Driver:
     ListenPort: 8080  # listen port
     Token: very  # cq http api token, same as the config above
     Secret: long  # cq http api secret, same as the config above
-    IsPro: yes    # currently coolq air is not supported, image sending is unavailable
     NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
     NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
 ```

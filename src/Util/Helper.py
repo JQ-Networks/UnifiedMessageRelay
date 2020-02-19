@@ -1,4 +1,4 @@
-from typing import List, Union, Dict, Callable
+from typing import List, Union, Dict, Callable, Any, Tuple
 import logging
 from janus import Queue
 from Core.UMRType import UnifiedMessage, EntityType, MessageEntity
@@ -9,19 +9,22 @@ logger = getLogger('Util.Helper')
 
 
 # test attributes in config.yaml
-def check_attribute(config: Dict, attributes: List[str], logger: logging.Logger) -> Union[str, None]:
+def check_attribute(config: Dict, attributes: List[Tuple[str, bool, Any]], logger: logging.Logger):
     """
     Test if attributes exist in config
     :param config: config file
-    :param attributes: list of attribute strings
+    :param attributes: Tuple of [attribute, optional, optional value]
     :param logger: log to this logger
-    :return: str for first missing attribute, or None for Okay
+    :return:
     """
     for attr in attributes:
-        if attr not in config:
-            logger.error(f'{attr} not found in config.yaml')
-            exit(-1)
-    return None
+        attribute, optional, optional_value = attr
+        if attribute not in config:
+            if not optional:
+                logger.error(f'{attr} not found in config.yaml')
+                exit(-1)
+            else:
+                config[attribute] = optional_value
 
 
 # async put new task to janus queue

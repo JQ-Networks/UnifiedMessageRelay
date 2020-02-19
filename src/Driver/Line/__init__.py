@@ -31,14 +31,14 @@ class LineDriver(UMRDriver.BaseDriver):
         self.config: Dict = UMRConfig.config['Driver'][self.name]
         self.handler: WebhookHandlerAsync
         attributes = [
-            'ChannelID',
-            'BotToken',
-            'WebHookToken',
-            'WebHookURL',
-            'WebHookPort',
-            'HTTPSCert',
-            'HTTPSKey',
-            'HTTPSCA',
+            ('ChannelID', False, None),
+            ('BotToken', False, None),
+            ('WebHookToken', False, None),
+            ('WebHookURL', False, None),
+            ('WebHookPort', False, None),
+            ('HTTPSCert', False, None),
+            ('HTTPSKey', False, None),
+            ('HTTPSCA', False, None),
         ]
         check_attribute(self.config, attributes, self.logger)
 
@@ -150,16 +150,18 @@ class LineDriver(UMRDriver.BaseDriver):
         return profile.display_name
 
     def start(self):
-        async def shutdown():
-            await self.bot.close()
 
         def run():
             nonlocal self
             asyncio.set_event_loop(self.loop)
-            self.app.run(host='0.0.0.0', port=self.config['WebHookPort'], loop=self.loop, shutdown_trigger=shutdown,
-                         ca_certs=self.config['HTTPSCA'],
-                         keyfile=self.config['HTTPSKey'],
-                         certfile=self.config['HTTPSCert'])
+
+            task = self.app.run_task(host='0.0.0.0', port=self.config['WebHookPort'],
+                                     ca_certs=self.config['HTTPSCA'],
+                                     keyfile=self.config['HTTPSKey'],
+                                     certfile=self.config['HTTPSCert'])
+
+            self.loop.create_task(task)
+            self.loop.run_forever()
 
         t = threading.Thread(target=run)
         t.daemon = True
