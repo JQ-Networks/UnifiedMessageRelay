@@ -106,7 +106,7 @@ ForwardList:
 Driver:
   [See each platform guide below for this section]
 DataRoot: /root/coolq/data/image  # Make sure this directory exists. If you are using QQ, make sure this is pointing to coolq image directory.
-CommandPrefix: "!!"
+CommandPrefix: "!!"   # default value is "!!"
 BotAdmin:
   QQ:
     - 123456789
@@ -114,6 +114,7 @@ BotAdmin:
   Telegram:
     - 213442352354534534
     - 345235345345345345
+Debug: yes  # verbose output
 ```
 
 The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver should be configure throgh "Driver" list.
