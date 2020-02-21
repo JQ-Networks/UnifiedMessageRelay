@@ -723,7 +723,9 @@ class QQDriver(UMRDriver.BaseDriver):
 
         if chat_type == ChatType.GROUP:
             user = await self.bot.get_group_member_info(group_id=chat_id, user_id=user_id)
-            username = user.get('card', user.get('nickname', str(user_id)))
+            username = user.get('card')
+            if not username:
+                username = user.get('nickname', str(user_id))
         else:
             user = await self.bot.get_stranger_info(user_id=user_id)
             username = user.get('nickname', str(user_id))
@@ -749,7 +751,9 @@ class QQDriver(UMRDriver.BaseDriver):
 
         message_id = context.get('message_id')
         user = context.get('sender')
-        username = user.get('card', user.get('nickname', str(user_id)))
+        username = user.get('card')
+        if not username:
+            username = user.get('nickname', str(user_id))
         message: List[Dict] = context['message']
 
         unified_message = await self.parse_special_message(chat_id, self.chat_type_dict[message_type], username, message_id, user_id, message)
