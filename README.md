@@ -58,7 +58,7 @@ Make sure Python 3.7+ and `pip` are installed. Run:
 
 ### Install other required package on host os
 
-`apt install libcairosvg2 ffmpeg libmagickwand-dev`
+`apt install libcairo2 ffmpeg libmagickwand-dev`
 
 ## Configurations
 
@@ -80,6 +80,8 @@ ForwardList:
     QQ: 12213312  # your QQ bot account number
     Telegram: 12321312  # your telegram bot chat id
   Topology:  # keep this key even if no topology exists
+    # Topology contains all the point to point forward:
+    # E.g. From one QQ group to one telegram group, type = OneWay+
     - From: QQ
       FromChat: 1123131231
       FromChatType: group  # group, discuss, private
@@ -94,6 +96,8 @@ ForwardList:
       # OneWay+:
       # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
   Default:  # keep this key even if no default route exists
+    # Default contains all the platform to point forward:
+    # E.g. Any message originated from QQ to one telegram group, type = OneWay+
     - From: QQ
       To: Telegram
       ToChat: 123244234234
@@ -109,10 +113,10 @@ DataRoot: /root/coolq/data/image  # Make sure this directory exists. If you are 
 CommandPrefix: "!!"   # default value is "!!"
 BotAdmin:
   QQ:
-    - 123456789
+    - 123456789  # qq number
     - 987654321
   Telegram:
-    - 213442352354534534
+    - 213442352354534534  # telegram chat id
     - 345235345345345345
 Debug: yes  # verbose output
 ```
