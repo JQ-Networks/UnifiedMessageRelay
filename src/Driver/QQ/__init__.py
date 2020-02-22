@@ -791,13 +791,12 @@ class QQDriver(UMRDriver.BaseDriver):
                     locations = cq_location_regex.findall(message['url'])  # [('lat', 'lon', 'name', 'addr')]
                     unified_message.message = f'Shared a location: {locations[2]}, {locations[3]}, {locations[0]}, {locations[1]}'
                 else:
-                    unified_message.message = 'Shared '
+                    unified_message.message = message.get('title', message.get('text'))
                     unified_message.message_entities.append(
-                        MessageEntity(start=len(unified_message.message),
-                                      end=len(unified_message.message) + len(message['title']),
+                        MessageEntity(start=0,
+                                      end=len(unified_message.message),
                                       entity_type=EntityType.LINK,
                                       link=message['url']))
-                    unified_message.message += message['title']
             elif 'title' in message:
                 if 'content' in message:
                     try:
