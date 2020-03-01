@@ -3,7 +3,7 @@ from typing import List, Dict, Union
 from . import UMRLogging
 from .UMRType import GroupID, MessageID, DestinationMessageID, ChatType
 
-logger = UMRLogging.getLogger('MessageRelation')
+logger = UMRLogging.get_logger('MessageRelation')
 
 
 class FIFODict(OrderedDict):

@@ -11,12 +11,12 @@ from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_i
 from Util.Helper import check_attribute, unparse_entities_to_html
 
 
-class TelegramDriver(UMRDriver.BaseDriver):
+class TelegramDriver(UMRDriver.BaseDriverMixin):
     def __init__(self, name):
         self.name = name
 
         # Initialize bot and dispatcher
-        self.logger = UMRLogging.getLogger(f'UMRDriver.{self.name}')
+        self.logger = UMRLogging.get_logger(f'UMRDriver.{self.name}')
         self.logger.debug(f'Started initialization for {self.name}')
 
         attributes = [
@@ -27,15 +27,14 @@ class TelegramDriver(UMRDriver.BaseDriver):
         self.bot: Bot
         self.bot_user_id = int(self.config['BotToken'].split(':')[0])
         self.image_file_id: Dict[str, str] = dict()  # mapping from filename to existing file id
-        self.loop: asyncio.AbstractEventLoop
-
+        self.loop = asyncio.new_event_loop()
+        self.loop.set_exception_handler(self.handle_exception)
 
     def start(self):
         def run():
             nonlocal self
             self.logger.debug('Running start')
-            self.loop = asyncio.new_event_loop()
-            self.loop.set_exception_handler(self.handle_exception)
+
             asyncio.set_event_loop(self.loop)
             self.bot = Bot(token=self.config['BotToken'])
             self.dp = Dispatcher(self.bot)
@@ -69,25 +68,22 @@ class TelegramDriver(UMRDriver.BaseDriver):
                                        src_message_id=message.message_id, user_id=message.from_user.id)
 
                 if message.content_type == ContentType.TEXT:
-                    await UMRDriver.receive(unified_message)
+                    pass
                 elif message.content_type == ContentType.PHOTO:
                     url, file_id = await self.tg_get_image(message.photo[-1].file_id)
                     unified_message.image = url
                     unified_message.file_id = file_id
-                    await UMRDriver.receive(unified_message)
                 elif message.content_type == ContentType.STICKER:
                     url, file_id = await self.tg_get_image(message.sticker.file_id)
                     unified_message.image = url
                     unified_message.file_id = file_id
-                    await UMRDriver.receive(unified_message)
                 elif message.content_type == ContentType.ANIMATION:
                     url, file_id = await self.tg_get_image(message.animation.file_id)
                     unified_message.image = url
                     unified_message.file_id = file_id
-                    await UMRDriver.receive(unified_message)
                 else:
                     unified_message.message = '[Unsupported message]'
-                    await UMRDriver.receive(unified_message)
+                await self.receive(unified_message)
             executor.start_polling(self.dp, skip_updates=True, loop=self.loop)
 
         t = threading.Thread(target=run)
@@ -203,7 +199,7 @@ class TelegramDriver(UMRDriver.BaseDriver):
             else:
                 url = ''
 
-            result.append(MessageEntity(start=entity.offset, end=entity.offset+entity.length,
+            result.append(MessageEntity(start=entity.offset, end=entity.offset + entity.length,
                                         entity_type=entity_map[entity.type], link=url))
         return result
 

@@ -2,7 +2,7 @@ from typing import List, Callable, Union
 from .UMRType import MessageHook, ChatType
 from . import UMRLogging
 
-logger = UMRLogging.getLogger('MessageHook')
+logger = UMRLogging.get_logger('MessageHook')
 
 message_hook_full: List[MessageHook] = list()  # src_driver, src_group, dst_driver, dst_group, hook
 message_hook_src: List[MessageHook] = list()

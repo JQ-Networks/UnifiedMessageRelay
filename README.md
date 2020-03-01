@@ -32,6 +32,7 @@ All four platforms: QQ, Telegram, Line and Discord can forward between each othe
 ## Supported platforms
 
 - QQ API based on [CoolQ HTTP API](https://github.com/richardchien/coolq-http-api) [aiocqhttp](https://github.com/cqmoe/python-aiocqhttp)
+- Mirai API based on multiple repos from [Mamoe Technologies](https://github.com/mamoe)
 - Telegram API based on [aiogram](https://aiogram.dev)
 - Line API based on [linebotx](https://github.com/Shivelight/line-bot-sdk-python-extra) [linebot](https://github.com/line/line-bot-sdk-python)
 - Discord API based on [Discord.py](https://github.com/Rapptz/discord.py)
@@ -127,6 +128,8 @@ The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver shoul
 
 [QQ](Installation/QQ.md)
 
+[Mirai](Installation/Mirai.md)
+
 [Telegram](Installation/Telegram.md)
 
 [Line](Installation/Line.md)
@@ -213,6 +216,8 @@ Reply forwarded channel message with `!!bc`
 4. (If using Coolq) Check if cq-http-api is enabled in Coolq
 5. Check if the log suggests any missing configuration
 6. Check if you are on Dev branch, please switch back to master
+7. For GIF sent from telegram not received by other platform, you may want to install [Filetype.py](https://github.com/h2non/filetype.py) from github
+manually, because PyPI is not up to date. e.g. `pip install git+https://github.com/h2non/filetype.py`
 
 ## Issues must provide
 

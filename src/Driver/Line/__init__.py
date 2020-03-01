@@ -21,10 +21,10 @@ from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
-class LineDriver(UMRDriver.BaseDriver):
+class LineDriver(UMRDriver.BaseDriverMixin):
     def __init__(self, name):
         self.name = name
-        self.logger = UMRLogging.getLogger(f'UMRDriver.{self.name}')
+        self.logger = UMRLogging.get_logger(f'UMRDriver.{self.name}')
         self.logger.debug(f'Started initialization for {self.name}')
         self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
         self.loop.set_exception_handler(self.handle_exception)
@@ -121,7 +121,7 @@ class LineDriver(UMRDriver.BaseDriver):
                 message.image = image_path
             else:
                 message.message = 'Unsupported message type'
-            await UMRDriver.receive(message)
+            await self.receive(message)
 
     @property
     def message_id(self):

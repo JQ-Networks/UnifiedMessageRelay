@@ -575,10 +575,10 @@ qq_sface_list = {
 }
 
 
-class QQDriver(UMRDriver.BaseDriver):
+class QQDriver(UMRDriver.BaseDriverMixin):
     def __init__(self, name):
         self.name = name
-        self.logger = UMRLogging.getLogger(f'UMRDriver.{self.name}')
+        self.logger = UMRLogging.get_logger(f'UMRDriver.{self.name}')
         self.logger.debug(f'Started initialization for {self.name}')
 
         self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
@@ -592,8 +592,8 @@ class QQDriver(UMRDriver.BaseDriver):
             ('ListenPort', False, None),
             ('Token', False, None),
             ('Secret', False, None),
-            ('NameforPrivateChat', False, None),
-            ('NameforGroupChat', False, None),
+            ('NameforPrivateChat', True, True),
+            ('NameforGroupChat', True, True),
         ]
         check_attribute(self.config, attributes, self.logger)
         self.bot = CQHttp(api_root=self.config.get('APIRoot'),
@@ -628,11 +628,15 @@ class QQDriver(UMRDriver.BaseDriver):
             set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=chat_type,
                                    src_message_id=context.get('message_id'), user_id=context.get('user_id'))
             for message in unified_message_list:
-                await UMRDriver.receive(message)
+                await self.receive(message)
+            return {}
+
+        @self.bot.on_request()
+        async def handle_request(context):
+            self.logger.debug('received request: ' + str(context))
             return {}
 
     def start(self):
-
         def run():
             asyncio.set_event_loop(self.loop)
             self.logger.debug(f'Starting Quart server for {self.name}')
@@ -653,7 +657,6 @@ class QQDriver(UMRDriver.BaseDriver):
 
     async def send(self, to_chat: Union[int, str], chat_type: ChatType, messsage: UnifiedMessage):
         """
-        decorator for send new message
         :return:
         """
         self.logger.debug('calling real send')
@@ -661,7 +664,6 @@ class QQDriver(UMRDriver.BaseDriver):
 
     async def _send(self, to_chat: int, chat_type: ChatType, message: UnifiedMessage):
         """
-        decorator for send new message
         :return:
         """
         self.logger.debug('begin processing message')
@@ -694,7 +696,7 @@ class QQDriver(UMRDriver.BaseDriver):
                 context['message'].append(MessageSegment.at(message.send_action.user_id))
                 context['message'].append(MessageSegment.text(' '))
 
-        context['message'].append(MessageSegment.text(unparse_entities_to_markdown(message, EntityType.PLAIN)))
+        context['message'].append(MessageSegment.text(message.message))
 
         if _chat_type == 'private':
             context['user_id'] = to_chat
@@ -832,8 +834,8 @@ class QQDriver(UMRDriver.BaseDriver):
         elif message_type == 'rps':
             unified_message.message = 'Played '
             played = {'1': 'Rock',
-                                    '2': 'Scissors',
-                                    '3': 'Paper'}[message['type']]
+                      '2': 'Scissors',
+                      '3': 'Paper'}[message['type']]
             unified_message.message_entities.append(
                 MessageEntity(start=len(unified_message.message),
                               end=len(unified_message.message) + len(played),

@@ -16,7 +16,7 @@ download_dir = UMRConfig.config['DataRoot']
 
 cache: Dict[str, str] = dict()  # Dict[url, file_name]
 
-logger = UMRLogging.getLogger('FileDL')
+logger = UMRLogging.get_logger('FileDL')
 
 # By default, a image downgrading mapping is hardcoded here
 # If more platform is being added, might need to add more conversion mapping

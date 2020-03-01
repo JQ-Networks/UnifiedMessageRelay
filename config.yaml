@@ -2,7 +2,7 @@ ForwardList:
   Accounts:
     QQ: 12213312  # your QQ bot account number
     Telegram: 12321312  # your telegram bot chat id
-  Topology:  # keep this key even if no topology exists
+  Topology:  # delete this key if empty
     # Topology contains all the point to point forward:
     # E.g. From one QQ group to one telegram group, type = OneWay+
     - From: QQ
@@ -18,7 +18,7 @@ ForwardList:
       # Forward from "FromChat" to "ToChat" and vise versa
       # OneWay+:
       # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
-  Default:  # keep this key even if no default route exists
+  Default:  # delete this key if empty
     # Default contains all the platform to point forward:
     # E.g. Any message originated from QQ to one telegram group, type = OneWay+
     - From: QQ
@@ -39,7 +39,7 @@ Driver:
     ListenPort: 8080
     Token: very
     Secret: long
-    NameforPrivateChat: no  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
+    NameforPrivateChat: yes  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
     NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
   Telegram:
     Base: Telegram
@@ -58,7 +58,17 @@ Driver:
     Base: Discord
     BotToken: asdsadsddfffsdffsdfsd  # the longer one
     ClientToken: asdasdsadsfsafsdfsd # the shorter one
+  Mirai:
+    Base: Mirai
+    Account: 1213123
+    Host: 127.0.0.1
+    Port: 18080
+    AuthKey: abcdefgh
+    NameforPrivateChat: yes  # if destination chat_id is a private chat, show all attributes (sender name, reply to, forward from)
+    NameforGroupChat: yes     # if destination chat_id is a group/discuss chat, show all attributes (sender name, reply to, forward from)
+
 DataRoot: /root/coolq/data/image
+LogRoot: /var/log/umr
 CommandPrefix: "!!"  # optional, default "!!"
 BotAdmin:            # optional, default empty
   QQ:

@@ -91,14 +91,14 @@ def find_markdown(text: str, text_start: int = 0, text_end=-1, real_start: int =
         text_start = outer_end
 
 
-class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
+class DiscordDriver(UMRDriver.BaseDriverMixin, discord.Client):
     def __init__(self, name: str):
         self.loop = asyncio.new_event_loop()
         self.loop.set_exception_handler(self.handle_exception)
         discord.Client.__init__(self, loop=self.loop)
 
         self.name = name
-        self.logger = UMRLogging.getLogger(self.name)
+        self.logger = UMRLogging.get_logger(self.name)
 
         self.config = UMRConfig.config['Driver'].get(self.name)
         attributes = [
@@ -202,7 +202,7 @@ class DiscordDriver(UMRDriver.BaseDriver, discord.Client):
         set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=_chat_type,
                                src_message_id=message.id, user_id=user_id)
 
-        await UMRDriver.receive(unified_message)
+        await self.receive(unified_message)
 
     async def parse_at(self, message: str):
         user_ids = at_user_text.findall(message)

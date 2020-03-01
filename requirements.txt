@@ -13,3 +13,5 @@ ffmpy
 line-bot-sdk
 quart
 Wand
+kuriyama
+pyyaml

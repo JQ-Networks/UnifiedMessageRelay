@@ -2,10 +2,10 @@ from typing import List, Union, Dict, Callable, Any, Tuple
 import logging
 from janus import Queue
 from Core.UMRType import UnifiedMessage, EntityType, MessageEntity
-from Core.UMRLogging import getLogger
+from Core.UMRLogging import get_logger
 from functools import partial
 
-logger = getLogger('Util.Helper')
+logger = get_logger('Util.Helper')
 
 
 # test attributes in config.yaml

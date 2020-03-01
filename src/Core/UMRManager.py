@@ -3,33 +3,35 @@ Controller of the whole program
 """
 
 from . import UMRLogging
-from . import UMRConfig
 from . import UMRDriver
+from . import UMRDispatcher
 from . import UMRCommand
 
+import asyncio
+
 from time import sleep
-logger = UMRLogging.getLogger('Manager')
+logger = UMRLogging.get_logger('Manager')
 
 
 class UMRManager:
-
-    @staticmethod
-    def load_plugins():
-        from . import UMRExtension
-        UMRExtension.load_platform_extensions()
-        UMRExtension.load_extensions()
-
     @staticmethod
     def run():
         try:
             # init drivers for different platform
-            sleep(2)
+            asyncio.run(UMRDriver.init_drivers())
+
+            # init message dispatcher
+            UMRDispatcher.init_dispatcher()
+
             # init plugin hooks
-            UMRManager.load_plugins()
+            from . import UMRExtension
+            UMRExtension.load_platform_extensions()
+            UMRExtension.load_extensions()
+
+            # block main thread
             for i in UMRDriver.threads:
                 i.join()
-            # TODO check if stop should be handled
-            pass
+
         except KeyboardInterrupt:
             logger.info('Terminating')
             exit(0)

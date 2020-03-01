@@ -7,7 +7,7 @@ from Core.UMRMessageHook import register_hook
 from Core.UMRCommand import register_command, quick_reply
 from Core.UMRType import UnifiedMessage, ChatAttribute, Privilege
 
-logger = UMRLogging.getLogger('Plugin.WaterMeter')
+logger = UMRLogging.get_logger('Plugin.WaterMeter')
 
 home = str(pathlib.Path.home())
 yaml_config_dir = f'{home}/.umr/watermeter.yaml'

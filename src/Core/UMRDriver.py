@@ -4,38 +4,75 @@ from .UMRType import UnifiedMessage, ChatType
 from . import UMRLogging
 from . import UMRConfig
 from asyncio import iscoroutinefunction
+from . import UMRDispatcher
+import asyncio
 
-logger = UMRLogging.getLogger('Driver')
+logger = UMRLogging.get_logger('Driver')
 
 
 # region Driver API lookup table
-class BaseDriver:
-    def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
+class BaseDriverMixin:
+    async def pre_init(self):
         pass
 
-    def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
+    async def post_init(self):
         pass
 
-    def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
+    async def send(self, to_chat: Union[int, str], chat_type: ChatType, message: UnifiedMessage):
+        pass
+
+    async def is_group_admin(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
+        pass
+
+    async def is_group_owner(self, chat_id: int, chat_type: ChatType, user_id: int) -> bool:
         pass
 
     def start(self):
+        """
+        should be non blocking, run everything in new thread and register that thread
+        """
         pass
 
+    @property
+    def started(self):
+        """
+        indicator for driver start up progress
+        :return: False for not ready, True for ready
+        """
+        return True
 
-driver_class_lookup_table: Dict[str, Any] = dict()
-driver_lookup_table: Dict[str, BaseDriver] = dict()
+    async def receive(self, message: UnifiedMessage):
+        """
+        send unified message to dispatch
+        this function should not be override
+        :param message: unified message to dispatch
+        """
+        await UMRDispatcher.dispatch(message)
+
+
+driver_class_lookup_table: Dict[str, Any] = dict()  # driver prototypes
+driver_lookup_table: Dict[str, BaseDriverMixin] = dict()  # driver instances
 threads: List[Thread] = list()  # all threads that drivers created
 
 
-def register_driver(name, driver):
-    driver_class_lookup_table[name] = driver
+def register_driver(name: str, driver_prototype):
+    """
+    register a driver class
+    :param name: driver name, should be global unique
+    :param driver_prototype: driver constructor
+    """
+    driver_class_lookup_table[name] = driver_prototype
 
 # endregion
 
 
 # region Driver API for other modules
-def driver_lookup(platform: str) -> Union[None, BaseDriver]:
+def driver_lookup(platform: str) -> Union[None, BaseDriverMixin]:
+    """
+    get driver instance
+    :param platform: platform name (from config)
+    :return: driver instance
+    """
     if platform not in driver_lookup_table:
         logger.error(f'Base driver "{platform}" not found')
         return None
@@ -55,6 +92,7 @@ async def api_call(platform: str, api_name: str, *args, **kwargs):
     """
     driver = driver_lookup(platform)
     if not driver:
+        logger.error(f'Due to driver "{platform}" not found, "{api_name}" is ignored')
         return
 
     func = getattr(driver, api_name)
@@ -68,35 +106,42 @@ async def api_call(platform: str, api_name: str, *args, **kwargs):
 
 # endregion
 
-# launch dispatcher
-# dispatcher should be launched after declaration of api_lookup
-from .UMRDispatcher import dispatch
+
+async def __post_init(driver_name):
+    wait_count = 60
+    while wait_count > 0:
+        if driver_lookup_table[driver_name].started:
+            await driver_lookup_table[driver_name].post_init()
+            break
+        await asyncio.sleep(1)
+        wait_count -= 1
+    logger.error(f'Waiting for {driver_name} to start timed out, unable to execute post-init')
 
 
-# region Driver API declaration for SubDriver call
-async def receive(messsage: UnifiedMessage):
+async def init_drivers():
     """
-    handler for received message
-    this function should be called from driver
+    bring up all the drivers
+    this function should be called by UMRManager
     :return:
     """
-    await dispatch(messsage)
+    import Driver
 
+    config = UMRConfig.config.get('Driver')
 
-# endregion
+    for driver_name, driver_config in config.items():
+        if driver_config['Base'] not in driver_class_lookup_table:
+            logger.error(f'Base driver "{driver_config["Base"]}" not found')
+            exit(-1)
+        driver: BaseDriverMixin = driver_class_lookup_table[driver_config['Base']](driver_name)
+        await driver.pre_init()
+        driver.start()
+        driver_lookup_table[driver_name] = driver
 
+    loop = asyncio.get_event_loop()
 
-import Driver
+    for driver_name in config.keys():
+        asyncio.run_coroutine_threadsafe(__post_init(driver_name), loop)
 
-config = UMRConfig.config.get('Driver')
-
-for driver_name, driver_config in config.items():
-    if driver_config['Base'] not in driver_class_lookup_table:
-        logger.error(f'Base driver "{driver_config["Base"]}" not found')
-        exit(-1)
-    driver = driver_class_lookup_table[driver_config['Base']](driver_name)
-    driver.start()
-    driver_lookup_table[driver_name] = driver
 
 
 

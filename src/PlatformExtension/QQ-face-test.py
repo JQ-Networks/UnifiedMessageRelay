@@ -5,7 +5,7 @@ from aiocqhttp import MessageSegment
 from Core.UMRDriver import driver_lookup_table
 from Driver import QQ
 
-logger = UMRLogging.getLogger('Plugin.QQ-recall')
+logger = UMRLogging.get_logger('Plugin.QQ-recall')
 
 
 # @register_command(cmd=['face'], description='test QQ face')

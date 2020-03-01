@@ -8,7 +8,7 @@ from .UMRDriver import api_call
 from .UMRAdmin import is_bot_admin, is_group_admin, is_group_owner
 from Util.Helper import unparse_entities_to_markdown
 
-logger = UMRLogging.getLogger('Command')
+logger = UMRLogging.get_logger('Command')
 
 command_map: Dict[str, Command] = dict()
 command_start: str = UMRConfig.config['CommandPrefix']

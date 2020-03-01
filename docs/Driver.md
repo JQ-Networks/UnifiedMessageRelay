@@ -70,7 +70,7 @@ async def handle_msg(context):
     set_ingress_message_id(src_platform=self.name, src_chat_id=chat_id, src_chat_type=chat_type,
                            src_message_id=context.get('message_id'), user_id=context.get('user_id'))
     for message in unified_message_list:
-        await UMRDriver.receive(message)
+        await self.receive(message)
     return {}
 ```
 

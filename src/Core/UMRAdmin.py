@@ -4,7 +4,7 @@ from . import UMRLogging
 from .UMRDriver import api_call
 from .UMRType import ChatType
 
-logger = UMRLogging.getLogger('Admin')
+logger = UMRLogging.get_logger('Admin')
 
 bot_admin: Dict[str, List[int]] = UMRConfig.config['BotAdmin']
 
