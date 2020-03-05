@@ -1,15 +1,15 @@
 import asyncio
 
-from mirai import At, Plain, Face, Image
-from mirai.face import QQFaces
-from mirai.session import Session
-from mirai.prototypes.context import MessageContextBody
-from mirai.misc import printer, ImageType
-import mirai.exceptions
-from mirai.event import ExternalEvents
-from mirai.event import external
-from mirai import QQFaces
-from mirai import AtAll
+# from mirai import At, Plain, Face, Image
+# from mirai.face import QQFaces
+# from mirai.session import Session
+# from mirai.prototypes.context import MessageContextBody
+# from mirai.misc import printer, ImageType
+# import mirai.exceptions
+
+from mirai_core import Bot, Updater
+from mirai_core.models.events import EventTypes, GroupMessage, FriendMessage
+from mirai_core.models.message import MessageChain, Image, Plain, At, AtAll, SendImage, Face, Source, ImageType
 
 from Core.UMRType import ChatType, UnifiedMessage, MessageEntity, EntityType
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
@@ -20,7 +20,6 @@ from Core import UMRConfig
 from typing import Union, Dict, List
 import threading
 from Util.Helper import check_attribute
-
 
 qq_emoji_list = {  # created by JogleLew and jqqqqqqqqqq, optimized based on Tim's emoji support
     0:   '😮',
@@ -591,8 +590,6 @@ class MiraiDriver(BaseDriverMixin):
         self.logger = UMRLogging.get_logger('Mirai')
         self.loop: asyncio.AbstractEventLoop = asyncio.new_event_loop()
         self.loop.set_exception_handler(self.handle_exception)
-        self.session: Session = Session(f"mirai://localhost:18080/?authKey={self.authKey}&qq={self.qq}", loop=self.loop,
-                                        host='127.0.0.1', port=8080)
 
         self.image_cache = dict()
         self.config: Dict = UMRConfig.config['Driver'][self.name]
@@ -606,18 +603,41 @@ class MiraiDriver(BaseDriverMixin):
             ('NameforGroupChat', True, True),
         ]
         check_attribute(self.config, attributes, self.logger)
-        qq = self.config['Account']
+        self.qq = self.config['Account']
         auth_key = self.config['AuthKey']
         host = self.config['Host']
         port = self.config['Port']
 
-        self.session: Session = Session(f"mirai://{host}:{port}/?authKey={auth_key}&qq={qq}", loop=self.loop,
-                                        host='127.0.0.1', port=8080)
+        self.bot = Bot(self.qq, host, port, auth_key)
+        self.updater = Updater(self.bot, self.loop)
 
+        @self.updater.add_handler(EventTypes.FriendMessage)
+        async def friend_message(event: FriendMessage):
 
+            self.logger.debug(f"[private][{event.sender.id}]: " +
+                              str(event.messageChain))
+
+            await self.general_receive(message_chain=event.messageChain,
+                                       chat_id=event.sender.id,
+                                       chat_type=ChatType.PRIVATE,
+                                       username=event.sender.nickname,
+                                       user_id=event.sender.id,
+                                       message_id=event.messageChain.get_source().id)
+
+        @self.updater.add_handler(EventTypes.GroupMessage)
+        async def group_message(event: GroupMessage):
+            self.logger.debug(f"[{event.sender.group.id}][{event.sender.id}]: " +
+                              str(event.messageChain))
+
+            await self.general_receive(message_chain=event.messageChain,
+                                       chat_id=event.sender.group.id,
+                                       chat_type=ChatType.GROUP,
+                                       username=event.sender.memberName,
+                                       user_id=event.sender.id,
+                                       message_id=event.messageChain.get_source().id)
 
     async def parse_message(self,
-                            message_chain: mirai.MessageChain,
+                            message_chain: MessageChain,
                             chat_id: int,
                             chat_type: ChatType,
                             username: str,
@@ -632,7 +652,7 @@ class MiraiDriver(BaseDriverMixin):
                                          user_id=user_id,
                                          message_id=message_id)
         for m in message_chain[1:]:
-            if isinstance(m, mirai.Image):
+            if isinstance(m, Image):
                 # message not empty or contained a image, append to list
                 if unified_message.message or unified_message.image:
                     message_list.append(unified_message)
@@ -645,9 +665,9 @@ class MiraiDriver(BaseDriverMixin):
                 unified_message.image = m.url
                 self.logger.debug(f'Received image: [{m.imageId}]')
 
-            elif isinstance(m, mirai.Plain):
+            elif isinstance(m, Plain):
                 unified_message.message += m.text
-            elif isinstance(m, mirai.At):
+            elif isinstance(m, At):
 
                 at_user_text = m.display
                 unified_message.message_entities.append(
@@ -655,7 +675,7 @@ class MiraiDriver(BaseDriverMixin):
                                   end=len(unified_message.message) + len(at_user_text),
                                   entity_type=EntityType.BOLD))
                 unified_message.message += at_user_text
-            elif isinstance(m, mirai.AtAll):
+            elif isinstance(m, AtAll):
 
                 at_user_text = '[@All]'
                 unified_message.message_entities.append(
@@ -663,13 +683,13 @@ class MiraiDriver(BaseDriverMixin):
                                   end=len(unified_message.message) + len(at_user_text),
                                   entity_type=EntityType.BOLD))
                 unified_message.message += at_user_text
-            elif isinstance(m, mirai.Face):
+            elif isinstance(m, Face):
                 qq_face = int(m.faceId) & 255
                 if qq_face in qq_emoji_list:
                     unified_message.message += qq_emoji_list[qq_face]
                 else:
                     unified_message.message += '\u2753'  # ❓
-            elif isinstance(m, mirai.Source):
+            elif isinstance(m, Source):
                 pass
             else:
                 self.logger.debug(f'Unhandled message type: {str(m)}')
@@ -678,7 +698,7 @@ class MiraiDriver(BaseDriverMixin):
         return message_list
 
     async def general_receive(self,
-                              message_chain: mirai.MessageChain,
+                              message_chain: MessageChain,
                               chat_id: int,
                               chat_type: ChatType,
                               username: str,
@@ -689,7 +709,7 @@ class MiraiDriver(BaseDriverMixin):
 
         set_ingress_message_id(src_platform=self.name,
                                src_chat_id=chat_id,
-                               src_chat_type=ChatType.GROUP,
+                               src_chat_type=chat_type,
                                src_message_id=message_id,
                                user_id=user_id)
 
@@ -710,31 +730,7 @@ class MiraiDriver(BaseDriverMixin):
             asyncio.set_event_loop(self.loop)
             self.logger.debug(f'Starting Session for {self.name}')
 
-            @self.session.receiver(mirai.FriendMessage)
-            async def friend_message(message: mirai.FriendMessage):
-                self.logger.debug(f"[private][{message.sender.id}]: " +
-                                  message.messageChain.toString())
-
-                await self.general_receive(message_chain=message.messageChain,
-                                           chat_id=message.sender.id,
-                                           chat_type=ChatType.PRIVATE,
-                                           username=message.sender.nickname,
-                                           user_id=message.sender.id,
-                                           message_id=message.messageChain.getSource().id)
-
-            @self.session.receiver(mirai.GroupMessage)
-            async def group_message(message: mirai.GroupMessage):
-                self.logger.debug(f"[{message.sender.group.id}][{message.sender.id}]: " +
-                                  message.messageChain.toString())
-
-                await self.general_receive(message_chain=message.messageChain,
-                                           chat_id=message.sender.group.id,
-                                           chat_type=ChatType.GROUP,
-                                           username=message.sender.memberName,
-                                           user_id=message.sender.id,
-                                           message_id=message.messageChain.getSource().id)
-
-            self.loop.create_task(self.session.get_tasks())
+            self.loop.create_task(self.updater.run_task())
             self.loop.run_forever()
 
         t = threading.Thread(target=run)
@@ -757,8 +753,6 @@ class MiraiDriver(BaseDriverMixin):
         decorator for send new message
         :return:
         """
-        if chat_type != ChatType.GROUP:
-            return
         messages = list()
 
         if (chat_type == ChatType.PRIVATE and self.config['NameforPrivateChat']) or \
@@ -782,22 +776,23 @@ class MiraiDriver(BaseDriverMixin):
             messages.append(Plain(text=message.message))
 
         if message.image:
-            if chat_type == ChatType.PRIVATE:
-                image_type = ImageType.Friend
-            else:
-                image_type = ImageType.Group
-            self.logger.debug('Processing image upload')
-            image = await Image.fromFileSystem(message.image, self.session, image_type),
-            self.logger.debug('Image uploaded successfully')
+            image = SendImage(path=message.image)
             messages.append(image)
             self.logger.info('If QQ does not receive this message, '
                              'your account might be suspected of being compromised by Tencent')
 
-        egress_message = await self.session.sendGroupMessage(
-            to_chat,
-            messages,
-            message.send_action.message_id or None
-        )
+        if chat_type == ChatType.PRIVATE:
+            messages.append(SendImage(uuid='ec0b4244-ea30-48cb-953e-613cb1f6f2c0'))
+            egress_message = await self.bot.send_friend_message(
+                to_chat,
+                messages
+            )
+        else:
+            egress_message = await self.bot.send_group_message(
+                to_chat,
+                messages,
+                message.send_action.message_id or None
+            )
 
         message_id = egress_message.messageId
 

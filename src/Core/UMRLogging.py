@@ -10,11 +10,13 @@ import pathlib
 
 # init coloredlogs
 __fmt = '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n'
-coloredlogs.install(fmt=__fmt, level='DEBUG')
 
 # get and conf root logger
 __root_logger: logging.Logger = logging.getLogger('UMR')
-
+coloredlogs.install(fmt=__fmt, level='DEBUG')
+# coloredlogs.install(fmt=__fmt, level='DEBUG', logger=__root_logger)
+# coloredlogs.install(fmt=__fmt, level='DEBUG', logger=logging.getLogger('Mirai-core'))
+# coloredlogs.install(fmt=__fmt, level='DEBUG', logger=logging.getLogger('aiogram'))
 
 # Logger for this module
 logger = __root_logger.getChild('Logging')
