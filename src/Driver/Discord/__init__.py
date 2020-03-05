@@ -191,7 +191,7 @@ class DiscordDriver(UMRDriver.BaseDriverMixin, discord.Client):
                                          message_id=message.id)
 
         message_content = await self.parse_at(message.content)
-        unified_message.message, unified_message.message_entities = find_markdown(message_content)
+        unified_message.message, unified_message.message_entities = find_markdown(message_content.replace('\u200b', ''))
 
         if message.attachments:
             if message.attachments[0].proxy_url:
@@ -250,13 +250,13 @@ class DiscordDriver(UMRDriver.BaseDriverMixin, discord.Client):
 
         # name logic
         if message.chat_attrs.name:
-            message_text += '**' + escape_markdown(message.chat_attrs.name) + '**'
+            message_text += '**' + escape_markdown(message.chat_attrs.name) + '**\u200b'
         if message.chat_attrs.reply_to:
-            message_text += '** (➡️️' + message.chat_attrs.reply_to.name + ')**'
+            message_text += '** (➡️️' + message.chat_attrs.reply_to.name + ')**\u200b'
         if message.chat_attrs.forward_from:
-            message_text += '** (️️↩️' + message.chat_attrs.forward_from.name + ')**'
+            message_text += '** (️️↩️' + message.chat_attrs.forward_from.name + ')**\u200b'
         if message.chat_attrs.name:
-            message_text += '**: **'
+            message_text += '**: **\u200b'
 
         # at user
         if message.send_action.user_id:
