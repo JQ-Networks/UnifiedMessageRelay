@@ -9,7 +9,7 @@ import asyncio
 
 from mirai_core import Bot, Updater
 from mirai_core.models.events import EventTypes, GroupMessage, FriendMessage
-from mirai_core.models.message import MessageChain, Image, Plain, At, AtAll, SendImage, Face, Source, ImageType
+from mirai_core.models.message import MessageChain, Image, Plain, At, AtAll, LocalImage, Face, Source, ImageType
 
 from Core.UMRType import ChatType, UnifiedMessage, MessageEntity, EntityType
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
@@ -776,16 +776,25 @@ class MiraiDriver(BaseDriverMixin):
             messages.append(Plain(text=message.message))
 
         if message.image:
-            image = SendImage(path=message.image)
+            if chat_type == ChatType.PRIVATE:
+                image_type = ImageType.Friend
+            else:
+                image_type = ImageType.Group
+            image_id = self.image_cache.get((image_type, message.image))
+            if image_id:
+                image = Image(imageId=image_id)
+            else:
+                image = await self.bot.upload_image(image_type=image_type, image_path=message.image)
+                self.image_cache[(image_type, message.image)] = image.imageId
             messages.append(image)
             self.logger.info('If QQ does not receive this message, '
                              'your account might be suspected of being compromised by Tencent')
 
         if chat_type == ChatType.PRIVATE:
-            messages.append(SendImage(uuid='ec0b4244-ea30-48cb-953e-613cb1f6f2c0'))
             egress_message = await self.bot.send_friend_message(
                 to_chat,
-                messages
+                messages,
+                message.send_action.message_id or None
             )
         else:
             egress_message = await self.bot.send_group_message(

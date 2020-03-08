@@ -8,9 +8,10 @@ import os
 from uuid import uuid4
 import filetype
 from tgs.parsers.tgs import parse_tgs
-from tgs.exporters.gif import export_gif
 import ffmpy
 from wand.image import Image as WandImage
+from tgs.exporters.cairo import export_png
+from tgs.exporters.gif import _png_gif_prepare
 
 download_dir = UMRConfig.config['DataRoot']
 
@@ -137,6 +138,34 @@ def convert_mp4_to_gif(mp4_file: [str, BytesIO], gif_file: str):
     os.remove(tmp_palettegen_path)
 
 
+def export_gif(animation, fp, dpi=96, skip_frames=5):
+    """
+    Gif export
+
+    Note that it's a bit slow.
+    """
+    start = int(animation.in_point)
+    end = int(animation.out_point)
+    frames = []
+    for i in range(start, end+1, skip_frames):
+        file = BytesIO()
+        export_png(animation, file, i, dpi)
+        file.seek(0)
+        frames.append(_png_gif_prepare(Image.open(file)))
+
+    duration = 1000 / animation.frame_rate * (1 + skip_frames) / 2
+    frames[0].save(
+        fp,
+        format='GIF',
+        append_images=frames[1:],
+        save_all=True,
+        duration=duration,
+        loop=0,
+        transparency=255,
+        disposal=2,
+    )
+
+
 def convert_tgs_to_gif(tgs_file: [str, BytesIO], gif_file: str) -> bool:
     """
     copied from EH Forwarder Bot
@@ -150,7 +179,14 @@ def convert_tgs_to_gif(tgs_file: [str, BytesIO], gif_file: str) -> bool:
     # noinspection PyBroadException
     try:
         animation = parse_tgs(tgs_file)
-        export_gif(animation, gif_file, skip_frames=5, dpi=48)
+        if animation.frame_rate > 30:
+            skip_frames = 4
+        elif animation.frame_rate > 15:
+            skip_frames = 2
+        else:
+            skip_frames = 0
+
+        export_gif(animation, gif_file, skip_frames=skip_frames, dpi=48)
         return True
     except Exception:
         logger.exception("Error occurred while converting TGS to GIF.")

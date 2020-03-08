@@ -209,9 +209,9 @@ class TelegramDriver(UMRDriver.BaseDriverMixin):
         :param file_id:
         :return:
         """
-        file = await self.bot.get_file(file_id)
+        file: types.File = await self.bot.get_file(file_id)
         url = f'https://api.telegram.org/file/bot{self.config["BotToken"]}/{file.file_path}'
-        perm_id = file_id[-52:]
+        perm_id = file.file_unique_id
         return url, perm_id
 
     def get_chat_attributes(self, message: types.Message, chat_attrs: ChatAttribute):
