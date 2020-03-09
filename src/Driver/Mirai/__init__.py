@@ -608,8 +608,8 @@ class MiraiDriver(BaseDriverMixin):
         host = self.config['Host']
         port = self.config['Port']
 
-        self.bot = Bot(self.qq, host, port, auth_key)
-        self.updater = Updater(self.bot, self.loop)
+        self.bot = Bot(self.qq, host, port, auth_key, loop=self.loop)
+        self.updater = Updater(self.bot)
 
         @self.updater.add_handler(EventTypes.FriendMessage)
         async def friend_message(event: FriendMessage):
