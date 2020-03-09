@@ -1,17 +1,14 @@
 # UnifiedMessageRelay
 
 ![shields](https://img.shields.io/badge/python-3.7%2B-blue.svg?style=flat-square) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![Telegram support group](https://img.shields.io/badge/support-telegram-blue)](https://t.me/s/UnifiedMessageRelay)
+[![Telegram developer group](https://img.shields.io/badge/developer-telegram-blue)](https://t.me/s/UnifiedMessageRelayDev)
 
 UnifiedMessageRelay is a framework for the purpose of bringing messages from different chat platform together. With UnifiedMessageRelay,
 user no longer need to view messages on different platform, or different groups. UnifiedMessageRelay brings powerful
  message forwarding functionality and flexible plugin API to meet your custom need. A driver API specification is also
  provided, so one can compose their own backend driver, and the framework will load and utilize the driver automatically.
- 
-## Telegram groups
 
-[Developer group](https://t.me/s/UnifiedMessageRelayDev) 
-
-[Support group](https://t.me/s/UnifiedMessageRelay) (Need help? Join this group)
 
 ## Demo
 
