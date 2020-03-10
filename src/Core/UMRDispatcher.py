@@ -146,7 +146,7 @@ class UMRDispatcher:
         # check reply
         if message.chat_attrs.reply_to:
             # reply to bot, and action is not oneway
-            if message.chat_attrs.reply_to.user_id == self.bot_accounts[message.chat_attrs.platform]:
+            if message.chat_attrs.reply_to.user_id == self.bot_accounts.get(message.chat_attrs.platform):
                 reply_message_id = get_message_id(src_platform=message.chat_attrs.platform,
                                                   src_chat_id=message.chat_attrs.chat_id,
                                                   src_chat_type=message.chat_attrs.chat_type,

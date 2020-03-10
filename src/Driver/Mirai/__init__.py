@@ -1,23 +1,16 @@
 import asyncio
 
-# from mirai import At, Plain, Face, Image
-# from mirai.face import QQFaces
-# from mirai.session import Session
-# from mirai.prototypes.context import MessageContextBody
-# from mirai.misc import printer, ImageType
-# import mirai.exceptions
-
 from mirai_core import Bot, Updater
 from mirai_core.models.events import EventTypes, GroupMessage, FriendMessage
-from mirai_core.models.message import MessageChain, Image, Plain, At, AtAll, LocalImage, Face, Source, ImageType
+from mirai_core.models.message import MessageChain, Image, Plain, At, AtAll, LocalImage, Face, Source, ImageType, Quote
 
-from Core.UMRType import ChatType, UnifiedMessage, MessageEntity, EntityType
+from Core.UMRType import ChatType, UnifiedMessage, MessageEntity, EntityType, ChatAttribute
 from Core.UMRMessageRelation import set_ingress_message_id, set_egress_message_id
 from Core.UMRDriver import BaseDriverMixin
 from Core import UMRDriver
 from Core import UMRLogging
 from Core import UMRConfig
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Tuple
 import threading
 from Util.Helper import check_attribute
 
@@ -610,6 +603,8 @@ class MiraiDriver(BaseDriverMixin):
 
         self.bot = Bot(self.qq, host, port, auth_key, loop=self.loop)
         self.updater = Updater(self.bot)
+        self.group_message_ids: Dict[Tuple[int, int], int] = dict()  # (group, sequence id) -> message id
+        self.friend_message_ids: Dict[Tuple[int, int], int] = dict()  # (friend, sequence id) -> message id
 
         @self.updater.add_handler(EventTypes.FriendMessage)
         async def friend_message(event: FriendMessage):
@@ -621,8 +616,7 @@ class MiraiDriver(BaseDriverMixin):
                                        chat_id=event.sender.id,
                                        chat_type=ChatType.PRIVATE,
                                        username=event.sender.nickname,
-                                       user_id=event.sender.id,
-                                       message_id=event.messageChain.get_source().id)
+                                       user_id=event.sender.id)
 
         @self.updater.add_handler(EventTypes.GroupMessage)
         async def group_message(event: GroupMessage):
@@ -633,8 +627,7 @@ class MiraiDriver(BaseDriverMixin):
                                        chat_id=event.sender.group.id,
                                        chat_type=ChatType.GROUP,
                                        username=event.sender.memberName,
-                                       user_id=event.sender.id,
-                                       message_id=event.messageChain.get_source().id)
+                                       user_id=event.sender.id)
 
     async def parse_message(self,
                             message_chain: MessageChain,
@@ -642,8 +635,7 @@ class MiraiDriver(BaseDriverMixin):
                             chat_type: ChatType,
                             username: str,
                             message_id: int,
-                            user_id: int,
-                            reply_to_message_id: int = 0):
+                            user_id: int):
         message_list = list()
         unified_message = UnifiedMessage(platform=self.name,
                                          chat_id=chat_id,
@@ -651,6 +643,16 @@ class MiraiDriver(BaseDriverMixin):
                                          name=username,
                                          user_id=user_id,
                                          message_id=message_id)
+        quote = message_chain.get_quote()
+        if quote:
+            quote_id = quote.id >> 32
+            unified_message.chat_attrs.reply_to = ChatAttribute(platform=self.name,
+                                                                chat_id=chat_id,
+                                                                chat_type=chat_type,
+                                                                user_id=quote.senderId,
+                                                                name='unknown',
+                                                                message_id=quote_id)
+
         for m in message_chain[1:]:
             if isinstance(m, Image):
                 # message not empty or contained a image, append to list
@@ -691,6 +693,8 @@ class MiraiDriver(BaseDriverMixin):
                     unified_message.message += '\u2753'  # ❓
             elif isinstance(m, Source):
                 pass
+            elif isinstance(m, Quote):
+                pass
             else:
                 self.logger.debug(f'Unhandled message type: {str(m)}')
 
@@ -702,10 +706,14 @@ class MiraiDriver(BaseDriverMixin):
                               chat_id: int,
                               chat_type: ChatType,
                               username: str,
-                              user_id: int,
-                              message_id: int,
-                              reply_to_message_id: int = 0
-                              ):
+                              user_id: int):
+
+        sequence_id = message_chain.get_source().id
+        message_id = sequence_id >> 32
+        if chat_type == ChatType.GROUP:
+            self.group_message_ids[(chat_id, message_id)] = sequence_id
+        else:
+            self.friend_message_ids[(chat_id, message_id)] = sequence_id
 
         set_ingress_message_id(src_platform=self.name,
                                src_chat_id=chat_id,
@@ -718,11 +726,12 @@ class MiraiDriver(BaseDriverMixin):
                                                         chat_type=chat_type,
                                                         username=username,
                                                         user_id=user_id,
-                                                        message_id=message_id,
-                                                        reply_to_message_id=reply_to_message_id)
-
-        for message in unified_message_list:
-            await self.receive(message)
+                                                        message_id=message_id)
+        try:
+            for message in unified_message_list:
+                await self.receive(message)
+        except Exception as e:
+            self.logger.exception('unhandled exception:', exc_info=e)
 
     def start(self):
         def run():
@@ -791,19 +800,26 @@ class MiraiDriver(BaseDriverMixin):
                              'your account might be suspected of being compromised by Tencent')
 
         if chat_type == ChatType.PRIVATE:
+            quote = self.friend_message_ids.get((to_chat, message.send_action.message_id))
             egress_message = await self.bot.send_friend_message(
                 to_chat,
                 messages,
-                message.send_action.message_id or None
+                quote
             )
         else:
+            quote = self.group_message_ids.get((to_chat, message.send_action.message_id))
             egress_message = await self.bot.send_group_message(
                 to_chat,
                 messages,
-                message.send_action.message_id or None
+                quote
             )
 
-        message_id = egress_message.messageId
+        real_message_id = egress_message.messageId
+        message_id = real_message_id >> 32
+        if chat_type == ChatType.GROUP:
+            self.group_message_ids[(to_chat, message_id)] = real_message_id
+        else:
+            self.friend_message_ids[(to_chat, message_id)] = real_message_id
 
         if message.chat_attrs:
             set_egress_message_id(src_platform=message.chat_attrs.platform,
