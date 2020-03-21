@@ -22,9 +22,17 @@ After this part is done, more stuffs are ready:
 - HTTPS Private Key (example.com.key)
 - HTTPS Public Key  (example.com.cer)
 
+## Install extension
+
+```bash
+pip install umr-line-driver
+```
+
 ## Config under Driver section
 
 ```yaml
+Extensions:
+  - umr_line_driver
 Driver:
   Line:  # this name can be change, and the forward list should be using this name
     Base: Line  # do not change this

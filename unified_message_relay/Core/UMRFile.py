@@ -224,6 +224,3 @@ def empty_cache_dir():
     file_list = [f for f in os.listdir(download_dir)]
     for f in file_list:
         os.remove(os.path.join(download_dir, f))
-
-
-empty_cache_dir()

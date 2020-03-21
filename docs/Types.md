@@ -1,3 +1,3 @@
 # Types
 
-See [`src/core/UMRType.py`](/src/Core/UMRType.py) for complete inline documentation.
+See [`src/core/UMRType.py`](//Core/UMRType.py) for complete inline documentation.

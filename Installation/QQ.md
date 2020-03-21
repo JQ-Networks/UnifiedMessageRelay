@@ -40,10 +40,18 @@ post_message_format=array
 
 Log in into `http://YOUR_SERVE_IP:9000`, and use the default vnc password `MAX8char` or your own password. You need to
  activate Coolq Pro and log in your QQ Account manually.
- 
+
+## Install extension
+
+```bash
+pip install umr-coolq-driver
+```
+
 ## Config under Driver section
 
 ```yaml
+Extensions:
+  - umr_coolq_driver
 Driver:
   QQ:  # this name can be change, and the forward list should be using this name
     Base: QQ  # base driver name

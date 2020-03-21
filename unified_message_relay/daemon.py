@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import argparse
-from Lib.DaemonClass import Daemon
+from .Lib.DaemonClass import Daemon
 
 
 class MainProcess(Daemon):
     def run(self, debug_mode):
-        from Core.UMRManager import UMRManager
+        from .Core.UMRManager import UMRManager
         UMRManager.run()
 
 

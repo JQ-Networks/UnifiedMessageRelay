@@ -6,7 +6,7 @@ from .UMRType import UnifiedMessage, Command, ChatAttribute, MessageEntity, Chat
 from .UMRMessageHook import register_hook
 from .UMRDriver import api_call
 from .UMRAdmin import is_bot_admin, is_group_admin, is_group_owner
-from Util.Helper import unparse_entities_to_markdown
+from ..Util.Helper import unparse_entities_to_markdown
 
 logger = UMRLogging.get_logger('Command')
 

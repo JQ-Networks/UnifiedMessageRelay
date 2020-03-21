@@ -30,6 +30,13 @@ ForwardList:
       # Forward from "FromChat" to "ToChat"
       # OneWay+:
       # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
+Extensions:
+  - umr_telegram_driver
+  - umr_line_driver
+  - umr_discord_driver
+  - umr_coolq_driver
+  - umr_mirai_driver
+  - umr_extensions_demo
 Driver:
   QQ:
     Base: QQ

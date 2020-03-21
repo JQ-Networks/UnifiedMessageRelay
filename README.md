@@ -52,7 +52,7 @@ Limited support for Coolq Air. image sending is available for Coolq Pro.
 
 Make sure Python 3.7+ and `pip` are installed. Run:
 
-`pip3 install -r requirements.txt`
+`pip3 install unified-message-relay`
 
 ### Install other required package on host os
 
@@ -105,6 +105,8 @@ ForwardList:
       # Forward from "FromChat" to "ToChat"
       # OneWay+:
       # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
+Extensions:
+  [See full example or guide for each platform, make sure to install all the extensions before run]
 Driver:
   [See each platform guide below for this section]
 DataRoot: /root/coolq/data/image  # Make sure this directory exists. If you are using QQ, make sure this is pointing to coolq image directory.
@@ -138,7 +140,7 @@ The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver shoul
 ### Viewing CLI Help
 
 ```shell
-python3 daemon.py -h
+unified-message-relay -h
 ```
 
 ### Background process
@@ -146,13 +148,13 @@ python3 daemon.py -h
 - Start background service
 
 ```shell
-python3 daemon.py start
+unified-message-relay start
 ```
 
 or
 
 ```shell
-python3 daemon.py restart
+unified-message-relay restart
 ```
 
 By default, log will be stored in `/var/log/umr/bot.log`, and cache will be cleared out upon start.
@@ -160,7 +162,7 @@ By default, log will be stored in `/var/log/umr/bot.log`, and cache will be clea
 - Stop the background service
 
 ```shell
-python3 daemon.py stop
+unified-message-relay stop
 ```
 
 ### Foreground process (for debugging purpose)
@@ -170,12 +172,20 @@ If you need to see the log output for debugging purpose, stop the running daemon
 Remember to enable debug option in config.
 
 ```shell
-python3 daemon.py run
+unified-message-relay run
 ```
 
 Hit Ctrl + C to stop.
 
 ## Commands
+
+Commands now require extension `umr-extensions-demo`:
+
+```bash
+pip install umr-extensions-demo
+```
+
+and put `- umr_extensions_demo` under `Extensions` section of `config.yaml`.
 
 ### View Commands
 

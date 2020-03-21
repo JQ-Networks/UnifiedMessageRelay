@@ -8,7 +8,7 @@ from . import UMRDriver
 from .UMRConfig import config
 from .UMRMessageRelation import get_message_id
 from .UMRMessageHook import message_hook_src, message_hook_full
-from Util.Helper import check_attribute
+from ..Util.Helper import check_attribute
 from .UMRFile import get_image
 
 

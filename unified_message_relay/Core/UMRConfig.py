@@ -2,7 +2,7 @@ import pathlib
 import yaml
 from typing import Dict, List
 from . import UMRLogging
-from Util.Helper import check_attribute
+from ..Util.Helper import check_attribute
 # load config from home directory
 
 logger = UMRLogging.get_logger('Config')

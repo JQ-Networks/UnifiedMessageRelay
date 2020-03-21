@@ -103,13 +103,10 @@ bot.log
 bot.log*
 nohup.out
 special_sticker_list.py
-src/nouse.py
+unified_message_relay/nouse.py
 
 .DS_Store
 .idea
 .vscode
 
-# ignore config file
-Obsoleted/bot_constant.py
-bot_constant.json
-src/Future
+submodules

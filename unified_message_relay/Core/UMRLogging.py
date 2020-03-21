@@ -46,7 +46,7 @@ try:
         ('LogRoot', True, '/var/log/umr'),
         ('Debug', True, True)           # verbose output
     ]
-    from Util.Helper import check_attribute
+    from ..Util.Helper import check_attribute
 
     check_attribute(config, attributes, logger)
     debug = config.get('Debug')

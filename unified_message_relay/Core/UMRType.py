@@ -116,7 +116,7 @@ class UnifiedMessage:
     chat_attrs: ChatAttribute
     message: str  # pure text message
     message_entities: List[MessageEntity]
-    image: str  # path of the image
+    image: str  # path of the image or download url
     file_id: str  # unique file identifier
     send_action: SendAction
 

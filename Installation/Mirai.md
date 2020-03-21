@@ -18,9 +18,17 @@ APIKey: abcdefgh
 port: 18080
 ```
 
+## Install extension
+
+```bash
+pip install umr-mirai-driver
+```
+
 ## Config under Driver section
 
 ```yaml
+Extensions:
+  - umr_mirai_driver
 Driver:
   Mirai:
     Base: Mirai

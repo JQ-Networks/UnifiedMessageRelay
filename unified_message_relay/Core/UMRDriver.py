@@ -6,6 +6,7 @@ from . import UMRConfig
 from asyncio import iscoroutinefunction
 from . import UMRDispatcher
 import asyncio
+import importlib
 
 logger = UMRLogging.get_logger('Driver')
 
@@ -124,8 +125,6 @@ async def init_drivers():
     this function should be called by UMRManager
     :return:
     """
-    import Driver
-
     config = UMRConfig.config.get('Driver')
 
     for driver_name, driver_config in config.items():

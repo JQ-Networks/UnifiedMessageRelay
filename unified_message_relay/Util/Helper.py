@@ -1,8 +1,8 @@
 from typing import List, Union, Dict, Callable, Any, Tuple
 import logging
 from janus import Queue
-from Core.UMRType import UnifiedMessage, EntityType, MessageEntity
-from Core.UMRLogging import get_logger
+from ..Core.UMRType import UnifiedMessage, EntityType, MessageEntity
+from ..Core.UMRLogging import get_logger
 from functools import partial
 
 logger = get_logger('Util.Helper')
