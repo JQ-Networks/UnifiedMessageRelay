@@ -15,6 +15,7 @@ setup(
     version=__version__,
     description='Group Message Forward Framework (supports QQ Telegram Line Discord)',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Curtis Jiang',
     url='https://github.com/jqqqqqqqqqq/UnifiedMessageRelay',
     license='MIT',
