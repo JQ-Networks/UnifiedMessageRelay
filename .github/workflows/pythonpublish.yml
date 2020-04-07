@@ -24,7 +24,6 @@ jobs:
 
     - name: Build Wheel
       run: |
-        rm -rf dist build kuriyama-core.egg-info
         python3 setup.py build sdist
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@master

@@ -131,8 +131,8 @@ async def command(chat_attrs: ChatAttribute, args: List):
             MessageEntity(start=len(message),
                           end=len(message) + len(cmd_text),
                           entity_type=EntityType.BOLD))
-        message_entities += cmd_text
-        message_entities += cmd_obj.description
+        message += cmd_text
+        message += cmd_obj.description
 
     await quick_reply(chat_attrs, message, message_entities)
 

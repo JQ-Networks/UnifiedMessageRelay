@@ -172,6 +172,7 @@ class ForwardActionType(Enum):
     """
     ForwardAll = 1  # message can go to the other side
     ReplyOnly = 2   # message that replies to forwarded message can go to the other side
+    Block = 3       # message that cannot go to the other side (one way)
 
 
 class DefaultForwardActionType(Enum):
