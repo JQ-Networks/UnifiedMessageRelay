@@ -7,11 +7,11 @@ from . import UMRLogging
 import os
 from uuid import uuid4
 import filetype
-from tgs.parsers.tgs import parse_tgs
+from lottie.parsers.tgs import parse_tgs
 import ffmpy
 from wand.image import Image as WandImage
-from tgs.exporters.cairo import export_png
-from tgs.exporters.gif import _png_gif_prepare
+from lottie.exporters.cairo import export_png
+from lottie.exporters.gif import _png_gif_prepare
 
 download_dir = UMRConfig.config['DataRoot']
 

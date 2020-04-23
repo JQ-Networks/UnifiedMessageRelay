@@ -2,7 +2,7 @@ aiogram
 discord
 httpx
 aiocqhttp
-tgs
+lottie
 imageio
 janus
 filetype

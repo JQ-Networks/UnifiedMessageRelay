@@ -35,7 +35,7 @@ setup(
         "Typing :: Typed"
     ],
     install_requires=[
-        'tgs',
+        'lottie',
         'imageio',
         'janus',
         'filetype',
