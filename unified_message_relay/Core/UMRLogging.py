@@ -15,6 +15,7 @@ __fmt = '[%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n'
 __root_logger: logging.Logger = logging.getLogger('UMR')
 coloredlogs.install(fmt=__fmt, level='DEBUG')
 logging.getLogger('httpx').setLevel(logging.INFO)
+logging.getLogger('aiogram').setLevel(logging.INFO)
 
 # coloredlogs.install(fmt=__fmt, level='DEBUG', logger=__root_logger)
 # coloredlogs.install(fmt=__fmt, level='DEBUG', logger=logging.getLogger('Mirai-core'))
@@ -70,7 +71,8 @@ try:
     __standard_formatter = logging.Formatter(
         '[%(asctime)s][%(name)s][%(levelname)s] (%(filename)s:%(lineno)d):\n%(message)s\n')
     __rotate_handler.setFormatter(__standard_formatter)
-    __root_logger.addHandler(__rotate_handler)
+    # __root_logger.addHandler(__rotate_handler)
+    logging.getLogger().addHandler(__rotate_handler)
 
 except FileNotFoundError:
     logger.error(f'config.yaml not found under "{home}/.umr/"!')
