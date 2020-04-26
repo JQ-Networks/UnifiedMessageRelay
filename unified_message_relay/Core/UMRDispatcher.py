@@ -1,15 +1,14 @@
 from typing import Union, List, DefaultDict, Tuple, Any, Union, Dict
 import asyncio
 from collections import defaultdict
-from janus import Queue
 from .UMRType import UnifiedMessage, ForwardAction, ForwardActionType, DefaultForwardAction,\
-    DefaultForwardActionType, SendAction, ChatType, GroupID, DestinationMessageID
+    DefaultForwardActionType, SendAction, ChatType, GroupID,\
+    DestinationMessageID, ForwardTypeEnum, DefaultForwardTypeEnum
 from . import UMRLogging
 from . import UMRDriver
 from .UMRConfig import config
 from .UMRMessageRelation import get_message_id
 from .UMRMessageHook import dispatch_hook
-from ..Util.Helper import check_attribute
 from .UMRFile import get_image
 
 """
@@ -36,16 +35,8 @@ class UMRDispatcher:
     def __init__(self):
         self.logger = UMRLogging.get_logger('Dispatcher')
 
-        # check basic config
-        attributes = [
-            ('Accounts', True, defaultdict(lambda: 0)),
-            ('Topology', True, list()),
-            ('Default', True, list())
-        ]
-
-        check_attribute(config['ForwardList'], attributes, self.logger)
         # bot accounts for each platform
-        self.bot_accounts = config['ForwardList']['Accounts']
+        self.bot_accounts = config.ForwardList.Accounts
 
         # forward graph
 
@@ -54,33 +45,8 @@ class UMRDispatcher:
         self.default_action_graph: DefaultDict[str, Dict[GroupID, DefaultForwardAction]] = defaultdict(
             lambda: dict())  # default action graph
 
-        attributes = [
-            ('From', False, None),
-            ('FromChat', False, None),
-            ('FromChatType', False, None),
-            ('To', False, None),
-            ('ToChat', False, None),
-            ('ToChatType', False, None),
-            ('ForwardType', True, 'BiDirection')
-        ]
-
-        default_attributes = [
-            ('From', False, None),
-            ('To', False, None),
-            ('ToChat', False, None),
-            ('ToChatType', False, None),
-            ('ForwardType', True, 'OneWay+')
-        ]
-
-        self.chat_type_map = {
-            'group':   ChatType.GROUP,
-            'discuss': ChatType.DISCUSS,
-            'private': ChatType.PRIVATE
-        }
-
         # initialize action_graph
-        for i in config['ForwardList']['Topology']:
-            check_attribute(i, attributes, self.logger)
+        for i in config.ForwardList.Topology:
 
             # Add action
             # BiDirection = two ALL
@@ -91,37 +57,36 @@ class UMRDispatcher:
             # ForwardType.Reply: From one platform to another, forward only replied message
 
             # init forward graph and workers
-            if i['ForwardType'] == 'BiDirection':
+            if i.ForwardType == ForwardTypeEnum.BiDirection:
                 forward_action_type = ForwardActionType.ForwardAll
                 backward_action_type = ForwardActionType.ForwardAll
-            elif i['ForwardType'] == 'OneWay+':
+            elif i.ForwardType == ForwardTypeEnum.OneWayPlus:
                 forward_action_type = ForwardActionType.ForwardAll
                 backward_action_type = ForwardActionType.ReplyOnly
-            elif i['ForwardType'] == 'OneWay':
+            elif i.ForwardType == ForwardTypeEnum.OneWay:
                 forward_action_type = ForwardActionType.ForwardAll
                 backward_action_type = ForwardActionType.Block
             else:
-                self.logger.warning(f'Unrecognized ForwardType in config: "{i["ForwardType"]}", ignoring')
+                self.logger.warning(f'Unrecognized ForwardType in config: "{i.ForwardType}", ignoring')
                 continue
-            self.action_graph[GroupID(platform=i['From'],
-                                      chat_id=i['FromChat'],
-                                      chat_type=self.chat_type_map[i['FromChatType']])].append(
-                ForwardAction(to_platform=i['To'],
-                              to_chat=i['ToChat'],
-                              chat_type=self.chat_type_map[i['ToChatType']],
+            self.action_graph[GroupID(platform=i.From,
+                                      chat_id=i.FromChat,
+                                      chat_type=i.FromChatType)].append(
+                ForwardAction(to_platform=i.To,
+                              to_chat=i.ToChat,
+                              chat_type=i.ToChatType,
                               action_type=forward_action_type))
             self.action_graph[
-                GroupID(platform=i['To'],
-                        chat_id=i['ToChat'],
-                        chat_type=self.chat_type_map[i['ToChatType']])].append(
-                ForwardAction(to_platform=i['From'],
-                              to_chat=i['FromChat'],
-                              chat_type=self.chat_type_map[i['FromChatType']],
+                GroupID(platform=i.To,
+                        chat_id=i.ToChat,
+                        chat_type=i.ToChatType)].append(
+                ForwardAction(to_platform=i.From,
+                              to_chat=i.FromChat,
+                              chat_type=i.FromChatType,
                               action_type=backward_action_type))
 
         # initialize default_action_graph
-        for i in config['ForwardList']['Default']:
-            check_attribute(i, default_attributes, self.logger)
+        for i in config.ForwardList.Default:
 
             # Add action
             # OneWay      = one All
@@ -130,23 +95,31 @@ class UMRDispatcher:
             # ForwardType.All: From one platform to another, forward all message, accept reply backward
             # ForwardType.Reply: From one platform to another, forward all message, reject reply backward
 
-            if i['ForwardType'] == 'OneWay+':
+            if i.ForwardType == DefaultForwardTypeEnum.OneWayPlus:
                 action_type = DefaultForwardActionType.OneWayWithReply
-            elif i['ForwardType'] == 'OneWay':
+            elif i.ForwardType == DefaultForwardTypeEnum.OneWay:
                 action_type = DefaultForwardActionType.OneWay
             else:
-                self.logger.warning(f'Unrecognized ForwardType in config: "{i["ForwardType"]}", ignoring')
+                self.logger.warning(f'Unrecognized ForwardType in config: "{i.ForwardType}", ignoring')
                 continue
-            self.default_action_graph[i['From']][
-                GroupID(platform=i['To'],
-                        chat_id=i['ToChat'],
-                        chat_type=self.chat_type_map[i['ToChatType']])] = \
-                DefaultForwardAction(to_platform=i['To'],
-                                     to_chat=i['ToChat'],
-                                     chat_type=self.chat_type_map[i['ToChatType']],
+            self.default_action_graph[i.From][
+                GroupID(platform=i.To,
+                        chat_id=i.ToChat,
+                        chat_type=i.ToChatType)] = \
+                DefaultForwardAction(to_platform=i.To,
+                                     to_chat=i.ToChat,
+                                     chat_type=i.ToChatType,
                                      action_type=action_type)
 
     async def send(self, message: UnifiedMessage, platform: str, chat_id: Union[int, str], chat_type: ChatType):
+        """
+        Internal function: dispatch message to destination driver
+
+        :param message: UnifiedMessage
+        :param platform: dst platform
+        :param chat_id: dst chat id
+        :param chat_type: dst type
+        """
         if await dispatch_hook(message,
                                dst_driver=platform,
                                dst_chat=chat_id,
@@ -294,6 +267,11 @@ dispatcher: UMRDispatcher
 
 
 async def dispatch(message: UnifiedMessage):
+    """
+    Shadow function for dispatch's real dispatch signature
+    :param message:
+    :return:
+    """
     if not dispatcher:
         pass
 

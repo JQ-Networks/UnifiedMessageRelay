@@ -4,33 +4,43 @@ from typing import List, Callable, FrozenSet, Union
 from enum import Enum, auto, Flag
 
 
-class ChatType(Enum):
+class LogLevel(str, Enum):
+    ERROR = 'ERROR'
+    WARNING = 'WARNING'
+    INFO = 'INFO'
+    DEBUG = 'DEBUG'
+
+
+class ChatType(str, Enum):
     """
     Command filter option
     """
-    UNSPECIFIED = 0
-    PRIVATE = 1
-    DISCUSS = 2
-    GROUP = 3
-
-    def __str__(self):
-        return {
-            0: 'unspecified',
-            1: 'private',
-            2: 'discuss',
-            3: 'group'
-        }[self.value]
+    UNSPECIFIED = 'unspecified'
+    PRIVATE = 'private'
+    DISCUSS = 'discuss'
+    GROUP = 'group'
 
 
-class Privilege(Enum):
+class ForwardTypeEnum(str, Enum):
+    OneWay = 'OneWay'
+    OneWayPlus = 'OneWay+'
+    BiDirection = 'BiDirection'
+
+
+class DefaultForwardTypeEnum(str, Enum):
+    OneWay = 'OneWay'
+    OneWayPlus = 'OneWay+'
+
+
+class Privilege(str, Enum):
     """
     Command filter option
     The privilege of lower number always contain the privilege of the higher number
     """
-    UNSPECIFIED = 0  # private chat
-    GROUP_ADMIN = 1  # only available in group
-    GROUP_OWNER = 2  # only available in group
-    BOT_ADMIN = 3
+    UNSPECIFIED = 'unspecified'  # permit all, available everywhere
+    GROUP_ADMIN = 'group_admin'  # only available in group
+    GROUP_OWNER = 'group_owner'  # only available in group
+    BOT_ADMIN = 'bot_admin'      # only bot admin, available everywhere
 
 
 class ChatAttribute:
@@ -114,20 +124,20 @@ class UnifiedMessage:
     ]
     """
     chat_attrs: ChatAttribute
-    message: str  # pure text message
-    message_entities: List[MessageEntity]
+    text: str  # pure text message
+    text_entities: List[MessageEntity]
     image: str  # path of the image or download url
     file_id: str  # unique file identifier
     send_action: SendAction
 
-    def __init__(self, message: str = '', message_entities=None, image='', file_id='', platform='', chat_id=0, chat_type=ChatType.UNSPECIFIED,
+    def __init__(self, text: str = '', message_entities=None, image='', file_id='', platform='', chat_id=0, chat_type=ChatType.UNSPECIFIED,
                  name='', user_id=0, message_id: int = 0):
         self.send_action = SendAction(0, 0)
-        self.message = message
+        self.text = text
         if message_entities:
-            self.message_entities = message_entities
+            self.text_entities = message_entities
         else:
-            self.message_entities = list()
+            self.text_entities = list()
         self.image = image
         self.file_id = file_id
         self.chat_attrs = ChatAttribute(platform=platform,

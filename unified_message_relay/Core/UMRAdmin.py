@@ -4,9 +4,9 @@ from . import UMRLogging
 from .UMRDriver import api_call
 from .UMRType import ChatType
 
-logger = UMRLogging.get_logger('Admin')
+# Stateless
 
-bot_admin: Dict[str, List[int]] = UMRConfig.config['BotAdmin']
+logger = UMRLogging.get_logger('Admin')
 
 
 async def is_bot_admin(platform: str, user_id: int) -> bool:
@@ -16,9 +16,9 @@ async def is_bot_admin(platform: str, user_id: int) -> bool:
     :param user_id:
     :return:
     """
-    if platform not in bot_admin:
+    if platform not in UMRConfig.config.BotAdmin:
         return False
-    return user_id in bot_admin[platform]
+    return user_id in UMRConfig.config.BotAdmin[platform]
 
 
 async def is_group_owner(platform: str, chat_id: int, chat_type: ChatType, user_id: int):

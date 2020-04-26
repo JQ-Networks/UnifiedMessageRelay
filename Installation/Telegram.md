@@ -22,4 +22,5 @@ Driver:
   Telegram:  # this name can be change, and the forward list should be using this name
     Base: Telegram  # this is the base driver name, do not change
     BotToken: asdasdsadsadsadsad  # your bot token
+    HTTPProxy: http://127.0.0.1:1080
 ```

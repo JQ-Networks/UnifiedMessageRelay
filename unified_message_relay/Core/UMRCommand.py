@@ -11,7 +11,7 @@ from ..Util.Helper import unparse_entities_to_markdown
 logger = UMRLogging.get_logger('Command')
 
 command_map: Dict[str, Command] = dict()
-command_start: str = UMRConfig.config['CommandPrefix']
+command_prefix: str = UMRConfig.config.CommandPrefix
 
 
 async def unauthorized(chat_attrs: ChatAttribute, required_privilege: Privilege):
@@ -28,21 +28,21 @@ async def unauthorized(chat_attrs: ChatAttribute, required_privilege: Privilege)
 @register_hook()
 async def command_dispatcher(message: UnifiedMessage):
     # filter command
-    if len(message.message) == 0:  # command must have some texts
+    if len(message.text) == 0:  # command must have some texts
         return False
 
     msg = unparse_entities_to_markdown(message, EntityType.PLAIN)
 
-    if not msg.startswith(command_start):  # command must start with command_start
+    if not msg.startswith(command_prefix):  # command must start with command_start
         return False
 
     cmd, *args = msg.split(' ')
-    cmd = cmd[len(command_start):]
+    cmd = cmd[len(command_prefix):]
     logger.debug(f'dispatching command: "{cmd}" with args: "{" ".join(args)}"')
     if cmd in command_map:
         # check if platform matches
         if command_map[cmd].platform:
-            base_platform = UMRConfig.config['Driver'][message.chat_attrs.platform]['Base']
+            base_platform = UMRConfig.config.Driver[message.chat_attrs.platform].Base
             if base_platform not in command_map[cmd].platform:
                 return False
 
@@ -147,8 +147,8 @@ async def quick_reply(chat_attrs: ChatAttribute, text: str, message_entities: Li
     """
 
     message = UnifiedMessage()
-    message.message = text
-    message.message_entities = message_entities
+    message.text = text
+    message.text_entities = message_entities
     message.send_action = SendAction(message_id=chat_attrs.message_id, user_id=chat_attrs.user_id)
 
     await api_call(chat_attrs.platform, 'send', chat_attrs.chat_id, chat_attrs.chat_type, message)

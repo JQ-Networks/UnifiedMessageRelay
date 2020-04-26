@@ -1,4 +1,4 @@
-from typing import  Dict, List, Union, Any
+from typing import Dict, List, Union, Any
 from threading import Thread
 from .UMRType import UnifiedMessage, ChatType
 from . import UMRLogging
@@ -13,7 +13,12 @@ logger = UMRLogging.get_logger('Driver')
 
 # region Driver API lookup table
 class BaseDriverMixin:
-    async def pre_init(self):
+    def __init__(self, name):
+        """
+        Create driver instance
+
+        :param name: the name in ForwardList
+        """
         pass
 
     async def post_init(self):
@@ -125,14 +130,13 @@ async def init_drivers():
     this function should be called by UMRManager
     :return:
     """
-    config = UMRConfig.config.get('Driver')
+    config = UMRConfig.config.Driver
 
     for driver_name, driver_config in config.items():
-        if driver_config['Base'] not in driver_class_lookup_table:
-            logger.error(f'Base driver "{driver_config["Base"]}" not found')
+        if driver_config.Base not in driver_class_lookup_table:
+            logger.error(f'Base driver "{driver_config.Base}" not found')
             exit(-1)
-        driver: BaseDriverMixin = driver_class_lookup_table[driver_config['Base']](driver_name)
-        await driver.pre_init()
+        driver: BaseDriverMixin = driver_class_lookup_table[driver_config.Base](driver_name)
         driver.start()
         driver_lookup_table[driver_name] = driver
 

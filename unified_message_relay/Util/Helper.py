@@ -8,25 +8,6 @@ from functools import partial
 logger = get_logger('Util.Helper')
 
 
-# test attributes in config.yaml
-def check_attribute(config: Dict, attributes: List[Tuple[str, bool, Any]], logger: logging.Logger):
-    """
-    Test if attributes exist in config
-    :param config: config file
-    :param attributes: Tuple of [attribute, optional, optional value]
-    :param logger: log to this logger
-    :return:
-    """
-    for attr in attributes:
-        attribute, optional, optional_value = attr
-        if attribute not in config:
-            if not optional:
-                logger.error(f'{attr} not found in config.yaml')
-                exit(-1)
-            else:
-                config[attribute] = optional_value
-
-
 # async put new task to janus queue
 async def janus_queue_put_async(_janus_queue: Queue, func: Callable, *args, **kwargs):
     await _janus_queue.async_q.put((func, args, kwargs))
@@ -124,24 +105,24 @@ def unparse_entities(message: UnifiedMessage, support_entities: EntityType, to_t
         }
         escape_function = escape_markdown
     
-    if not message.message_entities:
-        return escape_function(message.message)
+    if not message.text_entities:
+        return escape_function(message.text)
 
     stack: List[MessageEntity] = list()
     result = ''
     offset = 0
-    for entity in message.message_entities:
+    for entity in message.text_entities:
         while stack and entity.start > stack[-1].end:
             _entity = stack[-1]
             if offset < _entity.end:
-                result += escape_function(message.message[offset:_entity.end])
+                result += escape_function(message.text[offset:_entity.end])
             if support_entities & _entity.entity_type:
                 result += entity_end[_entity.entity_type]
             offset = _entity.end
             stack.pop()
 
         if entity.start > offset:
-            result += escape_function(message.message[offset:entity.start])
+            result += escape_function(message.text[offset:entity.start])
             offset = entity.start
         
         if entity.entity_type == EntityType.LINK:
@@ -157,14 +138,14 @@ def unparse_entities(message: UnifiedMessage, support_entities: EntityType, to_t
     while stack:
         _entity = stack[-1]
         if offset < _entity.end:
-            result += escape_function(message.message[offset:_entity.end])
+            result += escape_function(message.text[offset:_entity.end])
         if support_entities & _entity.entity_type:
             result += entity_end[_entity.entity_type]
         offset = _entity.end
         stack.pop()
 
-    if offset < len(message.message):
-        result += escape_function(message.message[offset:])
+    if offset < len(message.text):
+        result += escape_function(message.text[offset:])
 
     return result
 

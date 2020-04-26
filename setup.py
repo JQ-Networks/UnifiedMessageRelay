@@ -44,7 +44,8 @@ setup(
         'coloredlogs',
         'ffmpy',
         'Wand',
-        'pyyaml'
+        'pyyaml',
+        'pydantic'
     ],
     entry_points={
         "console_scripts": [

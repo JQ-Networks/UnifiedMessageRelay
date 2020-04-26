@@ -13,7 +13,7 @@ from wand.image import Image as WandImage
 from lottie.exporters.cairo import export_png
 from lottie.exporters.gif import _png_gif_prepare
 
-download_dir = UMRConfig.config['DataRoot']
+download_dir = UMRConfig.config.DataRoot
 
 cache: Dict[str, str] = dict()  # Dict[url, file_name]
 
