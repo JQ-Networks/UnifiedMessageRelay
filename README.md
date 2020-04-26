@@ -34,6 +34,10 @@ All four platforms: QQ, Telegram, Line and Discord can forward between each othe
 - Line API based on [linebotx](https://github.com/Shivelight/line-bot-sdk-python-extra) [linebot](https://github.com/line/line-bot-sdk-python)
 - Discord API based on [Discord.py](https://github.com/Rapptz/discord.py)
 
+## Update
+
+[ChangeLog.md](ChangeLog.md)
+
 ## Features
 
 - Forward text and image between all supported platforms
@@ -54,6 +58,12 @@ Make sure Python 3.7+ and `pip` are installed. Run:
 
 `pip3 install unified-message-relay`
 
+### TLDR
+
+To install every python module in one line:
+
+`pip3 install -U umr_telegram_driver umr_line_driver umr_discord_driver umr_coolq_driver umr_mirai_driver umr_extensions_demo`
+
 ### Install other required package on host os
 
 `apt install libcairo2 ffmpeg libmagickwand-dev`
@@ -71,55 +81,6 @@ Copy config.yaml to `~/.umr`
 [Why yaml instead of json?](https://www.quora.com/What-situation-would-you-use-YAML-instead-of-JSON-or-XML)
 
 [Full Example config](config.yaml)
-
-```yaml
-ForwardList:
-  Accounts:
-    QQ: 12213312  # your QQ bot account number
-    Telegram: 12321312  # your telegram bot chat id
-  Topology:  # keep this key even if no topology exists
-    # Topology contains all the point to point forward:
-    # E.g. From one QQ group to one telegram group, type = OneWay+
-    - From: QQ
-      FromChat: 1123131231
-      FromChatType: group  # group, discuss, private
-      To: Telegram
-      ToChat: -31231212344  # telegram chat id, use !!id to show
-      ToChatType: group
-      ForwardType: OneWay+
-      # OneWay:
-      # Forward from "FromChat" to "ToChat"
-      # BiDirection:
-      # Forward from "FromChat" to "ToChat" and vise versa
-      # OneWay+:
-      # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
-  Default:  # keep this key even if no default route exists
-    # Default contains all the platform to point forward:
-    # E.g. Any message originated from QQ to one telegram group, type = OneWay+
-    - From: QQ
-      To: Telegram
-      ToChat: 123244234234
-      ToChatType: group
-      ForwardType: OneWay+
-      # OneWay:
-      # Forward from "FromChat" to "ToChat"
-      # OneWay+:
-      # Forward from "FromChat" to "ToChat", and vise versa, ignoring backward message without "reply_to"
-Extensions:
-  [See full example or guide for each platform, make sure to install all the extensions before run]
-Driver:
-  [See each platform guide below for this section]
-DataRoot: /root/coolq/data/image  # Make sure this directory exists. If you are using QQ, make sure this is pointing to coolq image directory.
-CommandPrefix: "!!"   # default value is "!!"
-BotAdmin:
-  QQ:
-    - 123456789  # qq number
-    - 987654321
-  Telegram:
-    - 213442352354534534  # telegram chat id
-    - 345235345345345345
-Debug: yes  # verbose output
-```
 
 The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver should be configure throgh "Driver" list.
 
@@ -177,9 +138,9 @@ unified-message-relay run
 
 Hit Ctrl + C to stop.
 
-## Commands
+## Extensions and Commands
 
-Commands now require extension `umr-extensions-demo`:
+Example extensions and commands now require extension `umr-extensions-demo`:
 
 ```bash
 pip install umr-extensions-demo
@@ -187,44 +148,62 @@ pip install umr-extensions-demo
 
 and put `- umr_extensions_demo` under `Extensions` section of `config.yaml`.
 
-### View Commands
+### Available commands
+#### Help
 
 Send `!!help` to show available commands.
 
-### Show chat id
+This command requires no extra module. 
+
+#### Show chat id
 
 Send `!!id` anywhere to see chat id.
 
 Reply message with `!!id` to reveal source chat id.
 
-### Delete QQ Message
+This command requires `cmd_id.py` under umr_extension_demo. 
+
+#### Delete QQ Message
 
 Reply to the message you want to delete with `!!del`
 
-### add telegram blocked keyword
+This command requires `QQ_recall.py` under umr_extension_demo and using coolq driver. 
+Mirai recall is not supported at this time. 
+
+#### Add telegram blocked keyword
 
 Message containing these keyword will not be forwarded to any other chat
 
 Send `!!bk` and keywords separated by space
 
-### add telegram blocked channel
+This command requires `Telegram_watermeter.py` under umr_extension_demo and using telegram driver.
+
+#### Add telegram blocked channel
 
 Message originated from these channel will not be forwarded to any other chat
 
 Reply forwarded channel message with `!!bc`
 
+This command requires `Telegram_watermeter.py` under umr_extension_demo and using telegram driver.
+
+To modify saved keywords and channels, edit `ExtensionConfig` section in `config.yaml`.
+
+### Available Extensions
+
+#### Comment filter
+
+Add `//` at the beginning of the message to avoid forwarding to any other chat.
+
 # Issue Format
 
 ## Check these before opening an issue
 
-1. Check if you are using Python 3.7+
-2. Check if requirements.txt is installed correctly
+1. Use `unified-message-relay run` to print log to stdout
+2. Check if you are using Python 3.7+
 3. Check if binary dependencies are installed (search apt in this page)
 4. (If using Coolq) Check if cq-http-api is enabled in Coolq
 5. Check if the log suggests any missing configuration
-6. Check if you are on Dev branch, please switch back to master
-7. For GIF sent from telegram not received by other platform, you may want to install [Filetype.py](https://github.com/h2non/filetype.py) from github
-manually, because PyPI is not up to date. e.g. `pip install git+https://github.com/h2non/filetype.py`
+6. Check if you are on Dev branch, please switch back to master (dev may be unstable)
 
 ## Issues must provide
 
