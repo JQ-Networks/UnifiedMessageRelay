@@ -16,6 +16,7 @@ Edit `setting.yml` to match your config in UMR. There are only two values for no
 ```yaml
 APIKey: abcdefgh
 port: 18080
+enableWebsocket: true
 ```
 
 ## Install extension

@@ -101,7 +101,7 @@ The "QQ", "Telegram" or "Line" above are all custom names. Real bot driver shoul
 ### Viewing CLI Help
 
 ```shell
-unified-message-relay -h
+unified_message_relay -h
 ```
 
 ### Background process
@@ -109,7 +109,7 @@ unified-message-relay -h
 - Start background service
 
 ```shell
-unified-message-relay start
+unified_message_relay start
 ```
 
 or
@@ -123,7 +123,7 @@ By default, log will be stored in `/var/log/umr/bot.log`, and cache will be clea
 - Stop the background service
 
 ```shell
-unified-message-relay stop
+unified_message_relay stop
 ```
 
 ### Foreground process (for debugging purpose)
@@ -133,7 +133,7 @@ If you need to see the log output for debugging purpose, stop the running daemon
 Remember to enable debug option in config.
 
 ```shell
-unified-message-relay run
+unified_message_relay run
 ```
 
 Hit Ctrl + C to stop.
